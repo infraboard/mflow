@@ -64,7 +64,7 @@ func (req *CreatePipelineRequest) BuildNumber() {
 	}
 }
 
-// 注入编号
+// 检查阶段名称重复问题
 func (req *CreatePipelineRequest) CheckStageDuplicate() error {
 	m := map[string]int64{}
 	for i := range req.Stages {

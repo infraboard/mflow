@@ -4,16 +4,15 @@ go 1.20
 
 require (
 	github.com/BurntSushi/toml v1.3.2
-	github.com/alibabacloud-go/tea v1.2.0
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/emicklei/go-restful-openapi/v2 v2.9.1
 	github.com/emicklei/go-restful/v3 v3.10.2
 	github.com/go-openapi/spec v0.20.9
-	github.com/go-playground/validator/v10 v10.14.1
 	github.com/gorilla/websocket v1.5.0
 	github.com/imdario/mergo v0.3.16
 	github.com/infraboard/mcenter v0.0.11-0.20230714083219-4cc7fc0bf8ec
 	github.com/infraboard/mcube v1.9.17
+	github.com/infraboard/mpaas v0.0.3
 	github.com/rs/xid v1.5.0
 	github.com/spf13/cobra v1.7.0
 	go.mongodb.org/mongo-driver v1.11.7
@@ -28,13 +27,10 @@ require (
 	google.golang.org/protobuf v1.30.0
 	k8s.io/api v0.27.3
 	k8s.io/apimachinery v0.27.3
-	k8s.io/client-go v0.27.3
-	k8s.io/kubectl v0.27.3
 	sigs.k8s.io/yaml v1.3.0
 )
 
 require (
-	github.com/alibabacloud-go/debug v0.0.0-20190504072949-9472017b5c68 // indirect
 	github.com/bluele/gcache v0.0.2 // indirect
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
@@ -51,6 +47,7 @@ require (
 	github.com/go-openapi/swag v0.22.3 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
+	github.com/go-playground/validator/v10 v10.14.1 // indirect
 	github.com/go-redis/redis v6.15.9+incompatible // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
@@ -104,8 +101,10 @@ require (
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	k8s.io/client-go v0.27.3 // indirect
 	k8s.io/klog/v2 v2.90.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20230501164219-8b0f38b5fd1f // indirect
+	k8s.io/kubectl v0.27.3 // indirect
 	k8s.io/utils v0.0.0-20230209194617-a36077c30491 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect

@@ -1,0 +1,31 @@
+[app]
+name = "mflow"
+key  = "this is your app key"
+
+[app.http]
+host = "127.0.0.1"
+port = "8090"
+
+[app.grpc]
+host = "127.0.0.1"
+port = "18090"
+
+[mcenter]
+address = "127.0.0.1:18010"
+client_id = "w3N8ozuoqVGVQGxEOQ4zyhiE"
+client_secret = "nPvMEfQGl24dQwjE3MF8SNHXN0ul080P"
+
+[mongodb]
+endpoints = ["127.0.0.1:27017"]
+username = "mflow"
+password = "123456"
+database = "mflow"
+
+[log]
+level = "debug"
+path = "logs"
+format = "text"
+to = "stdout"
+
+[jaeger]
+endpoint = "http://localhost:14268/api/traces"

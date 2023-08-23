@@ -1,0 +1,8 @@
+pkg: github.com/infraboard/mflow
+name: mflow
+description: '基于K8s的轻量级PaaS平台'
+enable_keyauth: true
+enable_mysql: false
+enable_mongodb: true
+gen_example: true
+enable_cache: false

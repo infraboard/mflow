@@ -1,0 +1,33 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin
+testbin/*
+
+# Test binary, built with `go test -c`
+*.test
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+*.idea
+*vendor
+
+# Kubernetes Generated files - skip generated files, except for vendored files
+!vendor/**/zz_generated.*
+
+cover.out
+coverage.txt
+node_modules
+
+etc/mflow.toml
+etc/mflow.env
+etc/config.toml
+etc/config.env
+etc/ssl
+unit_test.env
+kube_config.yml
+config.json
+mflow
+mflow-api

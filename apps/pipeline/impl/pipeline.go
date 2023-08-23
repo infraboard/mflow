@@ -43,6 +43,7 @@ func (i *impl) QueryPipeline(ctx context.Context, in *pipeline.QueryPipelineRequ
 		if err := resp.Decode(ins); err != nil {
 			return nil, exception.NewInternalServerError("decode pipeline error, error is %s", err)
 		}
+		ins.Spec.BuildNumber()
 		set.Add(ins)
 	}
 

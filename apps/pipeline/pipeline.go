@@ -39,8 +39,11 @@ func New(req *CreatePipelineRequest) (*Pipeline, error) {
 		return nil, err
 	}
 
-	req.BuildNumber()
+	if err := req.CheckStageDuplicate(); err != nil {
+		return nil, err
+	}
 
+	req.BuildNumber()
 	d := &Pipeline{
 		Meta: resource.NewMeta(),
 		Spec: req,
@@ -56,8 +59,24 @@ func (req *CreatePipelineRequest) BuildNumber() {
 		for n := range stage.Jobs {
 			j := stage.Jobs[n]
 			j.Number = int32(n) + 1
+			j.StageName = stage.Name
 		}
 	}
+}
+
+// 注入编号
+func (req *CreatePipelineRequest) CheckStageDuplicate() error {
+	m := map[string]int64{}
+	for i := range req.Stages {
+		stage := req.Stages[i]
+		m[stage.Name]++
+	}
+	for k, v := range m {
+		if v > 1 {
+			return fmt.Errorf("阶段: %s 名称重复", k)
+		}
+	}
+	return nil
 }
 
 func (p *Pipeline) Update(req *UpdatePipelineRequest) {

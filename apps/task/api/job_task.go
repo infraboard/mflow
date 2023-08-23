@@ -14,7 +14,7 @@ import (
 	"github.com/infraboard/mcube/http/restful/response"
 	"github.com/infraboard/mflow/apps/pipeline"
 	"github.com/infraboard/mflow/apps/task"
-	"github.com/infraboard/mflow/common/terminal"
+	"github.com/infraboard/mpaas/common/terminal"
 )
 
 var (

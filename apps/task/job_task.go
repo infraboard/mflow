@@ -13,7 +13,7 @@ import (
 	"github.com/infraboard/mflow/apps/job"
 	pipeline "github.com/infraboard/mflow/apps/pipeline"
 	"github.com/infraboard/mflow/common/format"
-	"github.com/infraboard/mflow/provider/k8s/workload"
+	"github.com/infraboard/mpaas/provider/k8s/workload"
 	core_v1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/yaml"
 )

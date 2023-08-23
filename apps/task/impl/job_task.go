@@ -18,9 +18,9 @@ import (
 	"github.com/infraboard/mflow/apps/pipeline"
 	"github.com/infraboard/mflow/apps/task"
 	"github.com/infraboard/mflow/apps/task/runner"
-	"github.com/infraboard/mflow/provider/k8s/config"
-	"github.com/infraboard/mflow/provider/k8s/meta"
-	"github.com/infraboard/mflow/provider/k8s/workload"
+	"github.com/infraboard/mpaas/provider/k8s/config"
+	"github.com/infraboard/mpaas/provider/k8s/meta"
+	"github.com/infraboard/mpaas/provider/k8s/workload"
 )
 
 func (i *impl) RunJob(ctx context.Context, in *pipeline.RunJobRequest) (

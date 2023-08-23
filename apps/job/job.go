@@ -12,8 +12,8 @@ import (
 	"github.com/infraboard/mcube/logger/zap"
 	"github.com/infraboard/mcube/pb/resource"
 	"github.com/infraboard/mcube/tools/sense"
-	"github.com/infraboard/mflow/provider/k8s"
-	"github.com/infraboard/mflow/provider/k8s/workload"
+	"github.com/infraboard/mpaas/provider/k8s"
+	"github.com/infraboard/mpaas/provider/k8s/workload"
 	v1 "k8s.io/api/core/v1"
 )
 

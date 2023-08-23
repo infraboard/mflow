@@ -14,8 +14,8 @@ import (
 	"github.com/infraboard/mcube/tools/pretty"
 	job "github.com/infraboard/mflow/apps/job"
 	pipeline "github.com/infraboard/mflow/apps/pipeline"
-	"github.com/infraboard/mflow/common/terminal"
-	"github.com/infraboard/mflow/provider/k8s/workload"
+	"github.com/infraboard/mpaas/common/terminal"
+	"github.com/infraboard/mpaas/provider/k8s/workload"
 	v1 "k8s.io/api/core/v1"
 	utilrand "k8s.io/apimachinery/pkg/util/rand"
 )

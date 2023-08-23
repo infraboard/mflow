@@ -5,7 +5,7 @@ import (
 
 	"github.com/infraboard/mflow/apps/task"
 	"github.com/infraboard/mflow/common/format"
-	"github.com/infraboard/mflow/provider/k8s/workload"
+	"github.com/infraboard/mpaas/provider/k8s/workload"
 	v1 "k8s.io/api/batch/v1"
 	"sigs.k8s.io/yaml"
 )

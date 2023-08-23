@@ -291,14 +291,12 @@ func (r *RunParamSet) GetParamValue(key string) string {
 }
 
 // 设置参数的值, 注意如果value为""则不会修改
-func (r *RunParamSet) SetParamValue(key, value string) {
-	// 剔除值里面的空白字符
-	value = strings.TrimSpace(value)
-
+func (r *RunParamSet) SetParamValue(key, value string, readOnly bool) {
 	for i := range r.Params {
 		param := r.Params[i]
-		if param.IsEdit() && param.Name == key && value != "" {
+		if param.IsEdit() && param.Name == key {
 			param.Value = value
+			param.ReadOnly = readOnly
 			return
 		}
 	}
@@ -308,7 +306,10 @@ func (r *RunParamSet) SetParamValue(key, value string) {
 func (r *RunParamSet) Merge(targets ...*RunParam) {
 	for i := range targets {
 		t := targets[i]
-		r.SetParamValue(t.Name, t.Value)
+		t.TrimSpace()
+		if t.Value != "" {
+			r.SetParamValue(t.Name, t.Value, t.ReadOnly)
+		}
 	}
 }
 
@@ -425,6 +426,11 @@ func (p *RunParam) Desense() *RunParam {
 		p.Value = sense.DeSense(p.Value)
 	}
 	return p
+}
+
+// 剔除值里面的空白字符
+func (p *RunParam) TrimSpace() {
+	p.Value = strings.TrimSpace(p.Value)
 }
 
 // 值脱敏

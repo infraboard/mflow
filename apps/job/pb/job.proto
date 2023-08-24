@@ -92,8 +92,8 @@ message CreateJobRequest {
 	// @gotags: bson:"manual_update_status" json:"manual_update_status"
 	bool manual_update_status = 4;
 	// 运行时 用户传人的参数说明
-	// @gotags: bson:"run_param" json:"run_param"
-	RunParamSet run_param = 5;
+	// @gotags: bson:"run_params" json:"run_params"
+	RunParamSet run_params = 5;
 	// 是否允许回滚, 有些特殊的操作是不允许回滚的, 
 	// 能使用上次执行成功的结果 进行执行 该任务就支持回滚
 	// @gotags: bson:"allow_rollback" json:"allow_rollback"
@@ -143,6 +143,12 @@ message CreateJobRequest {
 }
 
 message RunParamSet {
+	// 忽略失败, 当Pipeline运行时, 不会因为执行失败而 中断Pipeline执行
+	// @gotags: bson:"ignore_failed" json:"ignore_failed"
+	bool ignore_failed = 1;
+	// 试运行
+	// @gotags: bson:"dry_run" json:"dry_run"
+	bool dry_run = 2;
 	// 运行时 用户传人的参数说明
 	// @gotags: bson:"params" json:"params"
 	repeated RunParam params = 3;

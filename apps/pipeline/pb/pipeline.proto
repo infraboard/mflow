@@ -140,12 +140,6 @@ message RunJobRequest {
 	// job回滚时参数, 如果要回滚 则回滚参数必填
 	// @gotags: bson:"rollback_params" json:"rollback_params"
 	job.RunParamSet rollback_params = 10;
-	// 忽略失败, 当Pipeline运行时, 不会因为执行失败而 中断Pipeline执行
-	// @gotags: bson:"ignore_failed" json:"ignore_failed"
-	bool ignore_failed = 11;
-	// 试运行
-	// @gotags: bson:"dry_run" json:"dry_run"
-	bool dry_run = 12;
 	// WebHook配置, 及时把job执行状态推送给外部, 常用于外部系统的集成，比如飞书机器人
 	// @gotags: bson:"webhooks" json:"webhooks"
 	repeated WebHook webhooks = 13;

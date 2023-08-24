@@ -50,7 +50,7 @@ func (i *impl) RunJob(ctx context.Context, in *pipeline.RunJobRequest) (
 		i.log.Infof("describe job success, %s[%s]", j.Spec.Name, j.Meta.Id)
 
 		// 脱敏参数动态还原
-		in.RunParams.RestoreSensitive(j.Spec.RunParam)
+		in.RunParams.RestoreSensitive(j.Spec.RunParams)
 
 		// 合并允许参数(Job里面有默认值), 并检查参数合法性
 		// 注意Param的合并是有顺序的，也就是参数优先级(低-->高):
@@ -61,7 +61,7 @@ func (i *impl) RunJob(ctx context.Context, in *pipeline.RunJobRequest) (
 		// 5. pipeline 运行时变量
 		params := job.NewRunParamSet()
 		params.Add(ins.SystemRunParam()...)
-		params.Add(j.Spec.RunParam.Params...)
+		params.Add(j.Spec.RunParams.Params...)
 		params.Merge(in.RunParams.Params...)
 		err = i.LoadPipelineRunParam(ctx, params)
 		if err != nil {
@@ -78,7 +78,7 @@ func (i *impl) RunJob(ctx context.Context, in *pipeline.RunJobRequest) (
 		// 获取执行器执行
 		r := runner.GetRunner(j.Spec.RunnerType)
 		runReq := task.NewRunTaskRequest(ins.Spec.TaskId, j.Spec.RunnerSpec, params)
-		runReq.DryRun = in.DryRun
+		runReq.DryRun = in.RunParams.DryRun
 		runReq.Labels = in.Labels
 		runReq.ManualUpdateStatus = j.Spec.ManualUpdateStatus
 		status, err := r.Run(ctx, runReq)
@@ -376,7 +376,7 @@ func (i *impl) WatchJobTaskLog(in *task.WatchJobTaskLogRequest, stream task.JobR
 
 	switch t.Job.Spec.RunnerType {
 	case job.RUNNER_TYPE_K8S_JOB:
-		k8sParams := t.Job.Spec.RunParam.K8SJobRunnerParams()
+		k8sParams := t.Job.Spec.RunParams.K8SJobRunnerParams()
 		k8sClient, err := k8sParams.Client()
 		if err != nil {
 			return err

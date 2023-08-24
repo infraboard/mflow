@@ -36,7 +36,7 @@ func TestCreateTestJob(t *testing.T) {
 		NameDesc: "job运行时的namespace",
 		Value:    "default",
 	})
-	req.RunParam = param
+	req.RunParams = param
 
 	ins, err := impl.CreateJob(ctx, req)
 	if err != nil {
@@ -121,7 +121,7 @@ func TestUpdateDeployJob(t *testing.T) {
 		Example:     "v0.0.1",
 		SearchLabel: true,
 	})
-	req.Spec.RunParam = param
+	req.Spec.RunParams = param
 
 	ins, err := impl.UpdateJob(ctx, req)
 	if err != nil {
@@ -255,7 +255,7 @@ func TestUpdateBuildJob(t *testing.T) {
 		Example:   "kaniko-secret",
 		Value:     "kaniko-secret",
 	})
-	req.Spec.RunParam = param
+	req.Spec.RunParams = param
 
 	ins, err := impl.UpdateJob(ctx, req)
 	if err != nil {
@@ -283,8 +283,19 @@ func TestDescribeJob(t *testing.T) {
 }
 
 // 发布Job
-func TestUpdateJobStatus(t *testing.T) {
+func TestUpdateBuildJobStatus(t *testing.T) {
 	req := job.NewUpdateJobStatusRequest("docker_build@default.default")
+	req.Status.Stage = job.JOB_STAGE_PUBLISHED
+	req.Status.Version = "v1"
+	ins, err := impl.UpdateJobStatus(ctx, req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(tools.MustToJson(ins))
+}
+
+func TestUpdateDeployJobStatus(t *testing.T) {
+	req := job.NewUpdateJobStatusRequest("docker_deploy@default.default")
 	req.Status.Stage = job.JOB_STAGE_PUBLISHED
 	req.Status.Version = "v1"
 	ins, err := impl.UpdateJobStatus(ctx, req)

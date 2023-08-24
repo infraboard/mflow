@@ -37,7 +37,7 @@ func (r *CreateJobRequest) BuildSearchLabels() {
 		r.Labels = map[string]string{}
 	}
 
-	sl := r.RunParam.SearchLabels()
+	sl := r.RunParams.SearchLabels()
 	for k, v := range sl {
 		r.Labels[k] = v
 	}
@@ -99,8 +99,8 @@ func (i *Job) Desense() {
 		return
 	}
 
-	if i.Spec.RunParam != nil {
-		i.Spec.RunParam.Densense()
+	if i.Spec.RunParams != nil {
+		i.Spec.RunParams.Densense()
 	}
 
 	if i.Spec.RollbackParam != nil {

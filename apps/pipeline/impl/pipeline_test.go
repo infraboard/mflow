@@ -3,6 +3,8 @@ package impl_test
 import (
 	"testing"
 
+	"github.com/infraboard/mcenter/apps/domain"
+	"github.com/infraboard/mcenter/apps/namespace"
 	"github.com/infraboard/mcube/pb/resource"
 	"github.com/infraboard/mflow/apps/job"
 	"github.com/infraboard/mflow/apps/pipeline"
@@ -10,8 +12,11 @@ import (
 	"github.com/infraboard/mflow/test/tools"
 )
 
-func TestCreatemflowPipeline(t *testing.T) {
+func TestCreateImagePipeline(t *testing.T) {
 	req := pipeline.NewCreatePipelineRequest()
+	req.Domain = domain.DEFAULT_DOMAIN
+	req.Namespace = namespace.DEFAULT_NAMESPACE
+	req.IsTemplate = true
 	tools.MustReadYamlFile("test/image_build_deploy.yml", req)
 	ins, err := impl.CreatePipeline(ctx, req)
 	if err != nil {

@@ -28,7 +28,7 @@ func NewCreateJobRequest() *CreateJobRequest {
 	return &CreateJobRequest{
 		Domain:        domain.DEFAULT_DOMAIN,
 		Namespace:     namespace.DEFAULT_NAMESPACE,
-		RunParam:      NewRunParamSet(),
+		RunParams:     NewRunParamSet(),
 		RollbackParam: NewRunParamSet(),
 		Labels:        make(map[string]string),
 		Extension:     make(map[string]string),

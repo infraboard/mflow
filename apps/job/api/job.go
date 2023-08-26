@@ -101,6 +101,18 @@ func (h *handler) QueryJob(r *restful.Request, w *restful.Response) {
 
 func (h *handler) DescribeJob(r *restful.Request, w *restful.Response) {
 	req := job.NewDescribeJobRequestById(r.PathParameter("id"))
+
+	// 解析describe by
+	dbstr := r.QueryParameter("describe_by")
+	if dbstr != "" {
+		by, err := job.ParseDESCRIBE_BYFromString(dbstr)
+		if err != nil {
+			response.Failed(w, err)
+			return
+		}
+		req.DescribeBy = by
+	}
+
 	ins, err := h.service.DescribeJob(r.Request.Context(), req)
 	if err != nil {
 		response.Failed(w, err)

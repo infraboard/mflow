@@ -10,7 +10,7 @@ require (
 	github.com/go-openapi/spec v0.20.9
 	github.com/gorilla/websocket v1.5.0
 	github.com/imdario/mergo v0.3.16
-	github.com/infraboard/mcenter v0.0.11-0.20230714083219-4cc7fc0bf8ec
+	github.com/infraboard/mcenter v0.0.11
 	github.com/infraboard/mcube v1.9.17
 	github.com/infraboard/mpaas v0.0.3
 	github.com/rs/xid v1.5.0

@@ -42,36 +42,42 @@ var Cmd = &cobra.Command{
 func newService(cnf *conf.Config) (*service, error) {
 	http := protocol.NewHTTPService()
 	grpc := protocol.NewGRPCService()
+
 	// 处理信号量
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGHUP, syscall.SIGQUIT)
-	svr := &service{
+	svc := &service{
 		http: http,
 		grpc: grpc,
 		log:  zap.L().Named("cli"),
 		ch:   ch,
 	}
 
-	return svr, nil
+	svc.ctx, svc.cancle = context.WithCancel(context.Background())
+	return svc, nil
 }
 
 type service struct {
-	http *protocol.HTTPService
-	grpc *protocol.GRPCService
-	ch   chan os.Signal
-	log  logger.Logger
+	http   *protocol.HTTPService
+	grpc   *protocol.GRPCService
+	ch     chan os.Signal
+	log    logger.Logger
+	ctx    context.Context
+	cancle context.CancelFunc
 }
 
 func (s *service) start() {
 	s.log.Infof("loaded controllers: %s", ioc.ListControllerObjectNames())
 	s.log.Infof("loaded apis: %s", ioc.ListApiObjectNames())
 
-	go s.grpc.Start()
-	go s.http.Start()
+	go s.grpc.Start(s.ctx)
+	go s.http.Start(s.ctx)
 	s.waitSign(s.ch)
 }
 
 func (s *service) waitSign(sign chan os.Signal) {
+	defer s.cancle()
+
 	for sg := range sign {
 		switch v := sg.(type) {
 		default:
@@ -90,7 +96,7 @@ func (s *service) waitSign(sign chan os.Signal) {
 			}
 
 			// 关闭依赖的全景配置对象
-			conf.C().Shutdown(context.Background())
+			conf.C().Shutdown(s.ctx)
 			return
 		}
 	}

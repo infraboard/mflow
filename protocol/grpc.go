@@ -57,7 +57,7 @@ type GRPCService struct {
 }
 
 // Start 启动GRPC服务
-func (s *GRPCService) Start() {
+func (s *GRPCService) Start(ctx context.Context) {
 	// 装载所有GRPC服务
 	ioc.LoadGrpcController(s.svr)
 

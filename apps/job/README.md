@@ -129,7 +129,7 @@ docker pull bitnami/git
 docker run -it -v ${HOME}/.ssh/:/root/.ssh -w /workspace bitnami/git
 docker run -it -v ${HOME}/.ssh/:/root/.ssh -w /workspace registry.cn-hangzhou.aliyuncs.com/godev/git:2.39.2
 # 测试下载, 关于更多git参数说明请参考看: https://git-scm.com/docs/git-config
-GIT_SSH_COMMAND='ssh -i ssh -i ./id_rsa.pub -o StrictHostKeyChecking=no'  git clone git@github.com:infraboard/mflow.git src  --single-branch --branch=master
+GIT_SSH_COMMAND='ssh -i ssh -i ./id_rsa.pub -o StrictHostKeyChecking=no'  git clone git@github.com:infraboard/mpaas.git src  --single-branch --branch=master
 ```
 
 创建代码拉取的secret, 可以参考: [use-case-pod-with-ssh-keys](https://kubernetes.io/zh-cn/docs/concepts/configuration/secret/#use-case-pod-with-ssh-keys)
@@ -151,7 +151,7 @@ YWRtaW46SGFyYm9yMTIzNDUK
 # 挂在项目到workspace目录下, 注意指定工作目录:/workspace
 docker run --rm -it -v ${HOME}/Workspace/inforboard/mflow:/workspace -v ${HOME}/Workspace/inforboard/mflow/apps/job/impl/test/config.json:/kaniko/.docker/config.json -w /workspace --entrypoint=/busybox/sh docker.io/anjia0532/kaniko-project.executor:v1.9.2-debug
 # 执行构建
-/kaniko/executor --cache=true --cache-repo=registry.cn-hangzhou.aliyuncs.com/build_cache/mflow --compressed-caching=false --destination=registry.cn-hangzhou.aliyuncs.com/infraboard/mflow:v0.0.1
+/kaniko/executor --cache=true --cache-repo=registry.cn-hangzhou.aliyuncs.com/build_cache/mpaas --compressed-caching=false --destination=registry.cn-hangzhou.aliyuncs.com/infraboard/mpaas:v0.0.1
 ```
 
 最后创建secret

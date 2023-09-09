@@ -430,7 +430,7 @@ WAIT_TASK_ACTIVE:
 		return nil, err
 	}
 
-	if maxRetryCount < 30 {
+	if !t.Status.IsComplete() && maxRetryCount < 30 {
 		if pod == nil {
 			writer.WriteMessagef("任务当前状态: [%s], Pod创建中...", t.Status.Stage)
 		} else {

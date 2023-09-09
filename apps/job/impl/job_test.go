@@ -158,7 +158,7 @@ func TestUpdateBuildJob(t *testing.T) {
 		Name:        "GIT_SSH_URL",
 		NameDesc:    "应用git代码仓库地址",
 		ValueDesc:   "CI时, 系统根据Webhook自动注入",
-		Example:     "git@github.com:infraboard/mflow.git",
+		Example:     "git@github.com:infraboard/mpaas.git",
 		SearchLabel: true,
 	})
 	param.Add(&job.RunParam{
@@ -206,7 +206,7 @@ func TestUpdateBuildJob(t *testing.T) {
 		Required: false,
 		Name:     "CACHE_REPO",
 		NameDesc: "构建缓存的镜像仓库地址, 默认为: [镜像推送地址/cache], 需要使用独立的缓存仓库时设置",
-		Example:  "registry.cn-hangzhou.aliyuncs.com/build_cache/mflow",
+		Example:  "registry.cn-hangzhou.aliyuncs.com/build_cache/mpaas",
 	})
 	param.Add(&job.RunParam{
 		Required:  false,
@@ -230,13 +230,13 @@ func TestUpdateBuildJob(t *testing.T) {
 		),
 		Value: "linux/amd64",
 	})
-	// docker push registry.cn-hangzhou.aliyuncs.com/infraboard/mflow:[镜像版本号]
+	// docker push registry.cn-hangzhou.aliyuncs.com/infraboard/mpaas:[镜像版本号]
 	param.Add(&job.RunParam{
 		Required:  true,
 		Name:      build.SYSTEM_VARIABLE_IMAGE_REPOSITORY,
 		NameDesc:  "镜像推送地址",
 		ValueDesc: "CI时, 通过读取构建配置自动获取",
-		Example:   "registry.cn-hangzhou.aliyuncs.com/infraboard/mflow",
+		Example:   "registry.cn-hangzhou.aliyuncs.com/infraboard/mpaas",
 	})
 	param.Add(&job.RunParam{
 		Required:  true,

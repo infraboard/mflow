@@ -38,7 +38,7 @@ func TestRunBuildJob(t *testing.T) {
 		"GIT_BRANCH", "master",
 		"GIT_COMMIT_ID", "ff533afb86d35862789003f1d51bf356c7cf13ac",
 		build.SYSTEM_VARIABLE_IMAGE_REPOSITORY, "registry.cn-hangzhou.aliyuncs.com/infraboard/mcenter",
-		"CACHE_REPO", "registry.cn-hangzhou.aliyuncs.com/build_cache/mflow",
+		"CACHE_REPO", "registry.cn-hangzhou.aliyuncs.com/build_cache/mpaas",
 		build.SYSTEM_VARIABLE_APP_VERSION, "v0.0.7",
 	)
 	req.RunParams = version

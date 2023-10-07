@@ -64,7 +64,6 @@ func (s *service) Download(ctx context.Context, req *log.DownloadFileRequest) er
 	}
 
 	s.log.Debugf("download file: %s complete, size: %d", req.FileID, size)
-
 	return nil
 }
 

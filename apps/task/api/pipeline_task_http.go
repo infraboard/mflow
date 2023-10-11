@@ -19,7 +19,7 @@ func init() {
 type PipelineTaskHandler struct {
 	service task.Service
 	log     logger.Logger
-	ioc.IocObjectImpl
+	ioc.ObjectImpl
 }
 
 func (h *PipelineTaskHandler) Init() error {

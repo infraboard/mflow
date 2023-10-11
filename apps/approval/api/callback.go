@@ -23,7 +23,7 @@ type callbackHandler struct {
 	service approval.Service
 	log     logger.Logger
 	mcenter *rpc.ClientSet
-	ioc.IocObjectImpl
+	ioc.ObjectImpl
 }
 
 func (h *callbackHandler) Init() error {

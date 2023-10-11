@@ -19,7 +19,7 @@ func init() {
 type JobTaskHandler struct {
 	service task.Service
 	log     logger.Logger
-	ioc.IocObjectImpl
+	ioc.ObjectImpl
 }
 
 func (h *JobTaskHandler) Init() error {

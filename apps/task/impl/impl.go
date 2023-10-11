@@ -32,7 +32,7 @@ type impl struct {
 	log  logger.Logger
 	task.UnimplementedJobRPCServer
 	task.UnimplementedPipelineRPCServer
-	ioc.IocObjectImpl
+	ioc.ObjectImpl
 
 	job      job.Service
 	pipeline pipeline.Service

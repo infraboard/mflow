@@ -22,7 +22,7 @@ func init() {
 type Handler struct {
 	log logger.Logger
 	svc trigger.Service
-	ioc.IocObjectImpl
+	ioc.ObjectImpl
 
 	mcenter *rpc.ClientSet
 }

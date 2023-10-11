@@ -23,7 +23,7 @@ type impl struct {
 	col *mongo.Collection
 	log logger.Logger
 	trigger.UnimplementedRPCServer
-	ioc.IocObjectImpl
+	ioc.ObjectImpl
 
 	// 构建配置
 	build build.Service

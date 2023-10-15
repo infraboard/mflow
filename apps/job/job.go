@@ -8,7 +8,7 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/imdario/mergo"
+	"dario.cat/mergo"
 	"github.com/infraboard/mcube/logger/zap"
 	"github.com/infraboard/mcube/pb/resource"
 	"github.com/infraboard/mcube/tools/sense"

@@ -9,12 +9,12 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/infraboard/mcenter/clients/rpc"
+	ioc_mongo "github.com/infraboard/mcube/ioc/config/mongo"
 	"github.com/infraboard/mflow/apps/approval"
 	"github.com/infraboard/mflow/apps/job"
 	"github.com/infraboard/mflow/apps/pipeline"
 	"github.com/infraboard/mflow/apps/task"
 	"github.com/infraboard/mflow/apps/trigger"
-	"github.com/infraboard/mflow/conf"
 
 	// 加载并初始化Runner
 	"github.com/infraboard/mflow/apps/task/runner"
@@ -44,10 +44,7 @@ type impl struct {
 }
 
 func (i *impl) Init() error {
-	db, err := conf.C().Mongo.GetDB()
-	if err != nil {
-		return err
-	}
+	db := ioc_mongo.DB()
 	i.jcol = db.Collection("job_tasks")
 	i.pcol = db.Collection("pipeline_tasks")
 	i.log = logger.Sub(i.Name())

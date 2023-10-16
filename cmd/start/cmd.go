@@ -12,7 +12,6 @@ import (
 
 	"github.com/infraboard/mcube/ioc/config/logger"
 
-	"github.com/infraboard/mflow/conf"
 	"github.com/infraboard/mflow/protocol"
 
 	// 注册所有服务
@@ -25,13 +24,13 @@ var Cmd = &cobra.Command{
 	Short: "mflow API服务",
 	Long:  "mflow API服务",
 	Run: func(cmd *cobra.Command, args []string) {
-		conf := conf.C()
+
 		// 启动服务
 		ch := make(chan os.Signal, 1)
 		signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGHUP, syscall.SIGQUIT)
 
 		// 初始化服务
-		svr, err := newService(conf)
+		svr, err := newService()
 		cobra.CheckErr(err)
 
 		// 启动服务
@@ -39,7 +38,7 @@ var Cmd = &cobra.Command{
 	},
 }
 
-func newService(cnf *conf.Config) (*service, error) {
+func newService() (*service, error) {
 	http := protocol.NewHTTPService()
 	grpc := protocol.NewGRPCService()
 
@@ -94,9 +93,6 @@ func (s *service) waitSign(sign chan os.Signal) {
 			} else {
 				s.log.Info().Msgf("http service stop complete")
 			}
-
-			// 关闭依赖的全景配置对象
-			conf.C().Shutdown(s.ctx)
 			return
 		}
 	}

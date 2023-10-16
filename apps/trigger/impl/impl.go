@@ -9,10 +9,10 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/infraboard/mcenter/clients/rpc"
+	ioc_mongo "github.com/infraboard/mcube/ioc/config/mongo"
 	"github.com/infraboard/mflow/apps/build"
 	"github.com/infraboard/mflow/apps/task"
 	"github.com/infraboard/mflow/apps/trigger"
-	"github.com/infraboard/mflow/conf"
 )
 
 func init() {
@@ -34,11 +34,7 @@ type impl struct {
 }
 
 func (i *impl) Init() error {
-	db, err := conf.C().Mongo.GetDB()
-	if err != nil {
-		return err
-	}
-	i.col = db.Collection(i.Name())
+	i.col = ioc_mongo.DB().Collection(i.Name())
 	i.log = logger.Sub(i.Name())
 
 	i.build = ioc.GetController(build.AppName).(build.Service)

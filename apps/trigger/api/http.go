@@ -7,12 +7,12 @@ import (
 	"github.com/emicklei/go-restful/v3"
 	"github.com/infraboard/mcube/http/label"
 	"github.com/infraboard/mcube/ioc"
+	"github.com/infraboard/mcube/ioc/config/application"
 	"github.com/infraboard/mcube/ioc/config/logger"
 	"github.com/rs/zerolog"
 
 	"github.com/infraboard/mcenter/clients/rpc"
 	"github.com/infraboard/mflow/apps/trigger"
-	"github.com/infraboard/mflow/conf"
 )
 
 func init() {
@@ -44,7 +44,7 @@ func (h *Handler) Version() string {
 
 func (h *Handler) APIPrefix() string {
 	return fmt.Sprintf("%s/%s/%s",
-		conf.C().App.HTTPPrefix(),
+		application.App().HTTPPrefix(),
 		h.Version(),
 		h.Name(),
 	)

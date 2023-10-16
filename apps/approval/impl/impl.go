@@ -13,10 +13,10 @@ import (
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
 
+	ioc_mongo "github.com/infraboard/mcube/ioc/config/mongo"
 	"github.com/infraboard/mflow/apps/approval"
 	"github.com/infraboard/mflow/apps/pipeline"
 	"github.com/infraboard/mflow/apps/task"
-	"github.com/infraboard/mflow/conf"
 )
 
 func init() {
@@ -35,12 +35,7 @@ type impl struct {
 }
 
 func (s *impl) Init() error {
-	db, err := conf.C().Mongo.GetDB()
-	if err != nil {
-		return err
-	}
-
-	s.col = db.Collection(s.Name())
+	s.col = ioc_mongo.DB().Collection(s.Name())
 	indexs := []mongo.IndexModel{
 		{
 			Keys: bson.D{{Key: "create_at", Value: -1}},
@@ -55,7 +50,7 @@ func (s *impl) Init() error {
 		},
 	}
 
-	_, err = s.col.Indexes().CreateMany(context.Background(), indexs)
+	_, err := s.col.Indexes().CreateMany(context.Background(), indexs)
 	if err != nil {
 		return err
 	}

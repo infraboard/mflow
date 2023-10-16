@@ -6,8 +6,8 @@ import (
 	"github.com/rs/zerolog"
 	"go.mongodb.org/mongo-driver/mongo"
 
+	ioc_mongo "github.com/infraboard/mcube/ioc/config/mongo"
 	"github.com/infraboard/mflow/apps/log"
-	"github.com/infraboard/mflow/conf"
 )
 
 func init() {
@@ -21,12 +21,7 @@ type service struct {
 }
 
 func (s *service) Init() error {
-	db, err := conf.C().Mongo.GetDB()
-	if err != nil {
-		return err
-	}
-
-	s.db = db
+	s.db = ioc_mongo.DB()
 	s.log = logger.Sub("storage")
 	return nil
 }

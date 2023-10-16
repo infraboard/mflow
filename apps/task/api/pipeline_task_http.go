@@ -5,11 +5,11 @@ import (
 
 	"github.com/emicklei/go-restful/v3"
 	"github.com/infraboard/mcube/ioc"
+	"github.com/infraboard/mcube/ioc/config/application"
 	"github.com/infraboard/mcube/ioc/config/logger"
 	"github.com/rs/zerolog"
 
 	"github.com/infraboard/mflow/apps/task"
-	"github.com/infraboard/mflow/conf"
 )
 
 func init() {
@@ -38,7 +38,7 @@ func (h *PipelineTaskHandler) Version() string {
 
 func (h *PipelineTaskHandler) APIPrefix() string {
 	return fmt.Sprintf("%s/%s/%s",
-		conf.C().App.HTTPPrefix(),
+		application.App().HTTPPrefix(),
 		h.Version(),
 		h.Name(),
 	)

@@ -12,20 +12,19 @@ port = "18090"
 
 [mcenter]
 address = "127.0.0.1:18010"
-client_id = "w3N8ozuoqVGVQGxEOQ4zyhiE"
-client_secret = "nPvMEfQGl24dQwjE3MF8SNHXN0ul080P"
+client_id = "EyjyubM29WAixq4H2ekKvNn6"
+client_secret = "lOeOq7eMF4HBRkMUyNR48AHDgn3XghXy"
 
 [mongodb]
 endpoints = ["127.0.0.1:27017"]
 username = "mflow"
-password = "123456"
-database = "mflow"
 
 [log]
 level = "debug"
-path = "logs"
-format = "text"
-to = "stdout"
+
+[log.file]
+enable = true
+file_path = "logs/app.log"
 
 [jaeger]
 endpoint = "http://localhost:14268/api/traces"

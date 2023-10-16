@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -14,7 +15,6 @@ import (
 	build "github.com/infraboard/mflow/apps/build"
 	"github.com/infraboard/mflow/apps/job"
 	"github.com/infraboard/mflow/common/format"
-	"github.com/infraboard/mflow/conf"
 	"github.com/rs/xid"
 )
 
@@ -64,7 +64,7 @@ func ParseGitLabEventFromRequest(r *restful.Request) (*Event, error) {
 
 func (e *GitlabWebHookEvent) DefaultRepository() string {
 	return fmt.Sprintf("%s/%s",
-		conf.C().Image.DefaultRegistry,
+		os.Getenv("DEFAULT_REGISTRY"),
 		e.Project.NamespacePath,
 	)
 }

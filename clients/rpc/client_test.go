@@ -4,8 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/infraboard/mcube/logger/zap"
-
+	"github.com/infraboard/mcube/ioc"
 	"github.com/infraboard/mflow/apps/task"
 	"github.com/infraboard/mflow/clients/rpc"
 )
@@ -40,13 +39,9 @@ func TestWatchJobTaskLog(t *testing.T) {
 }
 
 func init() {
-	if err := zap.DevelopmentSetup(); err != nil {
-		panic(err)
-	}
-
-	c, err := rpc.NewClientSetFromEnv()
+	err := ioc.ConfigIocObject(ioc.NewLoadConfigRequest())
 	if err != nil {
 		panic(err)
 	}
-	client = c
+	client = rpc.C()
 }

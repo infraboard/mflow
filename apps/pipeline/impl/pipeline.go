@@ -29,7 +29,7 @@ func (i *impl) QueryPipeline(ctx context.Context, in *pipeline.QueryPipelineRequ
 	*pipeline.PipelineSet, error) {
 	r := newQueryRequest(in)
 	filter := r.FindFilter()
-	i.log.Debugf("find filter: %v", filter)
+	i.log.Debug().Msgf("find filter: %v", filter)
 	resp, err := i.col.Find(ctx, filter, r.FindOptions())
 
 	if err != nil {

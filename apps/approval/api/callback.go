@@ -8,8 +8,8 @@ import (
 	"github.com/infraboard/mcube/http/label"
 	"github.com/infraboard/mcube/http/restful/response"
 	"github.com/infraboard/mcube/ioc"
-	"github.com/infraboard/mcube/logger"
-	"github.com/infraboard/mcube/logger/zap"
+	"github.com/infraboard/mcube/ioc/config/logger"
+	"github.com/rs/zerolog"
 
 	"github.com/infraboard/mflow/apps/approval"
 	"github.com/infraboard/mflow/apps/approval/api/callback"
@@ -21,13 +21,13 @@ func init() {
 
 type callbackHandler struct {
 	service approval.Service
-	log     logger.Logger
+	log     *zerolog.Logger
 	mcenter *rpc.ClientSet
 	ioc.ObjectImpl
 }
 
 func (h *callbackHandler) Init() error {
-	h.log = zap.L().Named(approval.AppName)
+	h.log = logger.Sub(approval.AppName)
 	h.service = ioc.GetController(approval.AppName).(approval.Service)
 	h.mcenter = rpc.C()
 	return nil

@@ -9,8 +9,8 @@ import (
 
 	"github.com/infraboard/mcenter/clients/rpc"
 	"github.com/infraboard/mcube/ioc"
-	"github.com/infraboard/mcube/logger"
-	"github.com/infraboard/mcube/logger/zap"
+	"github.com/infraboard/mcube/ioc/config/logger"
+	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
 
 	"github.com/infraboard/mflow/apps/approval"
@@ -25,7 +25,7 @@ func init() {
 
 type impl struct {
 	col *mongo.Collection
-	log logger.Logger
+	log *zerolog.Logger
 	approval.UnimplementedRPCServer
 	ioc.ObjectImpl
 
@@ -60,7 +60,7 @@ func (s *impl) Init() error {
 		return err
 	}
 
-	s.log = zap.L().Named(s.Name())
+	s.log = logger.Sub(s.Name())
 	s.pipeline = ioc.GetController(pipeline.AppName).(pipeline.Service)
 	s.task = ioc.GetController(task.AppName).(task.Service)
 	s.mcenter = rpc.C()

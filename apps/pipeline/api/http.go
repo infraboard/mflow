@@ -2,8 +2,8 @@ package api
 
 import (
 	"github.com/infraboard/mcube/ioc"
-	"github.com/infraboard/mcube/logger"
-	"github.com/infraboard/mcube/logger/zap"
+	"github.com/infraboard/mcube/ioc/config/logger"
+	"github.com/rs/zerolog"
 
 	"github.com/infraboard/mflow/apps/pipeline"
 )
@@ -14,12 +14,12 @@ func init() {
 
 type handler struct {
 	service pipeline.Service
-	log     logger.Logger
+	log     *zerolog.Logger
 	ioc.ObjectImpl
 }
 
 func (h *handler) Init() error {
-	h.log = zap.L().Named(pipeline.AppName)
+	h.log = logger.Sub(pipeline.AppName)
 	h.service = ioc.GetController(pipeline.AppName).(pipeline.Service)
 	return nil
 }

@@ -13,7 +13,7 @@ import (
 )
 
 func (s *service) UploadFile(ctx context.Context, req *log.UploadFileRequest) error {
-	s.log.Debugf("bucket name: %s, db file name: %s", req.BucketName, req.FileName)
+	s.log.Debug().Msgf("bucket name: %s, db file name: %s", req.BucketName, req.FileName)
 
 	if err := req.Validate(); err != nil {
 		return exception.NewBadRequest("valiate upload file request error, %s", err)
@@ -42,7 +42,7 @@ func (s *service) UploadFile(ctx context.Context, req *log.UploadFileRequest) er
 		return err
 	}
 
-	s.log.Debugf("Write file %s to DB was successful. File size: %d M", req.FileName, fileSize/1024/1024)
+	s.log.Debug().Msgf("Write file %s to DB was successful. File size: %d M", req.FileName, fileSize/1024/1024)
 	return nil
 }
 
@@ -56,14 +56,14 @@ func (s *service) Download(ctx context.Context, req *log.DownloadFileRequest) er
 		return err
 	}
 
-	s.log.Debugf("start download file: %s ...", req.FileID)
+	s.log.Debug().Msgf("start download file: %s ...", req.FileID)
 	// 下载文件
 	size, err := bucket.DownloadToStream(req.FileID, req.Writer())
 	if err != nil {
 		return err
 	}
 
-	s.log.Debugf("download file: %s complete, size: %d", req.FileID, size)
+	s.log.Debug().Msgf("download file: %s complete, size: %d", req.FileID, size)
 	return nil
 }
 

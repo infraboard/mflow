@@ -172,7 +172,7 @@ func (i *impl) PipelineTaskStatusChanged(ctx context.Context, in *task.JobTask) 
 		}
 	case task.STAGE_SUCCEEDED:
 		// 任务运行成功, pipeline继续执行
-		i.log.Infof("task: %s run successed", in.Spec.TaskId)
+		i.log.Info().Msgf("task: %s run successed", in.Spec.TaskId)
 	}
 
 	// task执行成功或者忽略执行失败, 此时pipeline 仍然处于运行中, 需要获取下一个任务执行
@@ -243,7 +243,7 @@ func (i *impl) PipelineStatusChangedCallback(ctx context.Context, in *task.Pipel
 	// 是否需要运行下一个Pipeline
 	if in.Pipeline.Spec.NextPipeline != "" {
 		// 如果有审核单则提交审核单, 没有则直接运行
-		i.log.Debugf("next pipeline: %s", in.Pipeline.Spec.NextPipeline)
+		i.log.Debug().Msgf("next pipeline: %s", in.Pipeline.Spec.NextPipeline)
 	}
 
 	// 事件队列回调通知, 通知事件队列该事件触发的PipelineTask已经执行完成
@@ -262,7 +262,7 @@ func (i *impl) PipelineStatusChangedCallback(ctx context.Context, in *task.Pipel
 func (i *impl) mustUpdatePipelineStatus(ctx context.Context, in *task.PipelineTask) {
 	_, err := i.updatePipelineStatus(ctx, in)
 	if err != nil {
-		i.log.Error(err)
+		i.log.Err(err)
 	}
 }
 

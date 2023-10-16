@@ -5,8 +5,8 @@ import (
 
 	"github.com/emicklei/go-restful/v3"
 	"github.com/infraboard/mcube/ioc"
-	"github.com/infraboard/mcube/logger"
-	"github.com/infraboard/mcube/logger/zap"
+	"github.com/infraboard/mcube/ioc/config/logger"
+	"github.com/rs/zerolog"
 
 	"github.com/infraboard/mflow/apps/task"
 	"github.com/infraboard/mflow/conf"
@@ -18,12 +18,12 @@ func init() {
 
 type JobTaskHandler struct {
 	service task.Service
-	log     logger.Logger
+	log     *zerolog.Logger
 	ioc.ObjectImpl
 }
 
 func (h *JobTaskHandler) Init() error {
-	h.log = zap.L().Named(task.AppName)
+	h.log = logger.Sub(task.AppName)
 	h.service = ioc.GetController(task.AppName).(task.Service)
 	return nil
 }

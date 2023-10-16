@@ -4,8 +4,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/infraboard/mcube/ioc"
-	"github.com/infraboard/mcube/logger"
-	"github.com/infraboard/mcube/logger/zap"
+	"github.com/infraboard/mcube/ioc/config/logger"
+	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
 
 	"github.com/infraboard/mcenter/clients/rpc"
@@ -29,7 +29,7 @@ func init() {
 type impl struct {
 	jcol *mongo.Collection
 	pcol *mongo.Collection
-	log  logger.Logger
+	log  *zerolog.Logger
 	task.UnimplementedJobRPCServer
 	task.UnimplementedPipelineRPCServer
 	ioc.ObjectImpl
@@ -50,7 +50,7 @@ func (i *impl) Init() error {
 	}
 	i.jcol = db.Collection("job_tasks")
 	i.pcol = db.Collection("pipeline_tasks")
-	i.log = zap.L().Named(i.Name())
+	i.log = logger.Sub(i.Name())
 	i.job = ioc.GetController(job.AppName).(job.Service)
 	i.pipeline = ioc.GetController(pipeline.AppName).(pipeline.Service)
 	i.approval = ioc.GetController(approval.AppName).(approval.Service)

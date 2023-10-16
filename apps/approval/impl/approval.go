@@ -216,7 +216,7 @@ func (i *impl) UpdateApprovalStatus(ctx context.Context, in *approval.UpdateAppr
 		if err != nil {
 			return nil, err
 		}
-		i.log.Debugf("auto publish pipeline task: %s", pt.Meta.Id)
+		i.log.Debug().Msgf("auto publish pipeline task: %s", pt.Meta.Id)
 	}
 	return ins, nil
 }

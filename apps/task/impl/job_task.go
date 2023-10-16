@@ -47,7 +47,7 @@ func (i *impl) RunJob(ctx context.Context, in *pipeline.RunJobRequest) (
 			return nil, err
 		}
 		ins.Job = j
-		i.log.Infof("describe job success, %s[%s]", j.Spec.Name, j.Meta.Id)
+		i.log.Info().Msgf("describe job success, %s[%s]", j.Spec.Name, j.Meta.Id)
 
 		// 脱敏参数动态还原
 		in.RunParams.RestoreSensitive(j.Spec.RunParams)
@@ -73,7 +73,7 @@ func (i *impl) RunJob(ctx context.Context, in *pipeline.RunJobRequest) (
 		if err != nil {
 			return nil, fmt.Errorf("校验任务【%s】参数错误, %s", j.Spec.Name, err)
 		}
-		i.log.Infof("params check ok, %s", params)
+		i.log.Info().Msgf("params check ok, %s", params)
 
 		// 获取执行器执行
 		r := runner.GetRunner(j.Spec.RunnerType)
@@ -234,7 +234,7 @@ func (i *impl) UpdateJobTaskStatus(ctx context.Context, in *task.UpdateJobTaskSt
 	if ins.Spec.PipelineTask != "" {
 		// 如果状态未变化, 不触发流水线更新
 		if !in.ForceTriggerPipeline && preStatus.Equal(in.Stage) {
-			i.log.Debugf("task %s status not changed: %s, skip update pipeline", in.Id, in.Stage)
+			i.log.Debug().Msgf("task %s status not changed: %s, skip update pipeline", in.Id, in.Stage)
 			return ins, nil
 		}
 		_, err := i.PipelineTaskStatusChanged(ctx, ins)
@@ -297,7 +297,7 @@ func (i *impl) DeleteJobTask(ctx context.Context, in *task.DeleteJobTaskRequest)
 		if !in.Force {
 			return nil, err
 		}
-		i.log.Warnf("force delete, but has error, %s", err)
+		i.log.Warn().Msgf("force delete, but has error, %s", err)
 	}
 
 	// 删除本地记录

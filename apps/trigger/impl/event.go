@@ -111,7 +111,7 @@ func (i *impl) RunBuildConf(ctx context.Context, in *trigger.Event, buildConf *b
 		}
 	}
 
-	i.log.Debugf("run pipeline req: %s", runReq.ToJson())
+	i.log.Debug().Msgf("run pipeline req: %s", runReq.ToJson())
 	pt, err := i.task.RunPipeline(ctx, runReq)
 	if err != nil {
 		bs.ErrorMessage = err.Error()
@@ -162,6 +162,6 @@ func (i *impl) EventQueueTaskComplete(ctx context.Context, in *trigger.EventQueu
 		return nil, err
 	}
 
-	i.log.Debug(rs)
+	i.log.Debug().Msgf("%s", rs)
 	return nil, nil
 }

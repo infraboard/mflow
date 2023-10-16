@@ -23,7 +23,7 @@ func (r *K8sRunner) Run(ctx context.Context, in *task.RunTaskRequest) (
 	// 获取Job定义
 	obj := new(v1.Job)
 	jobYamlSpec := in.RenderJobSpec()
-	r.log.Debugf("job rendered yaml spec: %s", jobYamlSpec)
+	r.log.Debug().Msgf("job rendered yaml spec: %s", jobYamlSpec)
 	if err := yaml.Unmarshal([]byte(jobYamlSpec), obj); err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (r *K8sRunner) Run(ctx context.Context, in *task.RunTaskRequest) (
 
 	// 执行Job
 	if !in.DryRun {
-		r.log.Debugf("run job yaml: %s", format.MustToYaml(obj))
+		r.log.Debug().Msgf("run job yaml: %s", format.MustToYaml(obj))
 		obj, err = k8sClient.WorkLoad().CreateJob(ctx, obj)
 		if err != nil {
 			return nil, err

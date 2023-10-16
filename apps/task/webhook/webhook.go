@@ -4,20 +4,20 @@ import (
 	"context"
 	"sync"
 
-	"github.com/infraboard/mcube/logger"
-	"github.com/infraboard/mcube/logger/zap"
+	"github.com/infraboard/mcube/ioc/config/logger"
 	"github.com/infraboard/mflow/apps/pipeline"
 	"github.com/infraboard/mflow/apps/task"
+	"github.com/rs/zerolog"
 )
 
 func NewWebHook() *WebHook {
 	return &WebHook{
-		log: zap.L().Named("webhook"),
+		log: logger.Sub("webhook"),
 	}
 }
 
 type WebHook struct {
-	log logger.Logger
+	log *zerolog.Logger
 }
 
 func (h *WebHook) SendTaskStatus(ctx context.Context, hooks []*pipeline.WebHook, t task.WebHookMessage) {
@@ -34,7 +34,7 @@ func (h *WebHook) SendTaskStatus(ctx context.Context, hooks []*pipeline.WebHook,
 		return
 	}
 
-	h.log.Debugf("start send job task[%s] webhook, total %d", t.ShowTitle(), len(hooks))
+	h.log.Debug().Msgf("start send job task[%s] webhook, total %d", t.ShowTitle(), len(hooks))
 	wg := &sync.WaitGroup{}
 	for i := range hooks {
 		req := newJobTaskRequest(hooks[i], t, wg)

@@ -2,8 +2,8 @@ package impl
 
 import (
 	"github.com/infraboard/mcube/ioc"
-	"github.com/infraboard/mcube/logger"
-	"github.com/infraboard/mcube/logger/zap"
+	"github.com/infraboard/mcube/ioc/config/logger"
+	"github.com/rs/zerolog"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/infraboard/mflow/apps/log"
@@ -15,7 +15,7 @@ func init() {
 }
 
 type service struct {
-	log logger.Logger
+	log *zerolog.Logger
 	db  *mongo.Database
 	ioc.ObjectImpl
 }
@@ -27,7 +27,7 @@ func (s *service) Init() error {
 	}
 
 	s.db = db
-	s.log = zap.L().Named("storage")
+	s.log = logger.Sub("storage")
 	return nil
 }
 

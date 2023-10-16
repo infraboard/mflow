@@ -2,21 +2,21 @@ package k8s
 
 import (
 	"github.com/infraboard/mcube/ioc"
-	"github.com/infraboard/mcube/logger"
-	"github.com/infraboard/mcube/logger/zap"
+	"github.com/infraboard/mcube/ioc/config/logger"
 	"github.com/infraboard/mflow/apps/job"
 	"github.com/infraboard/mflow/apps/task"
 	"github.com/infraboard/mflow/apps/task/runner"
+	"github.com/rs/zerolog"
 )
 
 type K8sRunner struct {
 	task task.PipelineService
-	log  logger.Logger
+	log  *zerolog.Logger
 }
 
 func (r *K8sRunner) Init() error {
 	r.task = ioc.GetController(task.AppName).(task.PipelineService)
-	r.log = zap.L().Named("runner.k8s")
+	r.log = logger.Sub("runner.k8s")
 	return nil
 }
 

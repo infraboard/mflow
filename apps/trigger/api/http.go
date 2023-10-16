@@ -7,8 +7,8 @@ import (
 	"github.com/emicklei/go-restful/v3"
 	"github.com/infraboard/mcube/http/label"
 	"github.com/infraboard/mcube/ioc"
-	"github.com/infraboard/mcube/logger"
-	"github.com/infraboard/mcube/logger/zap"
+	"github.com/infraboard/mcube/ioc/config/logger"
+	"github.com/rs/zerolog"
 
 	"github.com/infraboard/mcenter/clients/rpc"
 	"github.com/infraboard/mflow/apps/trigger"
@@ -20,7 +20,7 @@ func init() {
 }
 
 type Handler struct {
-	log logger.Logger
+	log *zerolog.Logger
 	svc trigger.Service
 	ioc.ObjectImpl
 
@@ -29,7 +29,7 @@ type Handler struct {
 
 func (h *Handler) Init() error {
 	h.svc = ioc.GetController(trigger.AppName).(trigger.Service)
-	h.log = zap.L().Named(trigger.AppName)
+	h.log = logger.Sub(trigger.AppName)
 	h.mcenter = rpc.C()
 	return nil
 }

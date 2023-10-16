@@ -6,8 +6,8 @@ import (
 	"github.com/infraboard/mcenter/apps/token"
 	"github.com/infraboard/mcube/http/label"
 	"github.com/infraboard/mcube/ioc"
-	"github.com/infraboard/mcube/logger"
-	"github.com/infraboard/mcube/logger/zap"
+	"github.com/infraboard/mcube/ioc/config/logger"
+	"github.com/rs/zerolog"
 
 	"github.com/infraboard/mcube/http/restful/response"
 	"github.com/infraboard/mflow/apps/approval"
@@ -19,12 +19,12 @@ func init() {
 
 type handler struct {
 	service approval.Service
-	log     logger.Logger
+	log     *zerolog.Logger
 	ioc.ObjectImpl
 }
 
 func (h *handler) Init() error {
-	h.log = zap.L().Named(approval.AppName)
+	h.log = logger.Sub(approval.AppName)
 	h.service = ioc.GetController(approval.AppName).(approval.Service)
 	return nil
 }

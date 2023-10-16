@@ -3,7 +3,7 @@ package rpc
 import "github.com/infraboard/mcube/ioc"
 
 const (
-	MFLOW = "mflow_client"
+	MFLOW = "mflow"
 )
 
 func C() *ClientSet {

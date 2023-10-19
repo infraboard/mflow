@@ -20,7 +20,6 @@ import (
 	"github.com/infraboard/mcenter/clients/rpc/tools"
 
 	"github.com/infraboard/mflow/swagger"
-	"github.com/infraboard/mflow/version"
 )
 
 // NewHTTPService 构建函数
@@ -39,7 +38,7 @@ func NewHTTPService() *HTTPService {
 	}
 	r.Filter(cors.Filter)
 	// trace中间件
-	filter := otelrestful.OTelFilter(version.ServiceName)
+	filter := otelrestful.OTelFilter(application.App().AppName)
 	restful.DefaultContainer.Filter(filter)
 	// 认证中间件
 	r.Filter(middleware.RestfulServerInterceptor())
@@ -124,7 +123,7 @@ func (s *HTTPService) RegistryEndpoint(ctx context.Context) {
 	s.l.Info().Msg("start registry endpoints ...")
 
 	register := tools.NewEndpointRegister()
-	err := register.Registry(ctx, s.r, version.Short())
+	err := register.Registry(ctx, s.r, application.Short())
 	if err != nil {
 		s.l.Warn().Msgf("registry endpoints error, %s", err)
 	} else {

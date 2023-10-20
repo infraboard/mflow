@@ -24,7 +24,6 @@ var Cmd = &cobra.Command{
 	Short: "mflow API服务",
 	Long:  "mflow API服务",
 	Run: func(cmd *cobra.Command, args []string) {
-
 		// 启动服务
 		ch := make(chan os.Signal, 1)
 		signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGHUP, syscall.SIGQUIT)

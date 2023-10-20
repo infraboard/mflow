@@ -5,8 +5,10 @@ import (
 	_ "github.com/infraboard/mflow/apps/approval/impl"
 	_ "github.com/infraboard/mflow/apps/build/impl"
 	_ "github.com/infraboard/mflow/apps/job/impl"
-	_ "github.com/infraboard/mflow/apps/log/impl"
 	_ "github.com/infraboard/mflow/apps/pipeline/impl"
 	_ "github.com/infraboard/mflow/apps/task/impl"
 	_ "github.com/infraboard/mflow/apps/trigger/impl"
+
+	// 引入第三方存储模块
+	_ "github.com/infraboard/mcube/ioc/apps/oss/mongo"
 )

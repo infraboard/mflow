@@ -107,8 +107,8 @@ github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/infraboard/mcenter v0.0.16 h1:TY9Mgp+ieCcJWsGwkxajHLXDwksTLX07xIslwxYrnHU=
 github.com/infraboard/mcenter v0.0.16/go.mod h1:DjXilPWg59MoM4aMY5QfPHDuaDqdEji9xXYi5HhduiA=
-github.com/infraboard/mcube v1.9.26-0.20231019112420-0a137cef14a4 h1:54xQcNcRqFncjZptNNQY0qS88HWht/8uDOful0Wo2Og=
-github.com/infraboard/mcube v1.9.26-0.20231019112420-0a137cef14a4/go.mod h1:6tXsN2/ag19cPCc+SVMamdtDZ5DDLwKpN+J9Di3bHaM=
+github.com/infraboard/mcube v1.9.27 h1:tDHphjfooOy8BAwcMem2gAsP59fTuHTE540dSCcTMEA=
+github.com/infraboard/mcube v1.9.27/go.mod h1:6tXsN2/ag19cPCc+SVMamdtDZ5DDLwKpN+J9Di3bHaM=
 github.com/infraboard/mpaas v0.0.6 h1:y3WtDtuotu6OahiT91l8MiL/J1oiO0h130+5w1E5QYA=
 github.com/infraboard/mpaas v0.0.6/go.mod h1:YEH53KvHX5o3GfgGk8HOqJTEpDPtucO+0ZPZIN6nhtQ=
 github.com/josharian/intern v1.0.0 h1:vlS4z54oSdjm0bgjRigI+G1HpF+tI+9rE5LLzOg8HmY=

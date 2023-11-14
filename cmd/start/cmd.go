@@ -2,17 +2,19 @@ package start
 
 import (
 	"context"
-	"os"
-	"os/signal"
-	"syscall"
+	"fmt"
+	"net/http"
 
-	"github.com/infraboard/mcube/ioc"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 
+	"github.com/emicklei/go-restful/v3"
+	"github.com/infraboard/mcenter/apps/instance"
+	mcenter "github.com/infraboard/mcenter/clients/rpc"
+	"github.com/infraboard/mcenter/clients/rpc/middleware"
+	"github.com/infraboard/mcenter/clients/rpc/tools"
+	"github.com/infraboard/mcube/ioc/config/application"
 	"github.com/infraboard/mcube/ioc/config/logger"
-
-	"github.com/infraboard/mflow/protocol"
 
 	// 注册所有服务
 	_ "github.com/infraboard/mflow/apps"
@@ -24,76 +26,85 @@ var Cmd = &cobra.Command{
 	Short: "mflow API服务",
 	Long:  "mflow API服务",
 	Run: func(cmd *cobra.Command, args []string) {
-		// 启动服务
-		ch := make(chan os.Signal, 1)
-		signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGHUP, syscall.SIGQUIT)
-
-		// 初始化服务
-		svr, err := newService()
-		cobra.CheckErr(err)
-
-		// 启动服务
-		svr.start()
+		cobra.CheckErr(newService().Start())
 	},
 }
 
-func newService() (*service, error) {
-	http := protocol.NewHTTPService()
-	grpc := protocol.NewGRPCService()
-
-	// 处理信号量
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGHUP, syscall.SIGQUIT)
-	svc := &service{
-		http: http,
-		grpc: grpc,
-		log:  logger.Sub("cli"),
-		ch:   ch,
+func newService() *service {
+	return &service{
+		log: logger.Sub("cmd"),
 	}
-
-	svc.ctx, svc.cancle = context.WithCancel(context.Background())
-	return svc, nil
 }
 
 type service struct {
-	http   *protocol.HTTPService
-	grpc   *protocol.GRPCService
-	ch     chan os.Signal
-	log    *zerolog.Logger
-	ctx    context.Context
-	cancle context.CancelFunc
+	log *zerolog.Logger
+
+	ins *instance.Instance
 }
 
-func (s *service) start() {
-	s.log.Info().Msgf("loaded configs: %s", ioc.Config().List())
-	s.log.Info().Msgf("loaded controllers: %s", ioc.Config().List())
-	s.log.Info().Msgf("loaded apis: %s", ioc.Api().List())
+func (s *service) Start() error {
+	application.App().UseGoRestful()
 
-	go s.grpc.Start(s.ctx)
-	go s.http.Start(s.ctx)
-	s.waitSign(s.ch)
+	// 补充权限与注册
+	application.App().HTTP.RouterBuildConfig.BeforeLoad = s.HttpBeforeLoad
+	application.App().HTTP.RouterBuildConfig.AfterLoad = s.HttpAfterLoad
+
+	// 补充Grpc认证
+	application.App().GRPC.AddInterceptors(middleware.GrpcAuthUnaryServerInterceptor())
+	application.App().GRPC.PostStart = s.GrpcPostStart
+	application.App().GRPC.PreStop = s.GrpcPreStop
+
+	return application.App().Start(context.Background())
 }
 
-func (s *service) waitSign(sign chan os.Signal) {
-	defer s.cancle()
+func (s *service) HttpBeforeLoad(r http.Handler) {
+	if router, ok := r.(*restful.Container); ok {
+		// 认证中间件
+		router.Filter(middleware.RestfulServerInterceptor())
+	}
+}
 
-	for sg := range sign {
-		switch v := sg.(type) {
-		default:
-			s.log.Info().Msgf("receive signal '%v', start graceful shutdown", v.String())
+func (s *service) HttpAfterLoad(r http.Handler) {
+	if router, ok := r.(*restful.Container); ok {
+		// 注册服务权限条目
+		s.log.Info().Msg("start registry endpoints ...")
 
-			if err := s.grpc.Stop(); err != nil {
-				s.log.Error().Msgf("grpc graceful shutdown err: %s, force exit", err)
-			} else {
-				s.log.Info().Msg("grpc service stop complete")
-			}
-
-			if err := s.http.Stop(); err != nil {
-				s.log.Error().Msgf("http graceful shutdown err: %s, force exit", err)
-			} else {
-				s.log.Info().Msgf("http service stop complete")
-			}
-			return
+		register := tools.NewEndpointRegister()
+		err := register.Registry(context.Background(), router, application.Short())
+		if err != nil {
+			s.log.Warn().Msgf("registry endpoints error, %s", err)
+		} else {
+			s.log.Debug().Msg("service endpoints registry success")
 		}
 	}
+}
+
+func (s *service) GrpcPostStart(ctx context.Context) error {
+	mcenter := mcenter.C()
+
+	req := instance.NewRegistryRequest()
+	req.Address = application.App().GRPC.Addr()
+	ins, err := mcenter.Instance().RegistryInstance(ctx, req)
+	if err != nil {
+		return fmt.Errorf("registry to mcenter error, %s", err)
+	}
+	s.ins = ins
+
+	s.log.Info().Msgf("registry instance to mcenter success")
+	return nil
+}
+
+func (s *service) GrpcPreStop(ctx context.Context) error {
+	mcenter := mcenter.C()
+
+	// 提前 剔除注册中心的地址
+	if s.ins != nil {
+		req := instance.NewUnregistryRequest(s.ins.Id)
+		if _, err := mcenter.Instance().UnRegistryInstance(ctx, req); err != nil {
+			s.log.Error().Msgf("unregistry error, %s", err)
+		} else {
+			s.log.Info().Msg("unregistry success")
+		}
+	}
+	return nil
 }

@@ -16,7 +16,6 @@ require (
 	github.com/rs/zerolog v1.31.0
 	github.com/spf13/cobra v1.7.0
 	go.mongodb.org/mongo-driver v1.12.1
-	go.opentelemetry.io/contrib/instrumentation/github.com/emicklei/go-restful/otelrestful v0.45.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.45.0
 	google.golang.org/grpc v1.58.3
 	google.golang.org/protobuf v1.31.0

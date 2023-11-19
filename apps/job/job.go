@@ -29,6 +29,7 @@ func New(req *CreateJobRequest) (*Job, error) {
 		Spec:   req,
 		Status: NewJobStatus(),
 	}
+
 	return d, nil
 }
 

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/infraboard/mcube/http/request"
+	"github.com/infraboard/mcube/v2/http/request"
 	"github.com/infraboard/mflow/apps/build"
 )
 

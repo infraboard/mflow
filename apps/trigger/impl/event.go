@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/infraboard/mcenter/apps/service"
-	"github.com/infraboard/mcube/exception"
+	"github.com/infraboard/mcube/v2/exception"
 	"github.com/infraboard/mflow/apps/build"
 	"github.com/infraboard/mflow/apps/job"
 	"github.com/infraboard/mflow/apps/pipeline"

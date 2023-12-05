@@ -2,7 +2,7 @@ package tools
 
 import (
 	"github.com/emicklei/go-restful/v3"
-	"github.com/infraboard/mcube/ioc"
+	"github.com/infraboard/mcube/v2/ioc"
 	test "github.com/infraboard/mflow/test/conf"
 
 	// 注册所有服务

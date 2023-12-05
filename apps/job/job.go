@@ -9,9 +9,9 @@ import (
 	"unicode"
 
 	"dario.cat/mergo"
-	"github.com/infraboard/mcube/logger/zap"
-	"github.com/infraboard/mcube/pb/resource"
-	"github.com/infraboard/mcube/tools/sense"
+	"github.com/infraboard/mcube/v2/ioc/config/logger"
+	"github.com/infraboard/mcube/v2/pb/resource"
+	"github.com/infraboard/mcube/v2/tools/sense"
 	"github.com/infraboard/mpaas/provider/k8s"
 	"github.com/infraboard/mpaas/provider/k8s/workload"
 	v1 "k8s.io/api/core/v1"
@@ -301,7 +301,7 @@ func (r *RunParamSet) SetParamValue(key, value string, readOnly bool) {
 			return
 		}
 	}
-	zap.L().Warnf("set param %s value failed, job no param or readonly", key)
+	logger.L().Warn().Msgf("set param %s value failed, job no param or readonly", key)
 }
 
 func (r *RunParamSet) Merge(targets ...*RunParam) {

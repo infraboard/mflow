@@ -7,7 +7,7 @@
 package task
 
 import (
-	resource "github.com/infraboard/mcube/pb/resource"
+	resource "github.com/infraboard/mcube/v2/pb/resource"
 	job "github.com/infraboard/mflow/apps/job"
 	pipeline "github.com/infraboard/mflow/apps/pipeline"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"

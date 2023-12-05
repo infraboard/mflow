@@ -13,8 +13,8 @@ import (
 	mcenter "github.com/infraboard/mcenter/clients/rpc"
 	"github.com/infraboard/mcenter/clients/rpc/middleware"
 	"github.com/infraboard/mcenter/clients/rpc/tools"
-	"github.com/infraboard/mcube/ioc/config/application"
-	"github.com/infraboard/mcube/ioc/config/logger"
+	"github.com/infraboard/mcube/v2/ioc/config/application"
+	"github.com/infraboard/mcube/v2/ioc/config/logger"
 
 	// 注册所有服务
 	_ "github.com/infraboard/mflow/apps"

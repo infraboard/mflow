@@ -8,8 +8,8 @@ import (
 	"github.com/infraboard/mcenter/apps/policy"
 	"github.com/infraboard/mcenter/apps/token"
 	"github.com/infraboard/mcenter/common/validate"
-	"github.com/infraboard/mcube/http/request"
-	"github.com/infraboard/mcube/pb/resource"
+	"github.com/infraboard/mcube/v2/http/request"
+	"github.com/infraboard/mcube/v2/pb/resource"
 	"github.com/infraboard/mflow/apps/job"
 	pipeline "github.com/infraboard/mflow/apps/pipeline"
 )

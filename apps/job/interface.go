@@ -10,8 +10,8 @@ import (
 	"github.com/infraboard/mcenter/apps/domain"
 	"github.com/infraboard/mcenter/apps/namespace"
 	"github.com/infraboard/mcenter/common/validate"
-	request "github.com/infraboard/mcube/http/request"
-	pb_request "github.com/infraboard/mcube/pb/request"
+	request "github.com/infraboard/mcube/v2/http/request"
+	pb_request "github.com/infraboard/mcube/v2/pb/request"
 )
 
 const (

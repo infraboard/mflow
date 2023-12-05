@@ -5,8 +5,8 @@ import (
 	"github.com/infraboard/mcenter/apps/policy"
 	"github.com/infraboard/mcenter/apps/token"
 	"github.com/infraboard/mcenter/common/validate"
-	"github.com/infraboard/mcube/http/request"
-	pb_request "github.com/infraboard/mcube/pb/request"
+	"github.com/infraboard/mcube/v2/http/request"
+	pb_request "github.com/infraboard/mcube/v2/pb/request"
 )
 
 const (

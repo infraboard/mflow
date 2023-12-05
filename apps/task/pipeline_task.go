@@ -7,8 +7,8 @@ import (
 	"html/template"
 	"time"
 
-	"github.com/infraboard/mcube/exception"
-	"github.com/infraboard/mcube/pb/resource"
+	"github.com/infraboard/mcube/v2/exception"
+	"github.com/infraboard/mcube/v2/pb/resource"
 	"github.com/infraboard/mflow/apps/job"
 	"github.com/infraboard/mflow/apps/pipeline"
 )

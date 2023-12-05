@@ -8,7 +8,7 @@ package pipeline
 
 import (
 	notify "github.com/infraboard/mcenter/apps/notify"
-	resource "github.com/infraboard/mcube/pb/resource"
+	resource "github.com/infraboard/mcube/v2/pb/resource"
 	job "github.com/infraboard/mflow/apps/job"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"

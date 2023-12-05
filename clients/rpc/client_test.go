@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/infraboard/mcube/ioc"
+	"github.com/infraboard/mcube/v2/ioc"
 	"github.com/infraboard/mflow/apps/task"
 	"github.com/infraboard/mflow/clients/rpc"
 )

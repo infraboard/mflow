@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/infraboard/mcenter/apps/token"
-	"github.com/infraboard/mcube/pb/resource"
+	"github.com/infraboard/mcube/v2/pb/resource"
 	"github.com/infraboard/mflow/apps/approval/impl/notify"
 	job "github.com/infraboard/mflow/apps/job"
 	pipeline "github.com/infraboard/mflow/apps/pipeline"

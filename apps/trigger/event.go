@@ -11,7 +11,7 @@ import (
 
 	"github.com/emicklei/go-restful/v3"
 	"github.com/infraboard/mcenter/common/validate"
-	"github.com/infraboard/mcube/logger/zap"
+	"github.com/infraboard/mcube/v2/ioc/config/logger"
 	build "github.com/infraboard/mflow/apps/build"
 	"github.com/infraboard/mflow/apps/job"
 	"github.com/infraboard/mflow/common/format"
@@ -122,7 +122,7 @@ func (e *Event) GitRunParams() *job.RunParamSet {
 	case EVENT_PROVIDER_GITLAB:
 		ge, err := e.GetGitlabEvent()
 		if err != nil {
-			zap.L().Errorf("parse gitlab event error, %s", err)
+			logger.L().Error().Msgf("parse gitlab event error, %s", err)
 		} else {
 			ge.GitRunParams(params)
 		}

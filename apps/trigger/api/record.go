@@ -2,7 +2,7 @@ package api
 
 import (
 	"github.com/emicklei/go-restful/v3"
-	"github.com/infraboard/mcube/http/restful/response"
+	"github.com/infraboard/mcube/v2/http/restful/response"
 	"github.com/infraboard/mflow/apps/trigger"
 )
 

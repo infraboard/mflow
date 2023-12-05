@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/infraboard/mcenter/apps/notify"
-	"github.com/infraboard/mcube/grpc/mock"
+	"github.com/infraboard/mcube/v2/grpc/mock"
 	"github.com/infraboard/mflow/apps/build"
 	"github.com/infraboard/mflow/apps/job"
 	"github.com/infraboard/mflow/apps/pipeline"

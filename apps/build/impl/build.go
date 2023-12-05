@@ -6,8 +6,8 @@ import (
 
 	"dario.cat/mergo"
 	"github.com/infraboard/mcenter/apps/service"
-	"github.com/infraboard/mcube/exception"
-	"github.com/infraboard/mcube/pb/request"
+	"github.com/infraboard/mcube/v2/exception"
+	"github.com/infraboard/mcube/v2/pb/request"
 	"github.com/infraboard/mflow/apps/build"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"

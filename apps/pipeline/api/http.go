@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	ioc.RegistryApi(&handler{})
+	ioc.Api().Registry(&handler{})
 }
 
 type handler struct {
@@ -20,7 +20,7 @@ type handler struct {
 
 func (h *handler) Init() error {
 	h.log = logger.Sub(pipeline.AppName)
-	h.service = ioc.GetController(pipeline.AppName).(pipeline.Service)
+	h.service = ioc.Controller().Get(pipeline.AppName).(pipeline.Service)
 	return nil
 }
 

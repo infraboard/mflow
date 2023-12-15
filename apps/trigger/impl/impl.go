@@ -16,7 +16,7 @@ import (
 )
 
 func init() {
-	ioc.RegistryController(&impl{})
+	ioc.Controller().Registry(&impl{})
 }
 
 type impl struct {
@@ -37,8 +37,8 @@ func (i *impl) Init() error {
 	i.col = ioc_mongo.DB().Collection(i.Name())
 	i.log = logger.Sub(i.Name())
 
-	i.build = ioc.GetController(build.AppName).(build.Service)
-	i.task = ioc.GetController(task.AppName).(task.Service)
+	i.build = ioc.Controller().Get(build.AppName).(build.Service)
+	i.task = ioc.Controller().Get(task.AppName).(task.Service)
 	i.mcenter = rpc.C()
 	return nil
 }

@@ -13,5 +13,5 @@ var (
 
 func init() {
 	tools.DevelopmentSetup()
-	impl = ioc.GetApi(trigger.AppName).(*api.Handler)
+	impl = ioc.Api().Get(trigger.AppName).(*api.Handler)
 }

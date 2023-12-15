@@ -20,7 +20,7 @@ import (
 )
 
 func init() {
-	ioc.RegistryController(&impl{})
+	ioc.Controller().Registry(&impl{})
 }
 
 type impl struct {
@@ -56,8 +56,8 @@ func (s *impl) Init() error {
 	}
 
 	s.log = logger.Sub(s.Name())
-	s.pipeline = ioc.GetController(pipeline.AppName).(pipeline.Service)
-	s.task = ioc.GetController(task.AppName).(task.Service)
+	s.pipeline = ioc.Controller().Get(pipeline.AppName).(pipeline.Service)
+	s.task = ioc.Controller().Get(task.AppName).(task.Service)
 	s.mcenter = rpc.C()
 	return nil
 }

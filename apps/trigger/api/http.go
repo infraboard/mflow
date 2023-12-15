@@ -16,7 +16,7 @@ import (
 )
 
 func init() {
-	ioc.RegistryApi(&Handler{})
+	ioc.Api().Registry(&Handler{})
 }
 
 type Handler struct {
@@ -28,7 +28,7 @@ type Handler struct {
 }
 
 func (h *Handler) Init() error {
-	h.svc = ioc.GetController(trigger.AppName).(trigger.Service)
+	h.svc = ioc.Controller().Get(trigger.AppName).(trigger.Service)
 	h.log = logger.Sub(trigger.AppName)
 	h.mcenter = rpc.C()
 	return nil

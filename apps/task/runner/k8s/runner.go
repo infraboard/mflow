@@ -15,7 +15,7 @@ type K8sRunner struct {
 }
 
 func (r *K8sRunner) Init() error {
-	r.task = ioc.GetController(task.AppName).(task.PipelineService)
+	r.task = ioc.Controller().Get(task.AppName).(task.PipelineService)
 	r.log = logger.Sub("runner.k8s")
 	return nil
 }

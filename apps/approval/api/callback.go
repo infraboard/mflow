@@ -16,7 +16,7 @@ import (
 )
 
 func init() {
-	ioc.RegistryApi(&callbackHandler{})
+	ioc.Api().Registry(&callbackHandler{})
 }
 
 type callbackHandler struct {
@@ -28,7 +28,7 @@ type callbackHandler struct {
 
 func (h *callbackHandler) Init() error {
 	h.log = logger.Sub(approval.AppName)
-	h.service = ioc.GetController(approval.AppName).(approval.Service)
+	h.service = ioc.Controller().Get(approval.AppName).(approval.Service)
 	h.mcenter = rpc.C()
 	return nil
 }

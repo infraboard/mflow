@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	ioc.RegistryApi(&PipelineTaskHandler{})
+	ioc.Api().Registry(&PipelineTaskHandler{})
 }
 
 type PipelineTaskHandler struct {
@@ -24,7 +24,7 @@ type PipelineTaskHandler struct {
 
 func (h *PipelineTaskHandler) Init() error {
 	h.log = logger.Sub(task.AppName)
-	h.service = ioc.GetController(task.AppName).(task.Service)
+	h.service = ioc.Controller().Get(task.AppName).(task.Service)
 	return nil
 }
 

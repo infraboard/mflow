@@ -15,5 +15,5 @@ var (
 
 func init() {
 	tools.DevelopmentSetup()
-	impl = ioc.GetController(pipeline.AppName).(pipeline.Service)
+	impl = ioc.Controller().Get(pipeline.AppName).(pipeline.Service)
 }

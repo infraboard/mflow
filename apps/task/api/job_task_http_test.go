@@ -12,5 +12,5 @@ var (
 
 func init() {
 	tools.DevelopmentSetup()
-	impl = ioc.GetApi("job_tasks").(*api.JobTaskHandler)
+	impl = ioc.Api().Get("job_tasks").(*api.JobTaskHandler)
 }

@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	ioc.RegistryApi(&JobTaskHandler{})
+	ioc.Api().Registry(&JobTaskHandler{})
 }
 
 type JobTaskHandler struct {
@@ -24,7 +24,7 @@ type JobTaskHandler struct {
 
 func (h *JobTaskHandler) Init() error {
 	h.log = logger.Sub(task.AppName)
-	h.service = ioc.GetController(task.AppName).(task.Service)
+	h.service = ioc.Controller().Get(task.AppName).(task.Service)
 	return nil
 }
 

@@ -15,5 +15,5 @@ var (
 
 func init() {
 	tools.DevelopmentSetup()
-	impl = ioc.GetController(trigger.AppName).(trigger.Service)
+	impl = ioc.Controller().Get(trigger.AppName).(trigger.Service)
 }

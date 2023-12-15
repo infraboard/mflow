@@ -23,7 +23,7 @@ import (
 )
 
 func init() {
-	ioc.RegistryController(&impl{})
+	ioc.Controller().Registry(&impl{})
 }
 
 type impl struct {
@@ -48,10 +48,10 @@ func (i *impl) Init() error {
 	i.jcol = db.Collection("job_tasks")
 	i.pcol = db.Collection("pipeline_tasks")
 	i.log = logger.Sub(i.Name())
-	i.job = ioc.GetController(job.AppName).(job.Service)
-	i.pipeline = ioc.GetController(pipeline.AppName).(pipeline.Service)
-	i.approval = ioc.GetController(approval.AppName).(approval.Service)
-	i.trigger = ioc.GetController(trigger.AppName).(trigger.Service)
+	i.job = ioc.Controller().Get(job.AppName).(job.Service)
+	i.pipeline = ioc.Controller().Get(pipeline.AppName).(pipeline.Service)
+	i.approval = ioc.Controller().Get(approval.AppName).(approval.Service)
+	i.trigger = ioc.Controller().Get(trigger.AppName).(trigger.Service)
 	i.mcenter = rpc.C()
 	if err := runner.Init(); err != nil {
 		return err

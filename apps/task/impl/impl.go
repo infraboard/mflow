@@ -4,11 +4,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/infraboard/mcube/v2/ioc"
-	"github.com/infraboard/mcube/v2/ioc/config/logger"
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
 
 	"github.com/infraboard/mcenter/clients/rpc"
+	"github.com/infraboard/mcube/v2/ioc/config/log"
 	ioc_mongo "github.com/infraboard/mcube/v2/ioc/config/mongo"
 	"github.com/infraboard/mflow/apps/approval"
 	"github.com/infraboard/mflow/apps/job"
@@ -47,7 +47,7 @@ func (i *impl) Init() error {
 	db := ioc_mongo.DB()
 	i.jcol = db.Collection("job_tasks")
 	i.pcol = db.Collection("pipeline_tasks")
-	i.log = logger.Sub(i.Name())
+	i.log = log.Sub(i.Name())
 	i.job = ioc.Controller().Get(job.AppName).(job.Service)
 	i.pipeline = ioc.Controller().Get(pipeline.AppName).(pipeline.Service)
 	i.approval = ioc.Controller().Get(approval.AppName).(approval.Service)

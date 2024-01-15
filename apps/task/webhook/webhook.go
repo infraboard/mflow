@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/infraboard/mcube/v2/ioc/config/logger"
+	"github.com/infraboard/mcube/v2/ioc/config/log"
 	"github.com/infraboard/mflow/apps/pipeline"
 	"github.com/infraboard/mflow/apps/task"
 	"github.com/rs/zerolog"
@@ -12,7 +12,7 @@ import (
 
 func NewWebHook() *WebHook {
 	return &WebHook{
-		log: logger.Sub("webhook"),
+		log: log.Sub("webhook"),
 	}
 }
 

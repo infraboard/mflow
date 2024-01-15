@@ -5,10 +5,10 @@ import (
 
 	"github.com/infraboard/mcenter/clients/rpc"
 	"github.com/infraboard/mcube/v2/ioc"
-	"github.com/infraboard/mcube/v2/ioc/config/logger"
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
 
+	"github.com/infraboard/mcube/v2/ioc/config/log"
 	ioc_mongo "github.com/infraboard/mcube/v2/ioc/config/mongo"
 	"github.com/infraboard/mflow/apps/build"
 )
@@ -28,7 +28,7 @@ type impl struct {
 
 func (i *impl) Init() error {
 	i.col = ioc_mongo.DB().Collection(i.Name())
-	i.log = logger.Sub(i.Name())
+	i.log = log.Sub(i.Name())
 	i.mcenter = rpc.C()
 	return nil
 }

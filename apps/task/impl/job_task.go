@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/infraboard/mcube/v2/exception"
-	"github.com/infraboard/mcube/v2/ioc/config/logger"
+	"github.com/infraboard/mcube/v2/ioc/config/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -535,6 +535,6 @@ func (w *WatchJobTaskLogServerWriter) Write(p []byte) (n int, err error) {
 func (w *WatchJobTaskLogServerWriter) WriteMessagef(format string, a ...any) {
 	_, err := w.Write([]byte(fmt.Sprintf(format+"\n", a...)))
 	if err != nil {
-		logger.L().Error().Msgf("write message error, %s", err)
+		log.L().Error().Msgf("write message error, %s", err)
 	}
 }

@@ -7,8 +7,8 @@ import (
 	"github.com/emicklei/go-restful/v3"
 	"github.com/infraboard/mcube/v2/http/label"
 	"github.com/infraboard/mcube/v2/ioc"
-	"github.com/infraboard/mcube/v2/ioc/config/application"
-	"github.com/infraboard/mcube/v2/ioc/config/logger"
+	http "github.com/infraboard/mcube/v2/ioc/config/http"
+	"github.com/infraboard/mcube/v2/ioc/config/log"
 	"github.com/rs/zerolog"
 
 	"github.com/infraboard/mcenter/clients/rpc"
@@ -29,7 +29,7 @@ type Handler struct {
 
 func (h *Handler) Init() error {
 	h.svc = ioc.Controller().Get(trigger.AppName).(trigger.Service)
-	h.log = logger.Sub(trigger.AppName)
+	h.log = log.Sub(trigger.AppName)
 	h.mcenter = rpc.C()
 	return nil
 }
@@ -44,7 +44,7 @@ func (h *Handler) Version() string {
 
 func (h *Handler) APIPrefix() string {
 	return fmt.Sprintf("%s/%s/%s",
-		application.App().HTTPPrefix(),
+		http.Get().HTTPPrefix(),
 		h.Version(),
 		h.Name(),
 	)

@@ -5,8 +5,8 @@ import (
 
 	"github.com/emicklei/go-restful/v3"
 	"github.com/infraboard/mcube/v2/ioc"
-	"github.com/infraboard/mcube/v2/ioc/config/application"
-	"github.com/infraboard/mcube/v2/ioc/config/logger"
+	"github.com/infraboard/mcube/v2/ioc/config/http"
+	"github.com/infraboard/mcube/v2/ioc/config/log"
 	"github.com/rs/zerolog"
 
 	"github.com/infraboard/mflow/apps/task"
@@ -23,7 +23,7 @@ type PipelineTaskHandler struct {
 }
 
 func (h *PipelineTaskHandler) Init() error {
-	h.log = logger.Sub(task.AppName)
+	h.log = log.Sub(task.AppName)
 	h.service = ioc.Controller().Get(task.AppName).(task.Service)
 	return nil
 }
@@ -38,7 +38,7 @@ func (h *PipelineTaskHandler) Version() string {
 
 func (h *PipelineTaskHandler) APIPrefix() string {
 	return fmt.Sprintf("%s/%s/%s",
-		application.App().HTTPPrefix(),
+		http.Get().HTTPPrefix(),
 		h.Version(),
 		h.Name(),
 	)

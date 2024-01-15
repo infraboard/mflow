@@ -9,10 +9,10 @@ import (
 
 	"github.com/infraboard/mcenter/clients/rpc"
 	"github.com/infraboard/mcube/v2/ioc"
-	"github.com/infraboard/mcube/v2/ioc/config/logger"
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
 
+	"github.com/infraboard/mcube/v2/ioc/config/log"
 	ioc_mongo "github.com/infraboard/mcube/v2/ioc/config/mongo"
 	"github.com/infraboard/mflow/apps/approval"
 	"github.com/infraboard/mflow/apps/pipeline"
@@ -55,7 +55,7 @@ func (s *impl) Init() error {
 		return err
 	}
 
-	s.log = logger.Sub(s.Name())
+	s.log = log.Sub(s.Name())
 	s.pipeline = ioc.Controller().Get(pipeline.AppName).(pipeline.Service)
 	s.task = ioc.Controller().Get(task.AppName).(task.Service)
 	s.mcenter = rpc.C()

@@ -9,8 +9,8 @@ import (
 
 	"github.com/infraboard/mcenter/apps/domain"
 	"github.com/infraboard/mcenter/apps/namespace"
-	"github.com/infraboard/mcenter/common/validate"
 	request "github.com/infraboard/mcube/v2/http/request"
+	"github.com/infraboard/mcube/v2/ioc/config/validator"
 	pb_request "github.com/infraboard/mcube/v2/pb/request"
 )
 
@@ -50,7 +50,7 @@ func (req *CreateJobRequest) Validate() error {
 		return fmt.Errorf("名称不能以#开头")
 	}
 
-	return validate.Validate(req)
+	return validator.Validate(req)
 }
 
 func NewQueryJobRequestFromHTTP(r *http.Request) *QueryJobRequest {
@@ -131,7 +131,7 @@ func NewDescribeJobRequestById(id string) *DescribeJobRequest {
 }
 
 func (req *DescribeJobRequest) Validate() error {
-	return validate.Validate(req)
+	return validator.Validate(req)
 }
 
 func NewPutJobRequest(id string) *UpdateJobRequest {
@@ -160,7 +160,7 @@ func NewUpdateJobStatusRequest(id string) *UpdateJobStatusRequest {
 }
 
 func (r *UpdateJobStatusRequest) Validate() error {
-	return validate.Validate(r)
+	return validator.Validate(r)
 }
 
 func NewDeleteJobRequest(id string) *DeleteJobRequest {

@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/emicklei/go-restful/v3"
-	"github.com/infraboard/mcenter/common/validate"
 	"github.com/infraboard/mcube/v2/ioc/config/log"
+	"github.com/infraboard/mcube/v2/ioc/config/validator"
 	build "github.com/infraboard/mflow/apps/build"
 	"github.com/infraboard/mflow/apps/job"
 	"github.com/infraboard/mflow/common/format"
@@ -33,7 +33,7 @@ func (e *Event) ToJson() string {
 }
 
 func (e *Event) Validate() error {
-	return validate.Validate(e)
+	return validator.Validate(e)
 }
 
 func (e *Event) UUID() string {
@@ -70,7 +70,7 @@ func (e *GitlabWebHookEvent) DefaultRepository() string {
 }
 
 func (e *GitlabWebHookEvent) Validate() error {
-	return validate.Validate(e)
+	return validator.Validate(e)
 }
 
 func (e *GitlabWebHookEvent) ToJson() string {

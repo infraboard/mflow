@@ -9,7 +9,7 @@ import (
 	"dario.cat/mergo"
 	"github.com/infraboard/mcenter/apps/notify"
 	"github.com/infraboard/mcenter/apps/token"
-	"github.com/infraboard/mcenter/common/validate"
+	"github.com/infraboard/mcube/v2/ioc/config/validator"
 	"github.com/infraboard/mcube/v2/pb/resource"
 	job "github.com/infraboard/mflow/apps/job"
 	"github.com/infraboard/mflow/common/format"
@@ -273,7 +273,7 @@ func (req *RunPipelineRequest) AddRunParam(params ...*job.RunParam) {
 }
 
 func (req *RunPipelineRequest) Validate() error {
-	return validate.Validate(req)
+	return validator.Validate(req)
 }
 
 func (req *RunPipelineRequest) ToJson() string {

@@ -7,8 +7,8 @@ import (
 	"github.com/emicklei/go-restful/v3"
 	"github.com/infraboard/mcenter/apps/policy"
 	"github.com/infraboard/mcenter/apps/token"
-	"github.com/infraboard/mcenter/common/validate"
 	"github.com/infraboard/mcube/v2/http/request"
+	"github.com/infraboard/mcube/v2/ioc/config/validator"
 	"github.com/infraboard/mcube/v2/pb/resource"
 	"github.com/infraboard/mflow/apps/job"
 	pipeline "github.com/infraboard/mflow/apps/pipeline"
@@ -55,7 +55,7 @@ func (req *CreateApprovalRequest) Validate() error {
 		return fmt.Errorf("审核人缺失")
 	}
 
-	return validate.Validate(req)
+	return validator.Validate(req)
 }
 
 func NewCreateApprovalRequest() *CreateApprovalRequest {
@@ -69,7 +69,7 @@ func NewCreateApprovalRequest() *CreateApprovalRequest {
 }
 
 func (req *DescribeApprovalRequest) Validate() error {
-	return validate.Validate(req)
+	return validator.Validate(req)
 }
 
 func NewEditApprovalRequest(approvalId string) *EditApprovalRequest {
@@ -79,7 +79,7 @@ func NewEditApprovalRequest(approvalId string) *EditApprovalRequest {
 }
 
 func (req *EditApprovalRequest) Validate() error {
-	return validate.Validate(req)
+	return validator.Validate(req)
 }
 
 func NewUpdateApprovalStatusRequest(approvalId string) *UpdateApprovalStatusRequest {
@@ -90,7 +90,7 @@ func NewUpdateApprovalStatusRequest(approvalId string) *UpdateApprovalStatusRequ
 }
 
 func (req *UpdateApprovalStatusRequest) Validate() error {
-	return validate.Validate(req)
+	return validator.Validate(req)
 }
 
 func NewDescribeApprovalRequest(id string) *DescribeApprovalRequest {

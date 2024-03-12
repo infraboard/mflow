@@ -4,8 +4,8 @@ import (
 	"github.com/emicklei/go-restful/v3"
 	"github.com/infraboard/mcenter/apps/policy"
 	"github.com/infraboard/mcenter/apps/token"
-	"github.com/infraboard/mcenter/common/validate"
 	"github.com/infraboard/mcube/v2/http/request"
+	"github.com/infraboard/mcube/v2/ioc/config/validator"
 	pb_request "github.com/infraboard/mcube/v2/pb/request"
 )
 
@@ -21,7 +21,7 @@ func (req *CreateBuildConfigRequest) Validate() error {
 	if req.VersionPrefix == "" {
 		req.VersionPrefix = "v"
 	}
-	return validate.Validate(req)
+	return validator.Validate(req)
 }
 
 func NewQueryBuildConfigRequestFromHTTP(r *restful.Request) *QueryBuildConfigRequest {
@@ -53,7 +53,7 @@ func NewDescribeBuildConfigRequst(id string) *DescribeBuildConfigRequst {
 }
 
 func (req *DescribeBuildConfigRequst) Validate() error {
-	return validate.Validate(req)
+	return validator.Validate(req)
 }
 
 func NewDeleteBuildConfigRequest(id string) *DeleteBuildConfigRequest {

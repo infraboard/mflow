@@ -7,8 +7,8 @@ import (
 	"github.com/emicklei/go-restful/v3"
 	"github.com/infraboard/mcenter/apps/policy"
 	"github.com/infraboard/mcenter/apps/token"
-	"github.com/infraboard/mcenter/common/validate"
 	"github.com/infraboard/mcube/v2/http/request"
+	"github.com/infraboard/mcube/v2/ioc/config/validator"
 	pb_request "github.com/infraboard/mcube/v2/pb/request"
 	job "github.com/infraboard/mflow/apps/job"
 )
@@ -35,7 +35,7 @@ func (req *DescribePipelineRequest) Validate() error {
 }
 
 func (req *CreatePipelineRequest) Validate() error {
-	return validate.Validate(req)
+	return validator.Validate(req)
 }
 
 func (req *CreatePipelineRequest) GetLabelValue(key string) string {

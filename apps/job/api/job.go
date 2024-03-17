@@ -7,11 +7,14 @@ import (
 	"github.com/emicklei/go-restful/v3"
 	"github.com/infraboard/mcube/v2/http/label"
 	"github.com/infraboard/mcube/v2/http/restful/response"
+	"github.com/infraboard/mcube/v2/ioc/config/gorestful"
 	"github.com/infraboard/mflow/apps/job"
 )
 
-func (h *handler) Registry(ws *restful.WebService) {
+func (h *handler) Registry() {
 	tags := []string{"Job管理"}
+
+	ws := gorestful.ObjectRouter(h)
 	ws.Route(ws.POST("/").To(h.CreateJob).
 		Doc("创建Job").
 		Metadata(restfulspec.KeyOpenAPITags, tags).

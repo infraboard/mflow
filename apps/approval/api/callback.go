@@ -8,6 +8,7 @@ import (
 	"github.com/infraboard/mcube/v2/http/label"
 	"github.com/infraboard/mcube/v2/http/restful/response"
 	"github.com/infraboard/mcube/v2/ioc"
+	"github.com/infraboard/mcube/v2/ioc/config/gorestful"
 	"github.com/infraboard/mcube/v2/ioc/config/log"
 	"github.com/rs/zerolog"
 
@@ -30,6 +31,7 @@ func (h *callbackHandler) Init() error {
 	h.log = log.Sub(approval.AppName)
 	h.service = ioc.Controller().Get(approval.AppName).(approval.Service)
 	h.mcenter = rpc.C()
+	h.Registry()
 	return nil
 }
 
@@ -41,8 +43,10 @@ func (h *callbackHandler) Version() string {
 	return "v1"
 }
 
-func (h *callbackHandler) Registry(ws *restful.WebService) {
+func (h *callbackHandler) Registry() {
 	tags := []string{"审核对接第三方"}
+
+	ws := gorestful.ObjectRouter(h)
 	ws.Route(ws.POST("/feishu").To(h.FeishuCard).
 		Doc("飞书卡片处理审核").
 		Metadata(restfulspec.KeyOpenAPITags, tags).

@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	restfulspec "github.com/emicklei/go-restful-openapi/v2"
-	"github.com/emicklei/go-restful/v3"
 	"github.com/infraboard/mcube/v2/http/label"
 	"github.com/infraboard/mcube/v2/ioc"
+	"github.com/infraboard/mcube/v2/ioc/config/gorestful"
 	http "github.com/infraboard/mcube/v2/ioc/config/http"
 	"github.com/infraboard/mcube/v2/ioc/config/log"
 	"github.com/rs/zerolog"
@@ -31,6 +31,7 @@ func (h *Handler) Init() error {
 	h.svc = ioc.Controller().Get(trigger.AppName).(trigger.Service)
 	h.log = log.Sub(trigger.AppName)
 	h.mcenter = rpc.C()
+	h.Registry()
 	return nil
 }
 
@@ -50,9 +51,10 @@ func (h *Handler) APIPrefix() string {
 	)
 }
 
-func (h *Handler) Registry(ws *restful.WebService) {
+func (h *Handler) Registry() {
 	tags := []string{"事件处理"}
 
+	ws := gorestful.ObjectRouter(h)
 	ws.Route(ws.GET("records").To(h.QueryRecord).
 		Doc("查询触发记录").
 		Metadata(restfulspec.KeyOpenAPITags, tags).

@@ -3,7 +3,6 @@ package api
 import (
 	"fmt"
 
-	"github.com/emicklei/go-restful/v3"
 	"github.com/infraboard/mcube/v2/ioc"
 	"github.com/infraboard/mcube/v2/ioc/config/http"
 	"github.com/infraboard/mcube/v2/ioc/config/log"
@@ -25,6 +24,7 @@ type JobTaskHandler struct {
 func (h *JobTaskHandler) Init() error {
 	h.log = log.Sub(task.AppName)
 	h.service = ioc.Controller().Get(task.AppName).(task.Service)
+	h.Registry()
 	return nil
 }
 
@@ -44,6 +44,6 @@ func (h *JobTaskHandler) APIPrefix() string {
 	)
 }
 
-func (h *JobTaskHandler) Registry(ws *restful.WebService) {
-	h.RegistryUserHandler(ws)
+func (h *JobTaskHandler) Registry() {
+	h.RegistryUserHandler()
 }

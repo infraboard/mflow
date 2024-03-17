@@ -5,9 +5,9 @@ import (
 
 	"github.com/infraboard/mcube/v2/ioc"
 	"github.com/rs/zerolog"
-	"google.golang.org/grpc"
 
 	"github.com/infraboard/mcenter/clients/rpc"
+	"github.com/infraboard/mcube/v2/ioc/config/grpc"
 	"github.com/infraboard/mcube/v2/ioc/config/log"
 	ioc_mongo "github.com/infraboard/mcube/v2/ioc/config/mongo"
 	"github.com/infraboard/mflow/apps/approval"
@@ -58,6 +58,7 @@ func (i *impl) Init() error {
 	}
 
 	i.hook = webhook.NewWebHook()
+	i.Registry()
 	return nil
 }
 
@@ -65,7 +66,8 @@ func (i *impl) Name() string {
 	return task.AppName
 }
 
-func (i *impl) Registry(server *grpc.Server) {
+func (i *impl) Registry() {
+	server := grpc.Get().Server()
 	task.RegisterJobRPCServer(server, i)
 	task.RegisterPipelineRPCServer(server, i)
 }

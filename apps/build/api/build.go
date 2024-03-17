@@ -6,11 +6,14 @@ import (
 	"github.com/infraboard/mcenter/apps/token"
 	"github.com/infraboard/mcube/v2/http/label"
 	"github.com/infraboard/mcube/v2/http/restful/response"
+	"github.com/infraboard/mcube/v2/ioc/config/gorestful"
 	"github.com/infraboard/mflow/apps/build"
 )
 
-func (h *handler) Registry(ws *restful.WebService) {
+func (h *handler) Registry() {
 	tags := []string{"构建配置管理"}
+
+	ws := gorestful.ObjectRouter(h)
 	ws.Route(ws.POST("/").To(h.CreateBuildConfig).
 		Doc("创建构建配置").
 		Metadata(restfulspec.KeyOpenAPITags, tags).

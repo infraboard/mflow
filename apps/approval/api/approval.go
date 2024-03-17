@@ -6,6 +6,7 @@ import (
 	"github.com/infraboard/mcenter/apps/token"
 	"github.com/infraboard/mcube/v2/http/label"
 	"github.com/infraboard/mcube/v2/ioc"
+	"github.com/infraboard/mcube/v2/ioc/config/gorestful"
 	"github.com/infraboard/mcube/v2/ioc/config/log"
 	"github.com/rs/zerolog"
 
@@ -26,6 +27,7 @@ type handler struct {
 func (h *handler) Init() error {
 	h.log = log.Sub(approval.AppName)
 	h.service = ioc.Controller().Get(approval.AppName).(approval.Service)
+	h.Registry()
 	return nil
 }
 
@@ -38,8 +40,10 @@ func (h *handler) Version() string {
 	return "v1"
 }
 
-func (h *handler) Registry(ws *restful.WebService) {
+func (h *handler) Registry() {
 	tags := []string{"审核管理"}
+
+	ws := gorestful.ObjectRouter(h)
 	ws.Route(ws.POST("/").To(h.CreateApproval).
 		Doc("创建审核").
 		Metadata(restfulspec.KeyOpenAPITags, tags).

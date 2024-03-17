@@ -123,7 +123,7 @@ func (i *impl) CheckPipelineAllowRun(ctx context.Context, ins *pipeline.Pipeline
 // 当所有任务成功结束时标记Pipeline执行成功
 func (i *impl) PipelineTaskStatusChanged(ctx context.Context, in *task.JobTask) (
 	*task.PipelineTask, error) {
-	if in == nil && in.Status == nil {
+	if in == nil || in.Status == nil {
 		return nil, exception.NewBadRequest("job task or job task status is nil")
 	}
 

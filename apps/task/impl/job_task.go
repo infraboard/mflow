@@ -468,10 +468,6 @@ func (i *impl) JobTaskDebug(ctx context.Context, in *task.JobTaskDebugRequest) {
 			term.Failed(fmt.Errorf("初始化k8s客户端失败, %s", err))
 			return
 		}
-		if err != nil {
-			term.Failed(err)
-			return
-		}
 
 		// 找到Job执行的Pod
 		term.WriteTextln("正在查询Job Task【%s】运行的Pod", t.Spec.TaskId)

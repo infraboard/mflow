@@ -130,9 +130,7 @@ func (i *impl) EditApproval(ctx context.Context, in *approval.EditApprovalReques
 
 	// 1. 只有处于草稿状态的申请才允许编辑
 	if !ins.Status.Stage.Equal(approval.STAGE_DRAFT) {
-		if err != nil {
-			return nil, exception.NewBadRequest("只有处于草稿状态的发布申请才能编辑")
-		}
+		return nil, exception.NewBadRequest("只有处于草稿状态的发布申请才能编辑")
 	}
 
 	switch in.UpdateMode {
@@ -178,9 +176,7 @@ func (i *impl) UpdateApprovalStatus(ctx context.Context, in *approval.UpdateAppr
 
 	// 关闭后的发布申请 不能修改状态
 	if !ins.Status.Stage.Equal(approval.STAGE_CLOSED) {
-		if err != nil {
-			return nil, exception.NewBadRequest("发布申请已关闭, 禁止更新状态")
-		}
+		return nil, exception.NewBadRequest("发布申请已关闭, 禁止更新状态")
 	}
 
 	// 修改的状态不能回退, 比如你不能把发布中的状态 修改为审核中

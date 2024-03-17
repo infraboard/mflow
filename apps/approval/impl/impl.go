@@ -10,8 +10,8 @@ import (
 	"github.com/infraboard/mcenter/clients/rpc"
 	"github.com/infraboard/mcube/v2/ioc"
 	"github.com/rs/zerolog"
-	"google.golang.org/grpc"
 
+	"github.com/infraboard/mcube/v2/ioc/config/grpc"
 	"github.com/infraboard/mcube/v2/ioc/config/log"
 	ioc_mongo "github.com/infraboard/mcube/v2/ioc/config/mongo"
 	"github.com/infraboard/mflow/apps/approval"
@@ -59,13 +59,11 @@ func (s *impl) Init() error {
 	s.pipeline = ioc.Controller().Get(pipeline.AppName).(pipeline.Service)
 	s.task = ioc.Controller().Get(task.AppName).(task.Service)
 	s.mcenter = rpc.C()
+
+	approval.RegisterRPCServer(grpc.Get().Server(), s)
 	return nil
 }
 
 func (s *impl) Name() string {
 	return approval.AppName
-}
-
-func (s *impl) Registry(server *grpc.Server) {
-	approval.RegisterRPCServer(server, s)
 }

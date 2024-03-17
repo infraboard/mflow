@@ -9,9 +9,10 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/infraboard/mcenter/apps/endpoint"
 	"github.com/infraboard/mcenter/apps/token"
-	"github.com/infraboard/mcenter/clients/rpc/middleware/auth/gorestful"
+	middleware "github.com/infraboard/mcenter/clients/rpc/middleware/auth/gorestful"
 	"github.com/infraboard/mcube/v2/http/label"
 	"github.com/infraboard/mcube/v2/http/restful/response"
+	"github.com/infraboard/mcube/v2/ioc/config/gorestful"
 	"github.com/infraboard/mflow/apps/pipeline"
 	"github.com/infraboard/mflow/apps/task"
 	"github.com/infraboard/mpaas/common/terminal"
@@ -22,8 +23,10 @@ var (
 )
 
 // 用户自己手动管理任务状态相关接口
-func (h *JobTaskHandler) RegistryUserHandler(ws *restful.WebService) {
+func (h *JobTaskHandler) RegistryUserHandler() {
 	tags := []string{"Job任务管理"}
+
+	ws := gorestful.ObjectRouter(h)
 	ws.Route(ws.GET("/").
 		To(h.QueryJobTask).
 		Doc("查询JobTask运行任务列表").
@@ -190,7 +193,7 @@ func (h *JobTaskHandler) JobTaskLog(r *restful.Request, w *restful.Response) {
 	if entry != nil {
 		entry.SetAuthEnable(true)
 		entry.SetPermissionEnable(true)
-		err = gorestful.Get().PermissionCheck(r, w, entry)
+		err = middleware.Get().PermissionCheck(r, w, entry)
 		if err != nil {
 			term.Failed(err)
 			return
@@ -226,7 +229,7 @@ func (h *JobTaskHandler) JobTaskDebug(r *restful.Request, w *restful.Response) {
 	entry := endpoint.NewEntryFromRestRequest(r).
 		SetAuthEnable(true).
 		SetPermissionEnable(true)
-	err = gorestful.Get().PermissionCheck(r, w, entry)
+	err = middleware.Get().PermissionCheck(r, w, entry)
 	if err != nil {
 		term.Failed(err)
 		return

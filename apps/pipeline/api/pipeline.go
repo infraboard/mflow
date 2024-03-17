@@ -1,20 +1,20 @@
 package api
 
 import (
-	"fmt"
-
 	"github.com/infraboard/mcenter/apps/token"
 
 	restfulspec "github.com/emicklei/go-restful-openapi/v2"
 	"github.com/emicklei/go-restful/v3"
 	"github.com/infraboard/mcube/v2/http/label"
 	"github.com/infraboard/mcube/v2/http/restful/response"
+	"github.com/infraboard/mcube/v2/ioc/config/gorestful"
 	"github.com/infraboard/mflow/apps/pipeline"
 )
 
-func (h *handler) Registry(ws *restful.WebService) {
+func (h *handler) Registry() {
 	tags := []string{"Pipeline管理"}
-	fmt.Println(tags)
+
+	ws := gorestful.ObjectRouter(h)
 	ws.Route(ws.POST("/").To(h.CreatePipeline).
 		Doc("创建Pipeline").
 		Metadata(restfulspec.KeyOpenAPITags, tags).

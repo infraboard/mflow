@@ -126,8 +126,8 @@ docker pull bitnami/git
 测试下能否正常使用
 ```sh
 # 挂载secret
-docker run -it -v ${HOME}/.ssh/:/root/.ssh -w /workspace bitnami/git
-docker run -it -v ${HOME}/.ssh/:/root/.ssh -w /workspace registry.cn-hangzhou.aliyuncs.com/godev/git:2.39.2
+# docker run -it -v ${HOME}/.ssh/:/root/.ssh -w /workspace bitnami/git
+docker run --rm -it -v ${HOME}/.ssh/:/root/.ssh -w /workspace registry.cn-hangzhou.aliyuncs.com/godev/git:2.39.2
 # 测试下载, 关于更多git参数说明请参考看: https://git-scm.com/docs/git-config
 GIT_SSH_COMMAND='ssh -i ssh -i ./id_rsa.pub -o StrictHostKeyChecking=no'  git clone git@github.com:infraboard/mpaas.git src  --single-branch --branch=master
 ```
@@ -166,8 +166,6 @@ kaniko-secret   Opaque   1      23s
 
 共享配置Job共享Workdir: 
 [](./impl/test/build.yml)
-
-
 
 ## 镜像部署
 

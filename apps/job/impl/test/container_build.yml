@@ -43,7 +43,7 @@ spec: # 详情描述
               readOnly: true
               mountPath: "/etc/secret-volume"
       containers:
-        - image: registry.cn-hangzhou.aliyuncs.com/godev/kaniko-project.executor:v1.9.2-debug
+        - image: gcr.lank8s.cn/kaniko-project/executor:v1.22.0-debug
           workingDir: /workspace
           imagePullPolicy: IfNotPresent
           name: build-and-push
@@ -64,8 +64,8 @@ spec: # 详情描述
           emptyDir: {}
         - name: secret-volume
           secret:
-            secretName: ${GIT_SSH_SECRET}
+            secretName: ${git_ssh_secret}
             defaultMode: 0600
         - name: kaniko-secret
           secret:
-            secretName: ${IMAGE_PUSH_SECRET}
+            secretName: ${image_push_secret}

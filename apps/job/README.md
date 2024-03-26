@@ -11,6 +11,10 @@
 
 ## 镜像构建
 
+[最新国内镜像](https://liangyuanpeng.com/post/service-lank8s.cn/) 
++ registry.k8s.io -> registry.lank8s.cn
++ gcr.io -> gcr.lank8s.cn
+
 原生地址:
 [Google Kaniko 仓库地址](https://console.cloud.google.com/gcr/images/kaniko-project/GLOBAL/executor)
 

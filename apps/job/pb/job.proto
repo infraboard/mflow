@@ -15,10 +15,10 @@ enum RUNNER_TYPE {
 // 用于从job的run_params中提取出job允许所必须的参数
 message K8sJobRunnerParams {
     // 默认使用cluster提供的集群凭证, 但是往往由于集群托管凭证权限过大, 也可以单独给自定义的凭证
-	// @gotags: bson:"kube_config" json:"kube_config" param:"kube_config"
+	// @gotags: bson:"kube_config" json:"kube_config" param:"_kube_config"
 	string kube_config = 1;
     // Job运行的集群空间
-	// @gotags: bson:"namespace" json:"namespace" param:"namespace"
+	// @gotags: bson:"namespace" json:"namespace" param:"_namespace"
 	string namespace = 2;
 }
 
@@ -198,6 +198,8 @@ enum PARAM_USAGE_TYPE {
 	ENV = 0;
 	// 模版变量
 	TEMPLATE = 1;
+	// 执行器变量
+	RUNNER = 2;
 }
 
 message RunParam {

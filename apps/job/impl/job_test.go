@@ -83,7 +83,7 @@ func TestUpdateDeployJob(t *testing.T) {
 	param := job.NewRunParamSet()
 	param.Add(&job.RunParam{
 		Required:    true,
-		Name:        "kube_config",
+		Name:        "_kube_config",
 		NameDesc:    "用于运行k8s job的访问配置",
 		Value:       tools.MustReadContentFile("test/kube_config.yml"),
 		IsSensitive: true,
@@ -94,7 +94,7 @@ func TestUpdateDeployJob(t *testing.T) {
 	})
 	param.Add(&job.RunParam{
 		Required:    true,
-		Name:        "namespace",
+		Name:        "_namespace",
 		NameDesc:    "k8s job运行时的namespace",
 		Value:       "default",
 		SearchLabel: true,
@@ -141,7 +141,7 @@ func TestUpdateBuildJob(t *testing.T) {
 	param := job.NewRunParamSet()
 	param.Add(&job.RunParam{
 		Required:    true,
-		Name:        "kube_config",
+		Name:        "_kube_config",
 		NameDesc:    "用于运行k8s job的访问配置, 默认位于: ~/.kube/config",
 		Value:       tools.MustReadContentFile("test/kube_config.yml"),
 		IsSensitive: true,
@@ -149,7 +149,7 @@ func TestUpdateBuildJob(t *testing.T) {
 	})
 	param.Add(&job.RunParam{
 		Required:    true,
-		Name:        "namespace",
+		Name:        "_namespace",
 		NameDesc:    "job运行时的namespace",
 		Value:       "default",
 		SearchLabel: true,
@@ -243,7 +243,7 @@ func TestUpdateBuildJob(t *testing.T) {
 	param.Add(&job.RunParam{
 		UsageType: job.PARAM_USAGE_TYPE_TEMPLATE,
 		Required:  true,
-		Name:      "GIT_SSH_SECRET",
+		Name:      "git_ssh_secret",
 		NameDesc:  "用于拉取git仓库代码的secret名称, kubectl create secret generic git-ssh-key --from-file=id_rsa=${HOME}/.ssh/id_rsa",
 		ValueType: job.PARAM_VALUE_TYPE_K8S_SECRET,
 		ValueDesc: "如果使用默认值, 请提前确认名为git-ssh-key的secret已经创建，namespace请参考前面参数",
@@ -253,7 +253,7 @@ func TestUpdateBuildJob(t *testing.T) {
 	param.Add(&job.RunParam{
 		Required:  true,
 		UsageType: job.PARAM_USAGE_TYPE_TEMPLATE,
-		Name:      "IMAGE_PUSH_SECRET",
+		Name:      "image_push_secret",
 		NameDesc:  "用于推送镜像的secret名称, kubectl create secret generic kaniko-secret --from-file=apps/job/impl/test/config.json 具体文档参考: https://github.com/GoogleContainerTools/kaniko#pushing-to-docker-hub",
 		ValueType: job.PARAM_VALUE_TYPE_K8S_SECRET,
 		ValueDesc: "如果使用默认值, 请提前确认名为kaniko-secret的secret已经创建, namespace请参考前面参数, 注意挂载文件名字config.json",

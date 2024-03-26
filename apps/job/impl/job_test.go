@@ -88,6 +88,9 @@ func TestUpdateDeployJob(t *testing.T) {
 		Value:       tools.MustReadContentFile("test/kube_config.yml"),
 		IsSensitive: true,
 		SearchLabel: false,
+		Extensions: map[string]string{
+			"format": "yaml",
+		},
 	})
 	param.Add(&job.RunParam{
 		Required:    true,
@@ -139,7 +142,7 @@ func TestUpdateBuildJob(t *testing.T) {
 	param.Add(&job.RunParam{
 		Required:    true,
 		Name:        "kube_config",
-		NameDesc:    "用于运行k8s job的访问配置",
+		NameDesc:    "用于运行k8s job的访问配置, 默认位于: ~/.kube/config",
 		Value:       tools.MustReadContentFile("test/kube_config.yml"),
 		IsSensitive: true,
 		SearchLabel: false,
@@ -162,14 +165,6 @@ func TestUpdateBuildJob(t *testing.T) {
 		SearchLabel: true,
 	})
 	param.Add(&job.RunParam{
-		Required:  false,
-		Name:      "APP_DOCKERFILE",
-		NameDesc:  "应用git代码仓库中用于构建镜像的Dockerfile路径",
-		ValueDesc: "CI时, 通过读取构建配置自动获取",
-		Value:     "Dockerfile",
-		Example:   "Dockerfile",
-	})
-	param.Add(&job.RunParam{
 		Required:  true,
 		Name:      "GIT_BRANCH",
 		NameDesc:  "需要拉去的代码分支",
@@ -183,16 +178,7 @@ func TestUpdateBuildJob(t *testing.T) {
 		ValueDesc: "CI时, 系统根据Webhook自动注入",
 		Example:   "32d63566098f7e0b0ac3a3d8ddffe71cc6cad7b0",
 	})
-	param.Add(&job.RunParam{
-		UsageType: job.PARAM_USAGE_TYPE_TEMPLATE,
-		Required:  true,
-		Name:      "GIT_SSH_SECRET",
-		NameDesc:  "用于拉取git仓库代码的secret名称, kubectl create secret generic git-ssh-key --from-file=id_rsa=${HOME}/.ssh/id_rsa",
-		ValueType: job.PARAM_VALUE_TYPE_K8S_SECRET,
-		ValueDesc: "如果使用默认值, 请提前确认名为git-ssh-key的secret已经创建，namespace请参考前面参数",
-		Example:   "git-ssh-key",
-		Value:     "git-ssh-key",
-	})
+
 	// 构建缓存
 	param.Add(&job.RunParam{
 		Required:  false,
@@ -230,6 +216,7 @@ func TestUpdateBuildJob(t *testing.T) {
 		),
 		Value: "linux/amd64",
 	})
+
 	// docker push registry.cn-hangzhou.aliyuncs.com/infraboard/mpaas:[镜像版本号]
 	param.Add(&job.RunParam{
 		Required:  true,
@@ -246,12 +233,30 @@ func TestUpdateBuildJob(t *testing.T) {
 		Example:   "v0.0.2",
 	})
 	param.Add(&job.RunParam{
+		Required:  false,
+		Name:      "APP_DOCKERFILE",
+		NameDesc:  "应用git代码仓库中用于构建镜像的Dockerfile路径",
+		ValueDesc: "CI时, 通过读取构建配置自动获取",
+		Value:     "Dockerfile",
+		Example:   "Dockerfile",
+	})
+	param.Add(&job.RunParam{
+		UsageType: job.PARAM_USAGE_TYPE_TEMPLATE,
+		Required:  true,
+		Name:      "GIT_SSH_SECRET",
+		NameDesc:  "用于拉取git仓库代码的secret名称, kubectl create secret generic git-ssh-key --from-file=id_rsa=${HOME}/.ssh/id_rsa",
+		ValueType: job.PARAM_VALUE_TYPE_K8S_SECRET,
+		ValueDesc: "如果使用默认值, 请提前确认名为git-ssh-key的secret已经创建，namespace请参考前面参数",
+		Example:   "git-ssh-key",
+		Value:     "git-ssh-key",
+	})
+	param.Add(&job.RunParam{
 		Required:  true,
 		UsageType: job.PARAM_USAGE_TYPE_TEMPLATE,
 		Name:      "IMAGE_PUSH_SECRET",
-		NameDesc:  "用于推送镜像的secret名称, 具体文档参考: https://github.com/GoogleContainerTools/kaniko#pushing-to-docker-hub",
+		NameDesc:  "用于推送镜像的secret名称, kubectl create secret generic kaniko-secret --from-file=apps/job/impl/test/config.json 具体文档参考: https://github.com/GoogleContainerTools/kaniko#pushing-to-docker-hub",
 		ValueType: job.PARAM_VALUE_TYPE_K8S_SECRET,
-		ValueDesc: "如果使用默认值, 请提前确认名为kaniko-secret的secret已经创建, namespace请参考前面参数",
+		ValueDesc: "如果使用默认值, 请提前确认名为kaniko-secret的secret已经创建, namespace请参考前面参数, 注意挂载文件名字config.json",
 		Example:   "kaniko-secret",
 		Value:     "kaniko-secret",
 	})

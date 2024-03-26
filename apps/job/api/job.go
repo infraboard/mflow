@@ -1,6 +1,8 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/infraboard/mcenter/apps/token"
 
 	restfulspec "github.com/emicklei/go-restful-openapi/v2"
@@ -71,6 +73,16 @@ func (h *handler) Registry() {
 		Writes(job.Job{}).
 		Returns(200, "OK", job.Job{}).
 		Returns(404, "Not Found", nil))
+
+	ws.Route(ws.DELETE("/{id}").To(h.DeleteJob).
+		Doc("删除Job").
+		Param(ws.PathParameter("id", "identifier of the secret").DataType("string")).
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Metadata(label.Resource, h.Name()).
+		Metadata(label.Action, label.Delete.Value()).
+		Metadata(label.Auth, label.Enable).
+		Metadata(label.Permission, label.Enable))
 }
 
 func (h *handler) CreateJob(r *restful.Request, w *restful.Response) {
@@ -80,6 +92,12 @@ func (h *handler) CreateJob(r *restful.Request, w *restful.Response) {
 		response.Failed(w, err)
 		return
 	}
+
+	// 补充Scope信息
+	tk := token.GetTokenFromRequest(r)
+	req.Domain = tk.Domain
+	req.Namespace = tk.Namespace
+	req.CreateBy = fmt.Sprintf("%s@%s", tk.Username, tk.Domain)
 
 	ins, err := h.service.CreateJob(r.Request.Context(), req)
 	if err != nil {
@@ -153,6 +171,16 @@ func (h *handler) PatchJob(r *restful.Request, w *restful.Response) {
 	req.UpdateBy = tk.Username
 
 	set, err := h.service.UpdateJob(r.Request.Context(), req)
+	if err != nil {
+		response.Failed(w, err)
+		return
+	}
+	response.Success(w, set)
+}
+
+func (h *handler) DeleteJob(r *restful.Request, w *restful.Response) {
+	req := job.NewDeleteJobRequest(r.PathParameter("id"))
+	set, err := h.service.DeleteJob(r.Request.Context(), req)
 	if err != nil {
 		response.Failed(w, err)
 		return

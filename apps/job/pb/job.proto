@@ -202,10 +202,10 @@ enum PARAM_USAGE_TYPE {
 
 message RunParam {
 	// 可选/必传
-	// @gotags: bson:"required"
+	// @gotags: bson:"required" json:"required"
 	bool required = 1;
 	// 参数使用类型
-	// @gotags: bson:"usage_type"
+	// @gotags: bson:"usage_type" json:"usage_type"
 	PARAM_USAGE_TYPE usage_type = 2;
 	// 参数名称
 	// @gotags: bson:"name" json:"name" validate:"required"

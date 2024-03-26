@@ -149,7 +149,7 @@ YWRtaW46SGFyYm9yMTIzNDUK
 手动挂载并测试能否推送:
 ```sh
 # 挂在项目到workspace目录下, 注意指定工作目录:/workspace
-docker run --rm -it -v ${HOME}/Workspace/inforboard/mflow:/workspace -v ${HOME}/Workspace/inforboard/mflow/apps/job/impl/test/config.json:/kaniko/.docker/config.json -w /workspace --entrypoint=/busybox/sh docker.io/anjia0532/kaniko-project.executor:v1.9.2-debug
+docker run --rm -it -v ${HOME}/Projects/inforboard/mflow:/workspace -v ${HOME}/Projects/inforboard/mflow/apps/job/impl/test/config.json:/kaniko/.docker/config.json -w /workspace --entrypoint=/busybox/sh registry.cn-hangzhou.aliyuncs.com/godev/kaniko-project.executor:v1.9.2-debug
 # 执行构建
 /kaniko/executor --cache=true --cache-repo=registry.cn-hangzhou.aliyuncs.com/build_cache/mpaas --compressed-caching=false --destination=registry.cn-hangzhou.aliyuncs.com/infraboard/mpaas:v0.0.1
 ```

@@ -20,6 +20,9 @@ message K8sJobRunnerParams {
     // Job运行的集群空间
 	// @gotags: bson:"namespace" json:"namespace" param:"_namespace"
 	string namespace = 2;
+	// 是否将kube config 配置文件注入到job中, 常用于k8s 部署
+	// @gotags: bson:"inject_kubeconf" json:"inject_kubeconf" param:"_inject_kubeconf"
+	bool inject_kubeconf = 3;
 }
 
 // JobSet 列表

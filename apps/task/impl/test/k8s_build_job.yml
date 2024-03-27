@@ -35,7 +35,7 @@ metadata:
                 f:command: {}
                 f:env:
                   .: {}
-                  k:{"name":"_JOB_TASK_ID"}:
+                  k:{"name":"JOB_TASK_ID"}:
                     .: {}
                     f:name: {}
                     f:value: {}
@@ -89,7 +89,7 @@ metadata:
                 f:command: {}
                 f:env:
                   .: {}
-                  k:{"name":"_JOB_TASK_ID"}:
+                  k:{"name":"JOB_TASK_ID"}:
                     .: {}
                     f:name: {}
                     f:value: {}

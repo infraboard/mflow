@@ -144,7 +144,7 @@ func (i *impl) UpdateJobStatus(ctx context.Context, in *job.UpdateJobStatusReque
 
 	switch in.Status.Stage {
 	case job.JOB_STAGE_PUBLISHED:
-		ins.Status.PublishedAt = time.Now().Unix()
+		ins.Status.ChangeAt = time.Now().Unix()
 	}
 
 	ins.Status = in.Status

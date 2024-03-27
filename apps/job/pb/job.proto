@@ -61,17 +61,14 @@ message JobStatus {
     // @gotags: bson:"version" json:"version" validate:"required"
     string version = 2;
     // 发布时间
-    // @gotags: bson:"published_at" json:"published_at"
-    int64 published_at = 3;
+    // @gotags: bson:"change_at" json:"change_at"
+    int64 change_at = 3;
     // 发布人
-    // @gotags: bson:"published_by" json:"published_by"
-    string published_by = 4;
+    // @gotags: bson:"change_by" json:"change_by"
+    string change_by = 4;
     // 发布描述
-    // @gotags: bson:"published_describe" json:"published_describe"
-    string publish_describe = 5;
-    // 废弃说明
-    // @gotags: bson:"deprecated_describe" json:"deprecated_describe"
-    string deprecated_describe = 6;
+    // @gotags: bson:"change_describe" json:"change_describe"
+    string change_describe = 5;
 }
 
 enum RUN_MODE {

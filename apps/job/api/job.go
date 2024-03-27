@@ -58,6 +58,7 @@ func (h *handler) Registry() {
 		Metadata(label.Action, label.Get.Value()).
 		Metadata(label.Auth, label.Enable).
 		Metadata(label.Permission, label.Enable).
+		Reads(job.CreateJobRequest{}).
 		Writes(job.Job{}).
 		Returns(200, "OK", job.Job{}).
 		Returns(404, "Not Found", nil))
@@ -70,6 +71,20 @@ func (h *handler) Registry() {
 		Metadata(label.Action, label.Get.Value()).
 		Metadata(label.Auth, label.Enable).
 		Metadata(label.Permission, label.Enable).
+		Reads(job.CreateJobRequest{}).
+		Writes(job.Job{}).
+		Returns(200, "OK", job.Job{}).
+		Returns(404, "Not Found", nil))
+
+	ws.Route(ws.PUT("/{id}/status").To(h.UpdateJobStatus).
+		Doc("修改Job状态").
+		Param(ws.PathParameter("id", "identifier of the secret").DataType("string")).
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Metadata(label.Resource, h.Name()).
+		Metadata(label.Action, label.Get.Value()).
+		Metadata(label.Auth, label.Enable).
+		Metadata(label.Permission, label.Enable).
+		Reads(job.JobStatus{}).
 		Writes(job.Job{}).
 		Returns(200, "OK", job.Job{}).
 		Returns(404, "Not Found", nil))
@@ -171,6 +186,24 @@ func (h *handler) PatchJob(r *restful.Request, w *restful.Response) {
 	req.UpdateBy = tk.Username
 
 	set, err := h.service.UpdateJob(r.Request.Context(), req)
+	if err != nil {
+		response.Failed(w, err)
+		return
+	}
+	response.Success(w, set)
+}
+
+func (h *handler) UpdateJobStatus(r *restful.Request, w *restful.Response) {
+	tk := r.Attribute("token").(*token.Token)
+
+	req := job.NewUpdateJobStatusRequest(fmt.Sprintf("#%s", r.PathParameter("id")))
+	if err := r.ReadEntity(req.Status); err != nil {
+		response.Failed(w, err)
+		return
+	}
+	req.Status.ChangeBy = tk.Username
+
+	set, err := h.service.UpdateJobStatus(r.Request.Context(), req)
 	if err != nil {
 		response.Failed(w, err)
 		return

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 	"unicode"
@@ -213,7 +214,18 @@ func (r *RunParamSet) K8SJobRunnerParams() *K8SJobRunnerParams {
 		field := pt.Field(i)
 		if field.IsExported() {
 			tagValue := field.Tag.Get("param")
-			v.Field(i).SetString(r.GetParamValue(tagValue))
+			param := r.GetParam(tagValue)
+			if param != nil {
+				switch param.ValueType {
+				case PARAM_VALUE_TYPE_BOOLEAN:
+					boolV, _ := strconv.ParseBool(param.Value)
+					v.Field(i).SetBool(boolV)
+				default:
+					v.Field(i).SetString(param.Value)
+				}
+
+			}
+
 		}
 	}
 
@@ -289,6 +301,17 @@ func (r *RunParamSet) GetParamValue(key string) string {
 		}
 	}
 	return ""
+}
+
+// 获取参数的值
+func (r *RunParamSet) GetParam(key string) *RunParam {
+	for i := range r.Params {
+		item := r.Params[i]
+		if item.Name == key {
+			return item
+		}
+	}
+	return nil
 }
 
 // 设置参数的值, 注意如果value为""则不会修改

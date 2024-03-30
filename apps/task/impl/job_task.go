@@ -425,15 +425,15 @@ WAIT_TASK_ACTIVE:
 		return nil, err
 	}
 
+	writer.WriteMessagef("任务当前状态: [%s], Pod创建中...", t.Status.Stage)
+
 	pod, err := t.Status.GetLatestPod()
 	if err != nil {
 		return nil, err
 	}
 
 	if !t.Status.IsComplete() && maxRetryCount < 30 {
-		if pod == nil {
-			writer.WriteMessagef("任务当前状态: [%s], Pod创建中...", t.Status.Stage)
-		} else {
+		if pod != nil {
 			writer.WriteMessagef("任务当前状态: [%s], Pod状态: [%s], 等待任务启动中...", t.Status.Stage, pod.Status.Phase)
 			// Job状态运行成功，返回
 			if pod.Status.Phase != "Pending" {

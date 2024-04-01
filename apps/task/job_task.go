@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/infraboard/mcenter/apps/notify"
+	"github.com/infraboard/mcube/v2/ioc/config/log"
 	"github.com/infraboard/mflow/apps/job"
 	pipeline "github.com/infraboard/mflow/apps/pipeline"
 	"github.com/infraboard/mflow/common/format"
@@ -393,10 +394,11 @@ func (s *JobTaskStatus) GetLatestPod() (*core_v1.Pod, error) {
 	if podStr == "" {
 		return nil, nil
 	}
+	log.L().Debug().Msgf("unmarshal pod: %s", podStr)
 	pod := core_v1.Pod{}
 	err := yaml.Unmarshal([]byte(podStr), &pod)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unmarshal pod to obj error, %s", err)
 	}
 	return &pod, nil
 }

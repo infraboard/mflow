@@ -12,17 +12,24 @@ enum RUNNER_TYPE {
 	K8S_JOB = 0;
 }
 
+enum KUBE_CONF_FROM {
+	// 手动填写 kubeconfig内容
+	MANUAL = 0;
+	// 引用mpaas提供的cluster id, 运行时 调用mpaas 动态查询
+	MPAAS_K8S_CLUSTER_REF = 1;
+}
+
 // 用于从job的run_params中提取出job允许所必须的参数
 message K8sJobRunnerParams {
+    // 手动填写还是通过mpaas k8s cluster id 引用
+	// @gotags: bson:"kube_config_from" json:"kube_config_from" param:"_kube_config_from"
+	KUBE_CONF_FROM kube_config_from = 3;
     // 默认使用cluster提供的集群凭证, 但是往往由于集群托管凭证权限过大, 也可以单独给自定义的凭证
 	// @gotags: bson:"kube_config" json:"kube_config" param:"_kube_config"
 	string kube_config = 1;
     // Job运行的集群空间
 	// @gotags: bson:"namespace" json:"namespace" param:"_namespace"
 	string namespace = 2;
-	// 是否将kube config 配置文件注入到job中, 常用于k8s 部署
-	// @gotags: bson:"inject_kubeconf" json:"inject_kubeconf" param:"_inject_kubeconf"
-	bool inject_kubeconf = 3;
 }
 
 // JobSet 列表
@@ -200,6 +207,8 @@ enum PARAM_USAGE_TYPE {
 	TEMPLATE = 1;
 	// 执行器变量
 	RUNNER = 2;
+	// 系统内部参数, 有系统自动注入
+	SYSTEM = 3;
 }
 
 message RunParam {
@@ -222,10 +231,10 @@ message RunParam {
 	// @gotags: bson:"value_type" json:"value_type"
 	PARAM_VALUE_TYPE value_type = 6;
 	// 枚举值的选项
-	// @gotags: bson:"enum_options" json:"enum_options,omitempty"
+	// @gotags: bson:"enum_options" json:"enum_options"
 	repeated EnumOption enum_options = 7;
 	// 基于Http枚举的配置
-	// @gotags: bson:"http_enum_config" json:"http_enum_config,omitempty"
+	// @gotags: bson:"http_enum_config" json:"http_enum_config"
 	HttpEnumConfig http_enum_config = 8;
 	// 值的样例
 	// @gotags: bson:"example" json:"example"

@@ -102,10 +102,13 @@ func TestUpdateDeployJob(t *testing.T) {
 
 	// 部署运行时变量
 	param.Add(&job.RunParam{
-		Required:    true,
-		Name:        job.SYSTEM_VARIABLE_DEPLOY_ID,
-		NameDesc:    "部署id, 部署时由系统传人",
-		Example:     "deploy01",
+		Required: true,
+		Name:     "service_account",
+		NameDesc: `部署时关联的账号,  默认default并没有修改pod权限, 创建方式: 
+		kubectl create serviceaccount mflow-deploy &&
+		kubectl create role deployments-manager --verb=get,update,list,watch --resource=deployments &&
+		kubectl create rolebinding deployments-manager-binding --role=deployments-manager --serviceaccount=default:mflow-deploy`,
+		Example:     "mflow-deploy",
 		SearchLabel: true,
 	})
 	param.Add(&job.RunParam{

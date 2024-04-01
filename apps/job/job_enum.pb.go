@@ -54,6 +54,51 @@ func (t *RUNNER_TYPE) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// ParseKUBE_CONF_FROMFromString Parse KUBE_CONF_FROM from string
+func ParseKUBE_CONF_FROMFromString(str string) (KUBE_CONF_FROM, error) {
+	key := strings.Trim(string(str), `"`)
+	v, ok := KUBE_CONF_FROM_value[strings.ToUpper(key)]
+	if !ok {
+		return 0, fmt.Errorf("unknown KUBE_CONF_FROM: %s", str)
+	}
+
+	return KUBE_CONF_FROM(v), nil
+}
+
+// Equal type compare
+func (t KUBE_CONF_FROM) Equal(target KUBE_CONF_FROM) bool {
+	return t == target
+}
+
+// IsIn todo
+func (t KUBE_CONF_FROM) IsIn(targets ...KUBE_CONF_FROM) bool {
+	for _, target := range targets {
+		if t.Equal(target) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// MarshalJSON todo
+func (t KUBE_CONF_FROM) MarshalJSON() ([]byte, error) {
+	b := bytes.NewBufferString(`"`)
+	b.WriteString(strings.ToUpper(t.String()))
+	b.WriteString(`"`)
+	return b.Bytes(), nil
+}
+
+// UnmarshalJSON todo
+func (t *KUBE_CONF_FROM) UnmarshalJSON(b []byte) error {
+	ins, err := ParseKUBE_CONF_FROMFromString(string(b))
+	if err != nil {
+		return err
+	}
+	*t = ins
+	return nil
+}
+
 // ParseJOB_STAGEFromString Parse JOB_STAGE from string
 func ParseJOB_STAGEFromString(str string) (JOB_STAGE, error) {
 	key := strings.Trim(string(str), `"`)

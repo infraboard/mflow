@@ -1,6 +1,7 @@
 package job
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -13,6 +14,8 @@ import (
 	"github.com/infraboard/mcube/v2/ioc/config/log"
 	"github.com/infraboard/mcube/v2/pb/resource"
 	"github.com/infraboard/mcube/v2/tools/sense"
+	k8sApp "github.com/infraboard/mpaas/apps/k8s"
+	mpaas "github.com/infraboard/mpaas/clients/rpc"
 	"github.com/infraboard/mpaas/provider/k8s"
 	"github.com/infraboard/mpaas/provider/k8s/workload"
 	v1 "k8s.io/api/core/v1"
@@ -116,6 +119,25 @@ func (i *Job) AddExtension() {
 		return
 	}
 
+	// 填充选项
+	for idx := range i.Spec.RunParams.Params {
+		param := i.Spec.RunParams.Params[idx]
+		if param.EnumOptions == nil {
+			param.EnumOptions = []*EnumOption{}
+		}
+		switch param.ValueType {
+		case PARAM_VALUE_TYPE_BOOLEAN:
+			param.AddEnumOptions(&EnumOption{
+				Value: "true",
+				Label: "是",
+			}, &EnumOption{
+				Value: "false",
+				Label: "否",
+			})
+		}
+
+	}
+
 	i.Spec.Extension["uniq_name"] = i.UniqName()
 }
 
@@ -150,11 +172,14 @@ func (r *RunParamSet) Densense() {
 
 // 绕开Merge, 直接注入, 因为Merge只允许注入Job声明的变量
 // 非job声明的变量只能通过Add添加, 比如系统变量
+// 注意系统变量是系统注入, 用户无法注入系统变量
 func (r *RunParamSet) Add(items ...*RunParam) {
 	for i := range items {
 		item := items[i]
-		item.Init()
-		r.Params = append(r.Params, item)
+		if !item.IsSystemVariable() {
+			item.Init()
+			r.Params = append(r.Params, item)
+		}
 	}
 }
 
@@ -169,7 +194,7 @@ func (r *RunParamSet) CheckDuplicate() error {
 	duplicates := []string{}
 	for k, v := range kc {
 		if v > 1 {
-			duplicates = append(duplicates, k)
+			duplicates = append(duplicates, fmt.Sprintf("%s duplicate count %d", k, v))
 		}
 	}
 
@@ -220,6 +245,13 @@ func (r *RunParamSet) K8SJobRunnerParams() *K8SJobRunnerParams {
 				case PARAM_VALUE_TYPE_BOOLEAN:
 					boolV, _ := strconv.ParseBool(param.Value)
 					v.Field(i).SetBool(boolV)
+				case PARAM_VALUE_TYPE_ENUM:
+					from, err := ParseKUBE_CONF_FROMFromString(param.Value)
+					if err != nil {
+						log.L().Error().Msgf("parse enum error: %s", err)
+					} else {
+						v.Field(i).SetInt(int64(from))
+					}
 				default:
 					v.Field(i).SetString(param.Value)
 				}
@@ -375,7 +407,19 @@ func (p *K8SJobRunnerParams) KubeConfSecret(name string, mountPath string) *v1.S
 	return secret
 }
 
-func (p *K8SJobRunnerParams) Client() (*k8s.Client, error) {
+func (p *K8SJobRunnerParams) Client(ctx context.Context) (*k8s.Client, error) {
+	// 如果集群配置托管在mpaas k8s cluster
+	switch p.KubeConfigFrom {
+	case KUBE_CONF_FROM_MPAAS_K8S_CLUSTER_REF:
+		descReq := k8sApp.NewDescribeClusterRequest(p.KubeConfig)
+		k8sCluster, err := mpaas.C().K8s().DescribeCluster(ctx, descReq)
+		if err != nil {
+			return nil, err
+		}
+		p.KubeConfig = k8sCluster.Spec.KubeConfig
+		log.L().Debug().Msgf("load kube config from mpaas k8s cluster: %s", descReq.Id)
+	}
+
 	if p.KubeConfig == "" {
 		return nil, fmt.Errorf("kube config not config")
 	}
@@ -429,6 +473,11 @@ func (p *RunParam) RefName() string {
 	return fmt.Sprintf("${%s}", p.Name)
 }
 
+// 引用名称
+func (p *RunParam) AddEnumOptions(options ...*EnumOption) {
+	p.EnumOptions = append(p.EnumOptions, options...)
+}
+
 // 是否允许修改
 func (p *RunParam) IsEdit() bool {
 	// 只读且有值时不允许修改
@@ -462,6 +511,11 @@ func (p *RunParam) Init() {
 	if p.Extensions == nil {
 		p.Extensions = map[string]string{}
 	}
+}
+
+// 是否是系统变量
+func (p *RunParam) IsSystemVariable() bool {
+	return p.UsageType == PARAM_USAGE_TYPE_SYSTEM
 }
 
 // 设置SearchLabel

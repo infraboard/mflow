@@ -83,7 +83,7 @@ func (i *impl) RunJob(ctx context.Context, in *pipeline.RunJobRequest) (
 		runReq.ManualUpdateStatus = j.Spec.ManualUpdateStatus
 		status, err := r.Run(ctx, runReq)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("run job error, %s", err)
 		}
 		status.RunParams = params
 		ins.Status = status
@@ -317,7 +317,7 @@ func (i *impl) CleanTaskResource(ctx context.Context, in *task.JobTask) error {
 	switch in.Job.Spec.RunnerType {
 	case job.RUNNER_TYPE_K8S_JOB:
 		k8sParams := in.Status.RunParams.K8SJobRunnerParams()
-		k8sClient, err := k8sParams.Client()
+		k8sClient, err := k8sParams.Client(ctx)
 		if err != nil {
 			return err
 		}
@@ -377,9 +377,9 @@ func (i *impl) WatchJobTaskLog(in *task.WatchJobTaskLogRequest, stream task.JobR
 	switch t.Job.Spec.RunnerType {
 	case job.RUNNER_TYPE_K8S_JOB:
 		k8sParams := t.Job.Spec.RunParams.K8SJobRunnerParams()
-		k8sClient, err := k8sParams.Client()
+		k8sClient, err := k8sParams.Client(stream.Context())
 		if err != nil {
-			return err
+			return fmt.Errorf("create k8s client error, %s", err)
 		}
 
 		// 找到Job执行的Pod
@@ -388,7 +388,7 @@ func (i *impl) WatchJobTaskLog(in *task.WatchJobTaskLogRequest, stream task.JobR
 			SetLabelSelector(meta.NewLabelSelector().Add("job-name", t.Spec.TaskId))
 		pods, err := k8sClient.WorkLoad().ListPod(stream.Context(), podReq)
 		if err != nil {
-			return err
+			return fmt.Errorf("list job pod error, %s", err)
 		}
 		if len(pods.Items) == 0 {
 			return fmt.Errorf("job's pod not found by lable job-name=%s", t.Spec.TaskId)
@@ -400,7 +400,7 @@ func (i *impl) WatchJobTaskLog(in *task.WatchJobTaskLogRequest, stream task.JobR
 		req.Container = in.ContainerName
 		r, err := k8sClient.WorkLoad().WatchConainterLog(stream.Context(), req)
 		if err != nil {
-			return err
+			return fmt.Errorf("watch container log error, %s", err)
 		}
 		defer r.Close()
 
@@ -463,7 +463,7 @@ func (i *impl) JobTaskDebug(ctx context.Context, in *task.JobTaskDebugRequest) {
 	switch t.Job.Spec.RunnerType {
 	case job.RUNNER_TYPE_K8S_JOB:
 		k8sParams := t.Status.RunParams.K8SJobRunnerParams()
-		k8sClient, err := k8sParams.Client()
+		k8sClient, err := k8sParams.Client(ctx)
 		if err != nil {
 			term.Failed(fmt.Errorf("初始化k8s客户端失败, %s", err))
 			return

@@ -49,6 +49,10 @@ func (r *queryRequest) FindFilter() bson.M {
 		filter["pipeline_task"] = r.PipelineTaskId
 	}
 
+	if r.JobId != "" {
+		filter["job._id"] = r.JobId
+	}
+
 	if r.Stage != nil {
 		filter["status.stage"] = *r.Stage
 	}

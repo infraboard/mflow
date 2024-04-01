@@ -52,9 +52,12 @@ message QueryJobTaskRequest {
     // 任务Id列表
     // @gotags: json:"ids"
     repeated string ids = 4;
-	// 与该pipeline task关联的任务
+	// 查询属于该pipeline task的任务
 	// @gotags: json:"id"
     string pipeline_task_id = 5;
+    // 查询属于该Job的Task
+	// @gotags: json:"job_id"
+    string job_id = 7;
 	// 任务当前状态
 	// @gotags: json:"stage"
     optional STAGE stage = 6;

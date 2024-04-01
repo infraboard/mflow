@@ -82,6 +82,8 @@ func NewQueryTaskRequestFromHttp(r *restful.Request) *QueryJobTaskRequest {
 	req.Page = request.NewPageRequestFromHTTP(r.Request)
 	req.Scope = token.GetTokenFromRequest(r).GenScope()
 	req.Filters = policy.GetScopeFilterFromRequest(r)
+	req.JobId = r.QueryParameter("job_id")
+	req.PipelineTaskId = r.QueryParameter("pipeline_task_id")
 	return req
 }
 

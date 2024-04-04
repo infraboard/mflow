@@ -122,9 +122,6 @@ func (i *Job) AddExtension() {
 	// 填充选项
 	for idx := range i.Spec.RunParams.Params {
 		param := i.Spec.RunParams.Params[idx]
-		if param.EnumOptions == nil {
-			param.EnumOptions = []*EnumOption{}
-		}
 		switch param.ValueType {
 		case PARAM_VALUE_TYPE_BOOLEAN:
 			param.AddEnumOptions(&EnumOption{
@@ -135,9 +132,7 @@ func (i *Job) AddExtension() {
 				Label: "否",
 			})
 		}
-
 	}
-
 	i.Spec.Extension["uniq_name"] = i.UniqName()
 }
 
@@ -473,9 +468,30 @@ func (p *RunParam) RefName() string {
 	return fmt.Sprintf("${%s}", p.Name)
 }
 
-// 引用名称
+// 添加选项
 func (p *RunParam) AddEnumOptions(options ...*EnumOption) {
-	p.EnumOptions = append(p.EnumOptions, options...)
+	// 初始化
+	if p.EnumOptions == nil {
+		p.EnumOptions = []*EnumOption{}
+	}
+
+	// 如果不存在再注入
+	for _, option := range options {
+		v := p.GetEnumOptionByValue(option.Value)
+		if v == nil {
+			p.EnumOptions = append(p.EnumOptions, option)
+		}
+	}
+}
+
+// 根据value获取选项
+func (p *RunParam) GetEnumOptionByValue(v string) *EnumOption {
+	for _, option := range p.EnumOptions {
+		if option.Value == v {
+			return option
+		}
+	}
+	return nil
 }
 
 // 是否允许修改

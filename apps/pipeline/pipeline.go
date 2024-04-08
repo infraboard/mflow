@@ -56,8 +56,8 @@ func (req *CreatePipelineRequest) BuildNumber() {
 	for m := range req.Stages {
 		stage := req.Stages[m]
 		stage.Number = int32(m) + 1
-		for n := range stage.Jobs {
-			j := stage.Jobs[n]
+		for n := range stage.Tasks {
+			j := stage.Tasks[n]
 			j.Number = int32(n) + 1
 			j.StageName = stage.Name
 		}

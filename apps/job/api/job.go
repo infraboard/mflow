@@ -32,8 +32,8 @@ func (h *handler) Registry() {
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Metadata(label.Resource, h.Name()).
 		Metadata(label.Action, label.List.Value()).
-		Metadata(label.Auth, label.Disable).
-		Metadata(label.Permission, label.Disable).
+		Metadata(label.Auth, label.Enable).
+		Metadata(label.Permission, label.Enable).
 		Reads(job.QueryJobRequest{}).
 		Writes(job.JobSet{}).
 		Returns(200, "OK", job.JobSet{}))
@@ -124,7 +124,7 @@ func (h *handler) CreateJob(r *restful.Request, w *restful.Response) {
 }
 
 func (h *handler) QueryJob(r *restful.Request, w *restful.Response) {
-	req := job.NewQueryJobRequestFromHTTP(r.Request)
+	req := job.NewQueryJobRequestFromHTTP(r)
 
 	set, err := h.service.QueryJob(r.Request.Context(), req)
 	if err != nil {

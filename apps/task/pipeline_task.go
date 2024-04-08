@@ -388,8 +388,8 @@ func NewStageStatus(s *pipeline.Stage, pipelineTaskId string) *StageStatus {
 		JobTasks: []*JobTask{},
 	}
 
-	for i := range s.Jobs {
-		req := s.Jobs[i]
+	for i := range s.Tasks {
+		req := s.Tasks[i]
 		req.PipelineTask = pipelineTaskId
 		req.StageName = s.Name
 		jobTask := NewJobTask(req)

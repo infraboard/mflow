@@ -3,15 +3,18 @@ package job
 import (
 	context "context"
 	"fmt"
-	"net/http"
 	"strings"
 	"time"
 
+	"github.com/emicklei/go-restful/v3"
 	"github.com/infraboard/mcenter/apps/domain"
 	"github.com/infraboard/mcenter/apps/namespace"
+	"github.com/infraboard/mcenter/apps/policy"
+	"github.com/infraboard/mcenter/apps/token"
 	request "github.com/infraboard/mcube/v2/http/request"
 	"github.com/infraboard/mcube/v2/ioc/config/validator"
 	pb_request "github.com/infraboard/mcube/v2/pb/request"
+	"github.com/infraboard/mcube/v2/pb/resource"
 )
 
 const (
@@ -53,10 +56,24 @@ func (req *CreateJobRequest) Validate() error {
 	return validator.Validate(req)
 }
 
-func NewQueryJobRequestFromHTTP(r *http.Request) *QueryJobRequest {
-	return &QueryJobRequest{
-		Page: request.NewPageRequestFromHTTP(r),
+func NewQueryJobRequestFromHTTP(r *restful.Request) *QueryJobRequest {
+	req := NewQueryJobRequest()
+
+	req.Page = request.NewPageRequestFromHTTP(r.Request)
+	req.Scope = token.GetTokenFromRequest(r).GenScope()
+	req.Filters = policy.GetScopeFilterFromRequest(r)
+	req.Filters = resource.ParseLabelRequirementListFromString(r.QueryParameter("filters"))
+
+	names := r.QueryParameter("names")
+	if names != "" {
+		req.Names = strings.Split(names, ",")
 	}
+	ids := r.QueryParameter("ids")
+	if ids != "" {
+		req.Ids = strings.Split(ids, ",")
+	}
+
+	return req
 }
 
 func NewQueryJobRequest() *QueryJobRequest {

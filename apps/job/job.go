@@ -14,6 +14,7 @@ import (
 	"github.com/infraboard/mcube/v2/ioc/config/log"
 	"github.com/infraboard/mcube/v2/pb/resource"
 	"github.com/infraboard/mcube/v2/tools/sense"
+	"github.com/infraboard/mflow/common/hash"
 	k8sApp "github.com/infraboard/mpaas/apps/k8s"
 	mpaas "github.com/infraboard/mpaas/clients/rpc"
 	"github.com/infraboard/mpaas/provider/k8s"
@@ -28,13 +29,14 @@ func New(req *CreateJobRequest) (*Job, error) {
 	}
 
 	req.BuildSearchLabels()
-	d := &Job{
+	job := &Job{
 		Meta:   resource.NewMeta(),
 		Spec:   req,
 		Status: NewJobStatus(),
 	}
 
-	return d, nil
+	job.Meta.Id = hash.FnvHash(job.UniqName())
+	return job, nil
 }
 
 func (r *CreateJobRequest) BuildSearchLabels() {

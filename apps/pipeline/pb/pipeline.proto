@@ -93,8 +93,8 @@ message Stage {
 	// @gotags: bson:"with" json:"with"
 	repeated job.RunParam with = 10;
 	// 需要执行的job
-	// @gotags: bson:"jobs" json:"jobs"
-	repeated RunJobRequest jobs = 11;
+	// @gotags: bson:"tasks" json:"tasks"
+	repeated RunJobRequest tasks = 11;
 }
 
 message RunJobRequest {

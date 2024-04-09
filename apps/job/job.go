@@ -121,9 +121,11 @@ func (i *Job) AddExtension() {
 		return
 	}
 
-	// 填充选项
+	// 填充动态值选项
 	for idx := range i.Spec.RunParams.Params {
 		param := i.Spec.RunParams.Params[idx]
+
+		// 更加值类型动态填充
 		switch param.ValueType {
 		case PARAM_VALUE_TYPE_BOOLEAN:
 			param.AddEnumOptions(&EnumOption{
@@ -133,8 +135,12 @@ func (i *Job) AddExtension() {
 				Value: "false",
 				Label: "否",
 			})
+		case PARAM_VALUE_TYPE_HTTP_ENUM:
+			// 通过HTTP拉去后填充
+			// param.HttpEnumConfig
 		}
 	}
+
 	i.Spec.Extension["uniq_name"] = i.UniqName()
 }
 

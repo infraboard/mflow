@@ -137,6 +137,7 @@ func (h *handler) QueryJob(r *restful.Request, w *restful.Response) {
 
 func (h *handler) DescribeJob(r *restful.Request, w *restful.Response) {
 	req := job.NewDescribeJobRequestById(r.PathParameter("id"))
+	req.Scope = token.GetTokenFromRequest(r).GenScope()
 
 	// 解析describe by
 	dbstr := r.QueryParameter("describe_by")

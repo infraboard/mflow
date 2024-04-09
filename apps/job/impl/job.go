@@ -45,6 +45,13 @@ func (i *impl) QueryJob(ctx context.Context, in *job.QueryJobRequest) (
 		set.Add(ins)
 	}
 
+	if in.InjectK8SCluster {
+		err = i.InjectK8sCluster(ctx, in.Scope.Domain, in.Scope.Namespace, set.Items...)
+		if err != nil {
+			i.log.Error().Msgf("inject k8s cluster error, %s", err)
+		}
+	}
+
 	// count
 	count, err := i.col.CountDocuments(ctx, r.FindFilter())
 	if err != nil {
@@ -94,6 +101,13 @@ func (i *impl) DescribeJob(ctx context.Context, in *job.DescribeJobRequest) (
 	}
 
 	ins.AddExtension()
+	// 注入集群选项
+	if in.Scope != nil {
+		err := i.InjectK8sCluster(ctx, in.Scope.Domain, ins.Spec.Namespace, ins)
+		if err != nil {
+			i.log.Error().Msgf("inject k8s cluster error, %s", err)
+		}
+	}
 	return ins, nil
 }
 

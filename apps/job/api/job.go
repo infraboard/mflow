@@ -44,8 +44,8 @@ func (h *handler) Registry() {
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Metadata(label.Resource, h.Name()).
 		Metadata(label.Action, label.Get.Value()).
-		Metadata(label.Auth, label.Disable).
-		Metadata(label.Permission, label.Disable).
+		Metadata(label.Auth, label.Enable).
+		Metadata(label.Permission, label.Enable).
 		Writes(job.Job{}).
 		Returns(200, "OK", job.Job{}).
 		Returns(404, "Not Found", nil))

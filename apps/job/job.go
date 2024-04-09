@@ -125,15 +125,30 @@ func (i *Job) AddExtension() {
 	for idx := range i.Spec.RunParams.Params {
 		param := i.Spec.RunParams.Params[idx]
 
+		// 独立处理k8s变量
+		if param.Name == "_kube_config_from" {
+			param.AddEnumOptions(&EnumOption{
+				Value:      "已有集群",
+				Label:      KUBE_CONF_FROM_MPAAS_K8S_CLUSTER_REF.String(),
+				Extensions: map[string]string{},
+			}, &EnumOption{
+				Value:      "手动填写",
+				Label:      KUBE_CONF_FROM_MANUAL.String(),
+				Extensions: map[string]string{},
+			})
+		}
+
 		// 更加值类型动态填充
 		switch param.ValueType {
 		case PARAM_VALUE_TYPE_BOOLEAN:
 			param.AddEnumOptions(&EnumOption{
-				Value: "true",
-				Label: "是",
+				Value:      "true",
+				Label:      "是",
+				Extensions: map[string]string{},
 			}, &EnumOption{
-				Value: "false",
-				Label: "否",
+				Value:      "false",
+				Label:      "否",
+				Extensions: map[string]string{},
 			})
 		case PARAM_VALUE_TYPE_HTTP_ENUM:
 			// 通过HTTP拉去后填充

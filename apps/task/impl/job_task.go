@@ -63,7 +63,7 @@ func (i *impl) RunJob(ctx context.Context, in *pipeline.RunJobRequest) (
 		params.Add(ins.SystemRunParam()...)
 		params.Add(j.Spec.RunParams.Params...)
 		params.Merge(in.RunParams.Params...)
-		err = i.LoadPipelineRunParam(ctx, params)
+		err = i.LoadPipelineRunParam(ctx, in, params)
 		if err != nil {
 			return nil, err
 		}
@@ -102,19 +102,20 @@ func (i *impl) RunJob(ctx context.Context, in *pipeline.RunJobRequest) (
 }
 
 // 加载Pipeline 提供的运行时参数
-func (i *impl) LoadPipelineRunParam(ctx context.Context, params *job.RunParamSet) error {
-	pipelineTaskId := params.GetPipelineTaskId()
-	if pipelineTaskId == "" {
+func (i *impl) LoadPipelineRunParam(ctx context.Context, in *pipeline.RunJobRequest, params *job.RunParamSet) error {
+	if in.PipelineTask == "" {
 		return nil
 	}
 	// 查询出Pipeline
-	pt, err := i.DescribePipelineTask(ctx, task.NewDescribePipelineTaskRequest(pipelineTaskId))
+	pt, err := i.DescribePipelineTask(ctx, task.NewDescribePipelineTaskRequest(in.PipelineTask))
 	if err != nil {
 		return err
 	}
 
+	// 获取出属于改Task的变量
+	pipelineRunParams := pt.Params.GetTaskParams(in.StageNumberString(), in.TaskNumberString())
 	// 合并PipelineTask传入的变量参数
-	params.Merge(pt.Params.RunParams...)
+	params.Merge(pipelineRunParams...)
 	// 合并PipelineTask的运行时参数, Task运行时更新的
 	params.Merge(pt.RuntimeRunParams()...)
 	return nil

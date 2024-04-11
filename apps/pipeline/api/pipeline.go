@@ -71,6 +71,16 @@ func (h *handler) Registry() {
 		Writes(pipeline.Pipeline{}).
 		Returns(200, "OK", pipeline.Pipeline{}).
 		Returns(404, "Not Found", nil))
+
+	ws.Route(ws.DELETE("/{id}").To(h.DeletePipeline).
+		Doc("删除Pipeline").
+		Param(ws.PathParameter("id", "identifier of the secret").DataType("string")).
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Metadata(label.Resource, h.Name()).
+		Metadata(label.Action, label.Delete.Value()).
+		Metadata(label.Auth, label.Enable).
+		Metadata(label.Permission, label.Enable))
 }
 
 func (h *handler) CreatePipeline(r *restful.Request, w *restful.Response) {
@@ -142,6 +152,16 @@ func (h *handler) PatchPipeline(r *restful.Request, w *restful.Response) {
 	req.UpdateBy = tk.Username
 
 	set, err := h.service.UpdatePipeline(r.Request.Context(), req)
+	if err != nil {
+		response.Failed(w, err)
+		return
+	}
+	response.Success(w, set)
+}
+
+func (h *handler) DeletePipeline(r *restful.Request, w *restful.Response) {
+	req := pipeline.NewDeletePipelineRequest(r.PathParameter("id"))
+	set, err := h.service.DeletePipeline(r.Request.Context(), req)
 	if err != nil {
 		response.Failed(w, err)
 		return

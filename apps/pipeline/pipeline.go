@@ -224,6 +224,14 @@ func (r *RunJobRequest) Enabled() bool {
 	return !r.SkipRun
 }
 
+func (r *RunJobRequest) StageNumberString() string {
+	return fmt.Sprintf("%d", r.StageNumber)
+}
+
+func (r *RunJobRequest) TaskNumberString() string {
+	return fmt.Sprintf("%d", r.Number)
+}
+
 func (r *RunJobRequest) MatchedWebHooks(event string) []*WebHook {
 	hooks := []*WebHook{}
 	for i := range r.Webhooks {
@@ -300,6 +308,39 @@ func (req *RunPipelineRequest) UpdateFromToken(tk *token.Token) {
 
 func (req *RunPipelineRequest) AddRunParam(params ...*job.RunParam) {
 	req.RunParams = append(req.RunParams, params...)
+}
+
+func (req *RunPipelineRequest) GetTaskParams(stageNumber, taskNumber string) (
+	params []*job.RunParam) {
+	for i := range req.RunParams {
+		param := req.RunParams[i]
+		// scope 全局参数, 适配所有Stage
+		if param.ParamScope == nil ||
+			param.ParamScope.Stage == "" ||
+			param.ParamScope.Stage == "*" ||
+			param.ParamScope.Stage == "0" {
+			params = append(params, param)
+			continue
+		}
+
+		// 匹配具体的Stage
+		if param.ParamScope.Stage == stageNumber {
+			// Stage通用变量
+			if param.ParamScope.Task == "" ||
+				param.ParamScope.Task == "*" ||
+				param.ParamScope.Task == "0" {
+				params = append(params, param)
+				continue
+			}
+
+			// Task专有变量
+			if param.ParamScope.Task == taskNumber {
+				params = append(params, param)
+				continue
+			}
+		}
+	}
+	return nil
 }
 
 func (req *RunPipelineRequest) Validate() error {

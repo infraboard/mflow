@@ -63,6 +63,7 @@ func NewQueryJobRequestFromHTTP(r *restful.Request) *QueryJobRequest {
 	req.Scope = token.GetTokenFromRequest(r).GenScope()
 	req.Filters = policy.GetScopeFilterFromRequest(r)
 	req.Filters = resource.ParseLabelRequirementListFromString(r.QueryParameter("filters"))
+	req.InjectK8SCluster = r.QueryParameter("inject_k8s_cluster") == "true"
 
 	names := r.QueryParameter("names")
 	if names != "" {

@@ -73,6 +73,7 @@ func (i *impl) DescribePipeline(ctx context.Context, in *pipeline.DescribePipeli
 	}
 
 	ins.Spec.BuildNumber()
+
 	return ins, nil
 }
 

@@ -112,6 +112,14 @@ func (p *Pipeline) GetStage(name string) *Stage {
 	return nil
 }
 
+func (p *Pipeline) GetJobs() (ids []string) {
+	if p.Spec == nil {
+		return nil
+	}
+
+	return
+}
+
 func NewCreatePipelineRequestFromYAML(yml string) (*CreatePipelineRequest, error) {
 	req := NewCreatePipelineRequest()
 

@@ -125,15 +125,15 @@ func (i *Job) AddExtension() {
 	for idx := range i.Spec.RunParams.Params {
 		param := i.Spec.RunParams.Params[idx]
 
-		// 独立处理k8s变量
+		// 补充选项
 		if param.Name == "_kube_config_from" {
 			param.AddEnumOptions(&EnumOption{
-				Value:      "已有集群",
-				Label:      KUBE_CONF_FROM_MPAAS_K8S_CLUSTER_REF.String(),
+				Value:      KUBE_CONF_FROM_MANUAL.String(),
+				Label:      "手动填写",
 				Extensions: map[string]string{},
 			}, &EnumOption{
-				Value:      "手动填写",
-				Label:      KUBE_CONF_FROM_MANUAL.String(),
+				Value:      KUBE_CONF_FROM_MPAAS_K8S_CLUSTER_REF.String(),
+				Label:      "已有集群",
 				Extensions: map[string]string{},
 			})
 		}

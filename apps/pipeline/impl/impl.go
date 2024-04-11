@@ -9,6 +9,7 @@ import (
 	"github.com/infraboard/mcube/v2/ioc/config/grpc"
 	"github.com/infraboard/mcube/v2/ioc/config/log"
 	ioc_mongo "github.com/infraboard/mcube/v2/ioc/config/mongo"
+	"github.com/infraboard/mflow/apps/job"
 	"github.com/infraboard/mflow/apps/pipeline"
 )
 
@@ -21,11 +22,14 @@ type impl struct {
 	log *zerolog.Logger
 	pipeline.UnimplementedRPCServer
 	ioc.ObjectImpl
+
+	job job.Service
 }
 
 func (i *impl) Init() error {
 	i.col = ioc_mongo.DB().Collection(i.Name())
 	i.log = log.Sub(i.Name())
+	i.job = ioc.Controller().Get(job.AppName).(job.Service)
 
 	pipeline.RegisterRPCServer(grpc.Get().Server(), i)
 	return nil

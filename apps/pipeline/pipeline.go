@@ -117,7 +117,28 @@ func (p *Pipeline) GetJobs() (ids []string) {
 		return nil
 	}
 
+	for i := range p.Spec.Stages {
+		stage := p.Spec.Stages[i]
+		ids = append(ids, stage.JobIds()...)
+	}
+
 	return
+}
+
+func (p *Pipeline) UpdateJobs(jobs ...*job.Job) {
+	for ij := range jobs {
+		jobIns := jobs[ij]
+		for i := range p.Spec.Stages {
+			stage := p.Spec.Stages[i]
+			for it := range stage.Tasks {
+				task := stage.Tasks[it]
+				if task.JobId == jobIns.Meta.Id {
+					task.Job = jobIns
+					break
+				}
+			}
+		}
+	}
 }
 
 func NewCreatePipelineRequestFromYAML(yml string) (*CreatePipelineRequest, error) {
@@ -343,4 +364,12 @@ func (m *MentionUser) IsMatch(event string) bool {
 	}
 
 	return false
+}
+
+func (s *Stage) JobIds() (ids []string) {
+	for i := range s.Tasks {
+		task := s.Tasks[i]
+		ids = append(ids, task.JobId)
+	}
+	return
 }

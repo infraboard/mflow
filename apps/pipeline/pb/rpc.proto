@@ -45,6 +45,9 @@ message DescribePipelineRequest {
     // pipeline id
 	// @gotags: json:"id"
     string id = 1;
+    // 是否关联查询出job
+	// @gotags: json:"with_job"
+    bool with_job = 2;
 }
 
 message UpdatePipelineRequest {

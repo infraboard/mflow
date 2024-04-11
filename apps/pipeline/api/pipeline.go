@@ -104,6 +104,7 @@ func (h *handler) QueryPipeline(r *restful.Request, w *restful.Response) {
 
 func (h *handler) DescribePipeline(r *restful.Request, w *restful.Response) {
 	req := pipeline.NewDescribePipelineRequest(r.PathParameter("id"))
+	req.WithJob = r.QueryParameter("with_job") == "true"
 	ins, err := h.service.DescribePipeline(r.Request.Context(), req)
 	if err != nil {
 		response.Failed(w, err)

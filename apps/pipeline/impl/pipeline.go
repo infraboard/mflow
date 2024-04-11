@@ -5,6 +5,7 @@ import (
 
 	"github.com/infraboard/mcube/v2/exception"
 	"github.com/infraboard/mcube/v2/pb/request"
+	"github.com/infraboard/mflow/apps/job"
 	"github.com/infraboard/mflow/apps/pipeline"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -73,6 +74,16 @@ func (i *impl) DescribePipeline(ctx context.Context, in *pipeline.DescribePipeli
 	}
 
 	ins.Spec.BuildNumber()
+
+	if in.WithJob {
+		jReq := job.NewQueryJobRequest()
+		jReq.Ids = ins.GetJobs()
+		js, err := i.job.QueryJob(ctx, jReq)
+		if err != nil {
+			return nil, err
+		}
+		ins.UpdateJobs(js.Items...)
+	}
 
 	return ins, nil
 }

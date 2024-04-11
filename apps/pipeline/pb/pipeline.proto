@@ -122,9 +122,12 @@ message RunJobRequest {
 	// task属于那个Pipeline, 可以为空
 	// @gotags: bson:"pipeline_task" json:"pipeline_task"
     string pipeline_task = 5;
-	// task属于那个stage, 可以为空
+	// task属于那个stage 名称, 可以为空
 	// @gotags: bson:"stage_name" json:"stage_name"
     string stage_name = 6;
+	// task属于那个stage 编号, 可以为空
+	// @gotags: bson:"stage_number" json:"stage_number"
+    int32 stage_number = 22;
 	// 任务名称
 	// @gotags: bson:"task_name" json:"task_name" validate:"required"
     string task_name = 14;

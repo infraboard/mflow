@@ -272,8 +272,8 @@ message ParamScope {
 	// @gotags: bson:"stage" json:"stage"
 	string stage = 1;
 	// 作用与Job
-	// @gotags: bson:"job" json:"job"
-	string job = 2;
+	// @gotags: bson:"task" json:"task"
+	string task = 2;
 	// 作用于标签
 	// @gotags: bson:"label" json:"label"
 	map<string, string> label = 3;

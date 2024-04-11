@@ -60,6 +60,7 @@ func (req *CreatePipelineRequest) BuildNumber() {
 			j := stage.Tasks[n]
 			j.Number = int32(n) + 1
 			j.StageName = stage.Name
+			j.StageNumber = stage.Number
 		}
 	}
 }

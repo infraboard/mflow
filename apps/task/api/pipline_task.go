@@ -40,7 +40,7 @@ func (h *PipelineTaskHandler) RegistryUserHandler() {
 		Reads(task.DescribePipelineTaskRequest{}).
 		Writes(task.PipelineTask{}))
 
-	ws.Route(ws.GET("/{id}").To(h.RunPipeline).
+	ws.Route(ws.POST("/").To(h.RunPipeline).
 		Doc("运行Pipeline").
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Metadata(label.Resource, PIPELINE_TASK_RESOURCE_NAME).
@@ -77,9 +77,7 @@ func (h *PipelineTaskHandler) RunPipeline(r *restful.Request, w *restful.Respons
 		response.Failed(w, err)
 		return
 	}
-
 	req.UpdateFromToken(token.GetTokenFromRequest(r))
-	req.PipelineId = r.PathParameter("id")
 	set, err := h.service.RunPipeline(r.Request.Context(), req)
 	if err != nil {
 		response.Failed(w, err)

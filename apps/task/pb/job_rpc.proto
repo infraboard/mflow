@@ -119,6 +119,9 @@ message DescribeJobTaskRequest {
 	// 任务Id
 	// @gotags: json:"id"
     string id = 1;
+	// 关联Job
+	// @gotags: json:"with_job"
+    bool with_job = 2;
 }
 
 message DeleteJobTaskRequest {

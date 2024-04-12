@@ -287,6 +287,15 @@ func (i *impl) DescribeJobTask(ctx context.Context, in *task.DescribeJobTaskRequ
 
 		return nil, exception.NewInternalServerError("find job task %s error, %s", in.Id, err)
 	}
+
+	if in.WithJob {
+		j, err := i.job.DescribeJob(ctx, job.NewDescribeJobRequestById(ins.Spec.JobId))
+		if err != nil {
+			return nil, err
+		}
+		ins.Job = j
+	}
+
 	return ins, nil
 }
 
@@ -427,17 +436,23 @@ func (i *impl) WaitPodLogReady(
 	maxRetryCount := 0
 WAIT_TASK_ACTIVE:
 	// 查询Task信息
-	t, err := i.DescribeJobTask(ctx, task.NewDescribeJobTaskRequest(in.TaskId))
+	descReq := task.NewDescribeJobTaskRequest(in.TaskId).SetWithJob(true)
+	t, err := i.DescribeJobTask(ctx, descReq)
 	if err != nil {
 		return nil, err
 	}
-
-	writer.WriteMessagef("任务当前状态: [%s], Pod创建中...", t.Status.Stage)
 
 	pod, err := t.Status.GetLatestPod()
 	if err != nil {
 		return nil, err
 	}
+
+	if t.Status.Stage.Equal(task.STAGE_FAILED) && pod == nil {
+		writer.WriteMessagef("[%s]运行失败, %s", t.Spec.TaskName, t.Status.Message)
+		return t, nil
+	}
+
+	writer.WriteMessagef("任务当前状态: [%s], Pod创建中...", t.Status.Stage)
 
 	if !t.Status.IsComplete() && maxRetryCount < 30 {
 		if pod != nil {

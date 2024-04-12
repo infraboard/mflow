@@ -160,6 +160,11 @@ func (r *DescribeJobTaskRequest) Validate() error {
 	return nil
 }
 
+func (r *DescribeJobTaskRequest) SetWithJob(v bool) *DescribeJobTaskRequest {
+	r.WithJob = v
+	return r
+}
+
 func NewDeleteJobTaskRequest(id string) *DeleteJobTaskRequest {
 	return &DeleteJobTaskRequest{
 		Id: id,

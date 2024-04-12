@@ -47,6 +47,7 @@ func (i *impl) RunJob(ctx context.Context, in *pipeline.RunJobRequest) (
 			return nil, err
 		}
 		ins.Job = j
+		ins.Spec.JobId = j.Meta.Id
 		i.log.Info().Msgf("describe job success, %s[%s]", j.Spec.Name, j.Meta.Id)
 
 		// 脱敏参数动态还原
@@ -144,7 +145,10 @@ func (i *impl) JobTaskBatchSave(ctx context.Context, in *task.JobTaskSet) error 
 func (i *impl) QueryJobTask(ctx context.Context, in *task.QueryJobTaskRequest) (
 	*task.JobTaskSet, error) {
 	r := newQueryRequest(in)
-	resp, err := i.jcol.Find(ctx, r.FindFilter(), r.FindOptions())
+
+	filter := r.FindFilter()
+	i.log.Debug().Msgf("query filter: %v", filter)
+	resp, err := i.jcol.Find(ctx, filter, r.FindOptions())
 
 	if err != nil {
 		return nil, exception.NewInternalServerError("find deploy error, error is %s", err)
@@ -161,7 +165,7 @@ func (i *impl) QueryJobTask(ctx context.Context, in *task.QueryJobTaskRequest) (
 	}
 
 	// count
-	count, err := i.jcol.CountDocuments(ctx, r.FindFilter())
+	count, err := i.jcol.CountDocuments(ctx, filter)
 	if err != nil {
 		return nil, exception.NewInternalServerError("get deploy count error, error is %s", err)
 	}

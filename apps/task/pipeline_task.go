@@ -112,7 +112,7 @@ func (p *PipelineTask) JobTasks() *JobTaskSet {
 		return set
 	}
 
-	return p.Status.JobTasks()
+	return p.Status.JobTasks().UpdateFromPipelineTask(p)
 }
 
 // 返回下个需要执行的JobTask, 允许一次并行执行多个(批量执行)

@@ -41,7 +41,6 @@ func (s *JobTaskSet) UpdateFromPipelineTask(p *PipelineTask) *JobTaskSet {
 		item.Spec.Domain = p.Params.Domain
 		item.Spec.Namespace = p.Params.Namespace
 	}
-
 	return s
 }
 

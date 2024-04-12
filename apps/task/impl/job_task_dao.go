@@ -50,7 +50,7 @@ func (r *queryRequest) FindFilter() bson.M {
 	}
 
 	if r.JobId != "" {
-		filter["job._id"] = r.JobId
+		filter["job_id"] = r.JobId
 	}
 
 	if r.Stage != nil {

@@ -9,6 +9,7 @@ import (
 	"dario.cat/mergo"
 	"github.com/infraboard/mcenter/apps/notify"
 	"github.com/infraboard/mcenter/apps/token"
+	"github.com/infraboard/mcube/v2/ioc/config/log"
 	"github.com/infraboard/mcube/v2/ioc/config/validator"
 	"github.com/infraboard/mcube/v2/pb/resource"
 	job "github.com/infraboard/mflow/apps/job"
@@ -312,6 +313,8 @@ func (req *RunPipelineRequest) AddRunParam(params ...*job.RunParam) {
 
 func (req *RunPipelineRequest) GetTaskParams(stageNumber, taskNumber string) (
 	params []*job.RunParam) {
+	log := log.L()
+
 	for i := range req.RunParams {
 		param := req.RunParams[i]
 		// scope 全局参数, 适配所有Stage
@@ -335,12 +338,13 @@ func (req *RunPipelineRequest) GetTaskParams(stageNumber, taskNumber string) (
 
 			// Task专有变量
 			if param.ParamScope.Task == taskNumber {
+				log.Debug().Msgf("[task param] %s param scope: %s", param.Name, param.ParamScope)
 				params = append(params, param)
 				continue
 			}
 		}
 	}
-	return nil
+	return
 }
 
 func (req *RunPipelineRequest) Validate() error {

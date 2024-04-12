@@ -323,7 +323,7 @@ func (p *PipelineTask) AddNotifyStatus(items ...*CallbackStatus) {
 
 // 大写导出
 func (s *PipelineTask) RuntimeRunParams() (envs []*job.RunParam) {
-	if s.Status == nil {
+	if s.Status == nil || s.Status.RuntimeEnvs == nil {
 		return
 	}
 	return s.Status.RuntimeEnvs.Params
@@ -331,7 +331,11 @@ func (s *PipelineTask) RuntimeRunParams() (envs []*job.RunParam) {
 
 func NewPipelineTaskStatus() *PipelineTaskStatus {
 	return &PipelineTaskStatus{
-		StageStatus: []*StageStatus{},
+		RuntimeEnvs:   job.NewRunParamSet(),
+		StageStatus:   []*StageStatus{},
+		WebhookStatus: []*CallbackStatus{},
+		NotifyStatus:  []*CallbackStatus{},
+		Events:        []*Event{},
 	}
 }
 

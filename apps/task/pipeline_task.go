@@ -44,6 +44,7 @@ func NewPipelineTask(p *pipeline.Pipeline, in *pipeline.RunPipelineRequest) *Pip
 		ss := NewStageStatus(spec, pt.Meta.Id)
 		pt.Status.AddStage(ss)
 	}
+
 	return pt
 }
 
@@ -97,6 +98,8 @@ func (p *PipelineTask) GetFirstJobTask() *JobTask {
 			task := s.Tasks[0]
 			task.Spec.RunParams.DryRun = p.Params.DryRun
 			task.Spec.RollbackParams.DryRun = p.Params.DryRun
+			task.Spec.Domain = p.Params.Domain
+			task.Spec.Namespace = p.Params.Namespace
 			return task
 		}
 	}
@@ -129,7 +132,7 @@ func (p *PipelineTask) NextRun() (*JobTaskSet, error) {
 
 		// 找出Stage中未执行完的Job Task
 		set = stage.UnCompleteJobTask(p.Params.DryRun)
-
+		set.UpdateFromPipelineTask(p)
 		// 如果找到 直接Break
 		if set.Len() > 0 {
 			break
@@ -159,7 +162,7 @@ func (p *PipelineTask) NextRun() (*JobTaskSet, error) {
 		nextTasks.Add(tasks[0])
 	}
 
-	return nextTasks.SetDryRun(p.Params.DryRun), nil
+	return nextTasks.UpdateFromPipelineTask(p), nil
 }
 
 func (p *PipelineTask) GetStage(name string) *StageStatus {

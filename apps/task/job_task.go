@@ -33,10 +33,13 @@ func (s *JobTaskSet) Len() int {
 	return len(s.Items)
 }
 
-func (s *JobTaskSet) SetDryRun(dryRun bool) *JobTaskSet {
+// 继承来自Pipeline Task的属性
+func (s *JobTaskSet) UpdateFromPipelineTask(p *PipelineTask) *JobTaskSet {
 	for i := range s.Items {
 		item := s.Items[i]
-		item.Spec.RunParams.DryRun = dryRun
+		item.Spec.RunParams.DryRun = p.Params.DryRun
+		item.Spec.Domain = p.Params.Domain
+		item.Spec.Namespace = p.Params.Namespace
 	}
 
 	return s

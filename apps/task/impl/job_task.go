@@ -71,7 +71,7 @@ func (i *impl) RunJob(ctx context.Context, in *pipeline.RunJobRequest) (
 		// 校验参数合法性
 		err = params.Validate()
 		if err != nil {
-			return nil, fmt.Errorf("校验任务【%s】参数错误, %s", j.Spec.Name, err)
+			return nil, fmt.Errorf("校验任务【%s】参数错误, %s", j.Spec.DisplayName, err)
 		}
 		i.log.Info().Msgf("params check ok, %s", params)
 

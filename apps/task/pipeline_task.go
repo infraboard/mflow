@@ -93,8 +93,8 @@ func (p *PipelineTask) MarkedSucceed() {
 func (p *PipelineTask) GetFirstJobTask() *JobTask {
 	for i := range p.Status.StageStatus {
 		s := p.Status.StageStatus[i]
-		if len(s.JobTasks) > 0 {
-			task := s.JobTasks[0]
+		if len(s.Tasks) > 0 {
+			task := s.Tasks[0]
 			task.Spec.RunParams.DryRun = p.Params.DryRun
 			task.Spec.RollbackParams.DryRun = p.Params.DryRun
 			return task
@@ -347,7 +347,7 @@ func (p *PipelineTaskStatus) JobTasks() *JobTaskSet {
 	set := NewJobTaskSet()
 	for i := range p.StageStatus {
 		stage := p.StageStatus[i]
-		set.Add(stage.JobTasks...)
+		set.Add(stage.Tasks...)
 	}
 	return set
 }
@@ -392,8 +392,8 @@ func (p *PipelineTaskStatus) AddNotifyStatus(items ...*CallbackStatus) {
 
 func NewStageStatus(s *pipeline.Stage, pipelineTaskId string) *StageStatus {
 	status := &StageStatus{
-		Name:     s.Name,
-		JobTasks: []*JobTask{},
+		Name:  s.Name,
+		Tasks: []*JobTask{},
 	}
 
 	for i := range s.Tasks {
@@ -410,8 +410,8 @@ func NewStageStatus(s *pipeline.Stage, pipelineTaskId string) *StageStatus {
 // 获取Stage中未完成的任务, 包含 运行中和等待执行的
 func (s *StageStatus) UnCompleteJobTask(dryRun bool) *JobTaskSet {
 	set := NewJobTaskSet()
-	for i := range s.JobTasks {
-		item := s.JobTasks[i]
+	for i := range s.Tasks {
+		item := s.Tasks[i]
 		// stage中任何一个job task未完成, 该stage都处于未完成
 		if item.Status != nil && !item.Status.IsComplete() {
 			item.Spec.RunParams.DryRun = dryRun
@@ -423,13 +423,13 @@ func (s *StageStatus) UnCompleteJobTask(dryRun bool) *JobTaskSet {
 }
 
 func (s *StageStatus) Add(item *JobTask) {
-	s.JobTasks = append(s.JobTasks, item)
+	s.Tasks = append(s.Tasks, item)
 }
 
 // 根据Job Task id获取当前stage中的Job Task
 func (s *StageStatus) GetJobTask(id string) *JobTask {
-	for i := range s.JobTasks {
-		item := s.JobTasks[i]
+	for i := range s.Tasks {
+		item := s.Tasks[i]
 		if item.Spec.TaskId == id {
 			return item
 		}

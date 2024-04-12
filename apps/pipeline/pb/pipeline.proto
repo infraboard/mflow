@@ -159,7 +159,7 @@ message RunJobRequest {
     // @gotags: bson:"labels" json:"labels"
     map<string,string> labels = 25;
 	// 补充Task关联Job信息
-	// @gotags: bson:"-" json:"job"
+	// @gotags: bson:"job" json:"job"
 	job.Job job = 21;
 }
 

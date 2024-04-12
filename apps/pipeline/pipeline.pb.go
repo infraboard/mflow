@@ -549,8 +549,8 @@ type RunJobRequest struct {
 	// @gotags: bson:"labels" json:"labels"
 	Labels map[string]string `protobuf:"bytes,25,rep,name=labels,proto3" json:"labels" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3" bson:"labels"`
 	// 补充Task关联Job信息
-	// @gotags: bson:"-" json:"job"
-	Job *job.Job `protobuf:"bytes,21,opt,name=job,proto3" json:"job" bson:"-"`
+	// @gotags: bson:"job" json:"job"
+	Job *job.Job `protobuf:"bytes,21,opt,name=job,proto3" json:"job" bson:"job"`
 }
 
 func (x *RunJobRequest) Reset() {

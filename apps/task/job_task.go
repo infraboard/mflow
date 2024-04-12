@@ -33,6 +33,15 @@ func (s *JobTaskSet) Len() int {
 	return len(s.Items)
 }
 
+func (s *JobTaskSet) SetDryRun(dryRun bool) *JobTaskSet {
+	for i := range s.Items {
+		item := s.Items[i]
+		item.Spec.RunParams.DryRun = dryRun
+	}
+
+	return s
+}
+
 func (s *JobTaskSet) ToDocs() (docs []any) {
 	for i := range s.Items {
 		docs = append(docs, s.Items[i])
@@ -232,6 +241,17 @@ func (p *JobTask) MarshalJSON() ([]byte, error) {
 		Status *JobTaskStatus `json:"status"`
 		Job    *job.Job       `json:"job"`
 	}{p.Spec, p.Meta, p.Status, p.Job})
+}
+
+func (p *JobTask) RuntimeRunParams() []*job.RunParam {
+	params := []*job.RunParam{}
+	if p == nil ||
+		p.Status == nil ||
+		p.Status.RuntimeEnvs == nil ||
+		p.Status.RuntimeEnvs.Params == nil {
+		return params
+	}
+	return p.Status.RuntimeEnvs.Params
 }
 
 func (t *JobTask) GetStatusDetail() string {

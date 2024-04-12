@@ -154,7 +154,6 @@ func (i *impl) QueryRecord(ctx context.Context, in *trigger.QueryRecordRequest) 
 // 事件队列任务执行完成通知
 func (i *impl) EventQueueTaskComplete(ctx context.Context, in *trigger.EventQueueTaskCompleteRequest) (
 	*trigger.BuildStatus, error) {
-
 	req := trigger.NewQueryRecordRequest()
 	req.PipelineTaskId = in.PipelineTaskId
 	rs, err := i.QueryRecord(ctx, req)

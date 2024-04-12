@@ -94,7 +94,10 @@ func (p *PipelineTask) GetFirstJobTask() *JobTask {
 	for i := range p.Status.StageStatus {
 		s := p.Status.StageStatus[i]
 		if len(s.JobTasks) > 0 {
-			return s.JobTasks[0]
+			task := s.JobTasks[0]
+			task.Spec.RunParams.DryRun = p.Params.DryRun
+			task.Spec.RollbackParams.DryRun = p.Params.DryRun
+			return task
 		}
 	}
 	return nil
@@ -110,6 +113,7 @@ func (p *PipelineTask) JobTasks() *JobTaskSet {
 }
 
 // 返回下个需要执行的JobTask, 允许一次并行执行多个(批量执行)
+// Task DryRun属性要继承PipelineTask
 func (p *PipelineTask) NextRun() (*JobTaskSet, error) {
 	set := NewJobTaskSet()
 	var stage *StageStatus
@@ -124,7 +128,7 @@ func (p *PipelineTask) NextRun() (*JobTaskSet, error) {
 		stage = stages[i]
 
 		// 找出Stage中未执行完的Job Task
-		set = stage.UnCompleteJobTask()
+		set = stage.UnCompleteJobTask(p.Params.DryRun)
 
 		// 如果找到 直接Break
 		if set.Len() > 0 {
@@ -155,7 +159,7 @@ func (p *PipelineTask) NextRun() (*JobTaskSet, error) {
 		nextTasks.Add(tasks[0])
 	}
 
-	return nextTasks, nil
+	return nextTasks.SetDryRun(p.Params.DryRun), nil
 }
 
 func (p *PipelineTask) GetStage(name string) *StageStatus {
@@ -404,12 +408,13 @@ func NewStageStatus(s *pipeline.Stage, pipelineTaskId string) *StageStatus {
 }
 
 // 获取Stage中未完成的任务, 包含 运行中和等待执行的
-func (s *StageStatus) UnCompleteJobTask() *JobTaskSet {
+func (s *StageStatus) UnCompleteJobTask(dryRun bool) *JobTaskSet {
 	set := NewJobTaskSet()
 	for i := range s.JobTasks {
 		item := s.JobTasks[i]
 		// stage中任何一个job task未完成, 该stage都处于未完成
 		if item.Status != nil && !item.Status.IsComplete() {
+			item.Spec.RunParams.DryRun = dryRun
 			set.Add(item)
 		}
 	}

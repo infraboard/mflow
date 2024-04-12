@@ -22,7 +22,9 @@ func (i *impl) RunPipeline(ctx context.Context, in *pipeline.RunPipelineRequest)
 	}
 
 	// 查询需要执行的Pipeline
-	p, err := i.pipeline.DescribePipeline(ctx, pipeline.NewDescribePipelineRequest(in.PipelineId))
+	pReq := pipeline.NewDescribePipelineRequest(in.PipelineId)
+	pReq.WithJob = true
+	p, err := i.pipeline.DescribePipeline(ctx, pReq)
 	if err != nil {
 		return nil, err
 	}
@@ -38,8 +40,6 @@ func (i *impl) RunPipeline(ctx context.Context, in *pipeline.RunPipelineRequest)
 	if t == nil {
 		return nil, fmt.Errorf("not job task to run")
 	}
-
-	// dry run 不执行
 	if in.DryRun {
 		return ins, nil
 	}
@@ -50,25 +50,27 @@ func (i *impl) RunPipeline(ctx context.Context, in *pipeline.RunPipelineRequest)
 		return nil, err
 	}
 
+	ins.MarkedRunning()
 	// 保存Pipeline状态
 	if _, err := i.pcol.InsertOne(ctx, ins); err != nil {
 		return nil, exception.NewInternalServerError("inserted a pipeline task document error, %s", err)
 	}
 
-	// 运行 第一个Job, 驱动Pipeline执行
-	ins.MarkedRunning()
-	resp, err := i.RunJob(ctx, t.Spec)
+	/*
+		运行 第一个Job, 驱动Pipeline执行
+	*/
+	uReq := task.NewUpdateJobTaskStatusRequest(t.Spec.TaskId)
+	uReq.UpdateToken = t.Spec.UpdateToken
+	reqp, err := i.RunJob(ctx, t.Spec)
 	if err != nil {
-		return nil, err
+		uReq.MarkError(err)
+	} else {
+		uReq.Stage = reqp.Status.Stage
 	}
-	t.Update(resp.Job, resp.Status)
-
-	// 更新状态
-	ins, err = i.updatePipelineStatus(ctx, ins)
+	_, err = i.UpdateJobTaskStatus(ctx, uReq)
 	if err != nil {
-		return nil, err
+		i.log.Error().Msgf("update pipeline status form task error, %s", err)
 	}
-
 	return ins, nil
 }
 
@@ -131,6 +133,9 @@ func (i *impl) PipelineTaskStatusChanged(ctx context.Context, in *task.JobTask) 
 		return nil, exception.NewBadRequest("Pipeline Id参数缺失")
 	}
 
+	i.log.Debug().Msgf("task %s[%s] status changed: %s",
+		in.Spec.TaskName, in.Spec.TaskId, in.Status.Stage)
+
 	runErrorJobTasks := []*task.UpdateJobTaskStatusRequest{}
 	// 获取Pipeline Task, 因为Job Task是先保存在触发的回调, 这里获取的Pipeline Task是最新的
 	descReq := task.NewDescribePipelineTaskRequest(in.Spec.PipelineTask)
@@ -154,7 +159,7 @@ func (i *impl) PipelineTaskStatusChanged(ctx context.Context, in *task.JobTask) 
 	}()
 
 	// 更新Pipeline Task 运行时环境变量
-	p.Status.RuntimeEnvs.Merge(in.Status.RuntimeEnvs.Params...)
+	p.Status.RuntimeEnvs.Merge(in.RuntimeRunParams()...)
 
 	switch in.Status.Stage {
 	case task.STAGE_PENDDING, task.STAGE_ACTIVE, task.STAGE_CANCELING:
@@ -175,7 +180,9 @@ func (i *impl) PipelineTaskStatusChanged(ctx context.Context, in *task.JobTask) 
 		i.log.Info().Msgf("task: %s run successed", in.Spec.TaskId)
 	}
 
-	// task执行成功或者忽略执行失败, 此时pipeline 仍然处于运行中, 需要获取下一个任务执行
+	/*
+		task执行成功或者忽略执行失败, 此时pipeline 仍然处于运行中, 需要获取下一个任务执行
+	*/
 	nexts, err := p.NextRun()
 	if err != nil {
 		p.MarkedFailed(err)
@@ -252,7 +259,8 @@ func (i *impl) PipelineStatusChangedCallback(ctx context.Context, in *task.Pipel
 		bs, err := i.trigger.EventQueueTaskComplete(ctx, tReq)
 		if err != nil {
 			in.AddErrorEvent("触发队列回调失败: %s", err)
-		} else {
+		}
+		if bs != nil {
 			in.AddSuccessEvent("触发队列成功: %s", bs.BuildConfig.Spec.Name).SetDetail(bs.String())
 		}
 	}

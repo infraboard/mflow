@@ -81,6 +81,8 @@ func (i *impl) RunJob(ctx context.Context, in *pipeline.RunJobRequest) (
 		runReq.DryRun = in.RunParams.DryRun
 		runReq.Labels = in.Labels
 		runReq.ManualUpdateStatus = j.Spec.ManualUpdateStatus
+
+		i.log.Debug().Msgf("[%s] start run task: %s", ins.Spec.PipelineTask, in.TaskName)
 		status, err := r.Run(ctx, runReq)
 		if err != nil {
 			return nil, fmt.Errorf("run job error, %s", err)
@@ -122,8 +124,8 @@ func (i *impl) LoadPipelineRunParam(ctx context.Context, in *pipeline.RunJobRequ
 }
 
 // 判断任务是否还处于运行中
-func (i *impl) CheckJotTaskIsActive(ctx context.Context, jotTaskId string) (bool, error) {
-	ins, err := i.DescribeJobTask(ctx, task.NewDescribeJobTaskRequest(jotTaskId))
+func (i *impl) CheckJotTaskIsActive(ctx context.Context, jobTaskId string) (bool, error) {
+	ins, err := i.DescribeJobTask(ctx, task.NewDescribeJobTaskRequest(jobTaskId))
 	if err != nil && !exception.IsNotFoundError(err) {
 		return false, err
 	}

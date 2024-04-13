@@ -420,3 +420,18 @@ func (s *Stage) JobIds() (ids []string) {
 	}
 	return
 }
+
+func (s *Stage) GetTaskByNumber(number int32) *RunJobRequest {
+	if s.Tasks == nil {
+		return nil
+	}
+
+	for i := range s.Tasks {
+		task := s.Tasks[i]
+		if task.Number == number {
+			return task
+		}
+	}
+
+	return nil
+}

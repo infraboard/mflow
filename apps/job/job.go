@@ -366,6 +366,10 @@ func (r *RunParamSet) GetParam(key string) *RunParam {
 
 // 设置参数的值, 注意如果value为""则不会修改
 func (r *RunParamSet) SetParamValue(key, value string, readOnly bool) {
+	if r == nil || r.Params == nil {
+		return
+	}
+
 	for i := range r.Params {
 		param := r.Params[i]
 		if param.IsEdit() && param.Name == key {

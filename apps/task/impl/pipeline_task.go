@@ -334,6 +334,8 @@ func (i *impl) DescribePipelineTask(ctx context.Context, in *task.DescribePipeli
 		}
 	}
 
+	// 执行参数 回填回Pipeline, 方便前端直接展示
+	ins.SetParamValueToPipeline()
 	return ins, nil
 }
 

@@ -449,7 +449,7 @@ WAIT_TASK_ACTIVE:
 
 	if t.Status.Stage.Equal(task.STAGE_FAILED) && pod == nil {
 		writer.WriteMessagef("[%s]运行失败, %s", t.Spec.TaskName, t.Status.Message)
-		return t, nil
+		return t, fmt.Errorf("任务没有成功创建Pod")
 	}
 
 	writer.WriteMessagef("任务当前状态: [%s], Pod创建中...", t.Status.Stage)

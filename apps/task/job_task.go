@@ -194,6 +194,10 @@ func (p *JobTask) GetRunParamSet() *job.RunParamSet {
 	return p.Spec.RunParams
 }
 
+func (p *JobTask) GetStatusRunParam() []*job.RunParam {
+	return p.Status.RunParams.Params
+}
+
 func (p *JobTask) Desense() {
 	if p.Status != nil && p.Status.RunParams != nil {
 		p.Status.RunParams.Densense()

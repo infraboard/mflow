@@ -336,6 +336,30 @@ func (s *PipelineTask) RuntimeRunParams() (envs []*job.RunParam) {
 	return s.Status.RuntimeEnvs.Params
 }
 
+// 执行参数 回填回Pipeline, 方便前端直接展示
+func (s *PipelineTask) SetParamValueToPipeline() {
+	if s.Pipeline == nil || s.Status == nil {
+		return
+	}
+
+	for stageIndex := range s.Status.StageStatus {
+		stage := s.Status.StageStatus[stageIndex]
+		for taskIndex := range stage.Tasks {
+			task := stage.Tasks[taskIndex]
+			params := task.GetStatusRunParam()
+			for paramIndex := range params {
+				param := params[paramIndex]
+				target := s.Pipeline.GetStage(stage.Name).
+					GetTaskByNumber(task.Spec.Number).RunParams.
+					GetParam(param.Name)
+				if target != nil {
+					target.Value = param.Value
+				}
+			}
+		}
+	}
+}
+
 func NewPipelineTaskStatus() *PipelineTaskStatus {
 	return &PipelineTaskStatus{
 		RuntimeEnvs:   job.NewRunParamSet(),

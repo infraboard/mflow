@@ -392,7 +392,7 @@ func (i *impl) WatchJobTaskLog(in *task.WatchJobTaskLogRequest, stream task.JobR
 
 	switch t.Job.Spec.RunnerType {
 	case job.RUNNER_TYPE_K8S_JOB:
-		k8sParams := t.Job.Spec.RunParams.K8SJobRunnerParams()
+		k8sParams := t.Spec.RunParams.K8SJobRunnerParams()
 		k8sClient, err := k8sParams.Client(stream.Context())
 		if err != nil {
 			return fmt.Errorf("create k8s client error, %s", err)
@@ -452,20 +452,20 @@ WAIT_TASK_ACTIVE:
 		return t, fmt.Errorf("任务没有成功创建Pod")
 	}
 
-	writer.WriteMessagef("任务当前状态: [%s], Pod创建中...", t.Status.Stage)
-
+	writer.WriteMessagef("任务当前状态: [%s]", t.Status.Stage)
 	if !t.Status.IsComplete() && maxRetryCount < 30 {
 		if pod != nil {
-			writer.WriteMessagef("任务当前状态: [%s], Pod状态: [%s], 等待任务启动中...", t.Status.Stage, pod.Status.Phase)
+			writer.WriteMessagef("当前Pod状态: [%s], 等待任务启动中...", t.Status.Stage, pod.Status.Phase)
 			// Job状态运行成功，返回
 			if pod.Status.Phase != "Pending" {
 				return t, nil
 			}
 		}
-
 		time.Sleep(2 * time.Second)
 		maxRetryCount++
 		goto WAIT_TASK_ACTIVE
+	} else {
+		writer.WriteMessagef("当前Pod状态: [%s]", pod.Status.Phase)
 	}
 
 	return t, nil

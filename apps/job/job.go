@@ -436,7 +436,7 @@ func (p *K8SJobRunnerParams) Client(ctx context.Context) (*k8s.Client, error) {
 		descReq := k8sApp.NewDescribeClusterRequest(p.KubeConfig)
 		k8sCluster, err := mpaas.C().K8s().DescribeCluster(ctx, descReq)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("get k8s cluter %s error, %s", p.KubeConfig, err)
 		}
 		p.KubeConfig = k8sCluster.Spec.KubeConfig
 		log.L().Debug().Msgf("load kube config from mpaas k8s cluster: %s", descReq.Id)

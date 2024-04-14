@@ -39,6 +39,13 @@ message JobTaskStreamReponse {
     bytes data = 1;
 }
 
+enum SORT_TYPE {
+    // 倒序
+    DESCEND = 0;
+    // 正序
+    ASCEND = 1;
+}
+
 message QueryJobTaskRequest {
     // 资源范围
     // @gotags: json:"scope"
@@ -61,6 +68,9 @@ message QueryJobTaskRequest {
 	// 任务当前状态
 	// @gotags: json:"stage"
     optional STAGE stage = 6;
+	// 排序方式
+	// @gotags: json:"sort_type"
+    SORT_TYPE sort_type = 8;
     // 任务标签
     // @gotags: json:"labels"
     map<string,string> labels = 15;

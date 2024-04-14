@@ -51,6 +51,13 @@ func (s *JobTaskSet) ToDocs() (docs []any) {
 	return
 }
 
+func (s *JobTaskSet) TaskNames() (names []string) {
+	for i := range s.Items {
+		names = append(names, s.Items[i].Spec.TaskName)
+	}
+	return
+}
+
 func (s *JobTaskSet) HasStage(stage STAGE) bool {
 	for i := range s.Items {
 		item := s.Items[i]
@@ -195,6 +202,11 @@ func (p *JobTask) GetRunParamSet() *job.RunParamSet {
 }
 
 func (p *JobTask) GetStatusRunParam() []*job.RunParam {
+	if p.Status == nil ||
+		p.Status.RunParams == nil ||
+		p.Status.RunParams.Params == nil {
+		return []*job.RunParam{}
+	}
 	return p.Status.RunParams.Params
 }
 

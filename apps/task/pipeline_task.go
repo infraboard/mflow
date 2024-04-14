@@ -346,15 +346,18 @@ func (s *PipelineTask) SetParamValueToPipeline() {
 		stage := s.Status.StageStatus[stageIndex]
 		for taskIndex := range stage.Tasks {
 			task := stage.Tasks[taskIndex]
+			targetTask := s.Pipeline.GetStage(stage.Name).GetTaskByNumber(task.Spec.Number)
+			if targetTask == nil {
+				continue
+			}
 			params := task.GetStatusRunParam()
 			for paramIndex := range params {
 				param := params[paramIndex]
-				target := s.Pipeline.GetStage(stage.Name).
-					GetTaskByNumber(task.Spec.Number).RunParams.
-					GetParam(param.Name)
-				if target != nil {
-					target.Value = param.Value
+				targetParm := targetTask.RunParams.GetParam(param.Name)
+				if targetParm == nil {
+					continue
 				}
+				targetParm.Value = param.Value
 			}
 		}
 	}

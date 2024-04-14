@@ -21,13 +21,24 @@ type queryRequest struct {
 	*task.QueryJobTaskRequest
 }
 
+func (r *queryRequest) SortValue() int {
+	switch r.SortType {
+	case task.SORT_TYPE_ASCEND:
+		return 1
+	case task.SORT_TYPE_DESCEND:
+		return -1
+	}
+
+	return -1
+}
+
 func (r *queryRequest) FindOptions() *options.FindOptions {
 	pageSize := int64(r.Page.PageSize)
 	skip := int64(r.Page.PageSize) * int64(r.Page.PageNumber-1)
 
 	opt := &options.FindOptions{
 		Sort: bson.D{
-			{Key: "create_at", Value: -1},
+			{Key: "create_at", Value: r.SortValue()},
 		},
 		Limit: &pageSize,
 		Skip:  &skip,

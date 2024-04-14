@@ -36,8 +36,11 @@ func (i *impl) RunPipeline(ctx context.Context, in *pipeline.RunPipelineRequest)
 
 	// 从pipeline 取出需要执行的任务
 	ins := task.NewPipelineTask(p, in)
-	t := ins.GetFirstJobTask()
-	if t == nil {
+	ts, err := ins.NextRun()
+	if err != nil {
+		return nil, fmt.Errorf("find next run task error, %s", err)
+	}
+	if ts == nil || ts.Len() == 0 {
 		return nil, fmt.Errorf("not job task to run")
 	}
 	if in.DryRun {
@@ -57,19 +60,22 @@ func (i *impl) RunPipeline(ctx context.Context, in *pipeline.RunPipelineRequest)
 	}
 
 	/*
-		运行 第一个Job, 驱动Pipeline执行
+		运行 第一批Task, 驱动Pipeline执行
 	*/
-	uReq := task.NewUpdateJobTaskStatusRequest(t.Spec.TaskId)
-	uReq.UpdateToken = t.Spec.UpdateToken
-	reqp, err := i.RunJob(ctx, t.Spec)
-	if err != nil {
-		uReq.MarkError(err)
-	} else {
-		uReq.Stage = reqp.Status.Stage
-	}
-	_, err = i.UpdateJobTaskStatus(ctx, uReq)
-	if err != nil {
-		i.log.Error().Msgf("update pipeline status form task error, %s", err)
+	i.log.Debug().Msgf("run pipeline tasks: %v", ts.TaskNames())
+	for _, t := range ts.Items {
+		uReq := task.NewUpdateJobTaskStatusRequest(t.Spec.TaskId)
+		uReq.UpdateToken = t.Spec.UpdateToken
+		reqp, err := i.RunJob(ctx, t.Spec)
+		if err != nil {
+			uReq.MarkError(err)
+		} else {
+			uReq.Stage = reqp.Status.Stage
+		}
+		_, err = i.UpdateJobTaskStatus(ctx, uReq)
+		if err != nil {
+			i.log.Error().Msgf("update pipeline status form task error, %s", err)
+		}
 	}
 	return ins, nil
 }
@@ -162,7 +168,11 @@ func (i *impl) PipelineTaskStatusChanged(ctx context.Context, in *task.JobTask) 
 	p.Status.RuntimeEnvs.Merge(in.RuntimeRunParams()...)
 
 	switch in.Status.Stage {
-	case task.STAGE_PENDDING, task.STAGE_ACTIVE, task.STAGE_CANCELING:
+	case task.STAGE_PENDDING,
+		task.STAGE_SCHEDULING,
+		task.STAGE_CREATING,
+		task.STAGE_ACTIVE,
+		task.STAGE_CANCELING:
 		// Pipeline Task状态无变化
 		return p, nil
 	case task.STAGE_CANCELED:
@@ -320,6 +330,7 @@ func (i *impl) DescribePipelineTask(ctx context.Context, in *task.DescribePipeli
 	// 补充该PipelineTask管理的JobTask
 	query := task.NewQueryTaskRequest()
 	query.PipelineTaskId = in.Id
+	query.SortType = task.SORT_TYPE_ASCEND
 	tasks, err := i.QueryJobTask(ctx, query)
 	if err != nil {
 		return nil, err

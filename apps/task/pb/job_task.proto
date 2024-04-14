@@ -52,8 +52,6 @@ enum STAGE {
 	// 运行中, Job对应的Pod创建完成后更新, 可以查看Pod日志
 	ACTIVE = 12;
 
-	// 回滚中, 回滚是一种特殊的运行中状态, 回滚时会运行回滚参数
-	ROLLBACKING = 16;
 	// 取消中
 	CANCELING = 20;
 

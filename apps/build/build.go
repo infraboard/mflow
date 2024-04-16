@@ -91,6 +91,7 @@ func NewCreateBuildConfigRequest() *CreateBuildConfigRequest {
 		PkgBuild:      NewPkgBuildConfig(),
 		Labels:        make(map[string]string),
 		EnvVars:       make(map[string]string),
+		Extra:         make(map[string]string),
 	}
 }
 

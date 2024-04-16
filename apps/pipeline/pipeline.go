@@ -28,6 +28,27 @@ func (s *PipelineSet) Add(item *Pipeline) {
 	s.Items = append(s.Items, item)
 }
 
+func (s *PipelineSet) GetJobs() (ids []string) {
+	m := map[string]struct{}{}
+	for i := range s.Items {
+		p := s.Items[i]
+		for _, id := range p.GetJobs() {
+			m[id] = struct{}{}
+		}
+	}
+	for k := range m {
+		ids = append(ids, k)
+	}
+	return
+}
+
+func (s *PipelineSet) UpdateJobs(jobs ...*job.Job) {
+	for i := range s.Items {
+		p := s.Items[i]
+		p.UpdateJobs(jobs...)
+	}
+}
+
 func NewDefaultPipeline() *Pipeline {
 	return &Pipeline{
 		Spec: NewCreatePipelineRequest(),

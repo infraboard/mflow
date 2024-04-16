@@ -39,6 +39,9 @@ message QueryPipelineRequest {
     // pipeline Id列表
     // @gotags: json:"ids"
     repeated string ids = 15;
+    // 是否关联查询出job
+	// @gotags: json:"with_job"
+    bool with_job = 5;
 }
 
 message DescribePipelineRequest {

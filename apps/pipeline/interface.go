@@ -75,6 +75,7 @@ func NewQueryPipelineRequestFromHTTP(r *restful.Request) *QueryPipelineRequest {
 	req.Page = request.NewPageRequestFromHTTP(r.Request)
 	req.Scope = token.GetTokenFromRequest(r).GenScope()
 	req.Filters = policy.GetScopeFilterFromRequest(r)
+	req.WithJob = r.QueryParameter("with_job") == "true"
 	isTemp := r.QueryParameter("is_template")
 	if isTemp != "" {
 		req.SetIsTemplate(isTemp == "true")

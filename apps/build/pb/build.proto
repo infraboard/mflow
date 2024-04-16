@@ -7,8 +7,10 @@ import "mcube/pb/resource/meta.proto";
 
 message BuildConfigSet {
     // 总数
+    // @gotags: bson:"total" json:"total"
     int64 total = 1;
     // 清单
+    // @gotags: bson:"items" json:"items"
     repeated BuildConfig items = 2;
 }
 
@@ -70,6 +72,9 @@ message CreateBuildConfigRequest {
     // 构建配置标签
     // @gotags: bson:"labels" json:"labels"
     map<string,string> labels = 15;
+    // 其他信息
+    // @gotags: bson:"extra" json:"extra"
+    map<string,string> extra = 16;
 }
 
 // 队列
@@ -142,5 +147,4 @@ message PkgBuildConfig {
     // 其他信息
     // @gotags: bson:"extra" json:"extra"
     map<string,string> extra = 15;
-
 }

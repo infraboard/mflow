@@ -48,6 +48,16 @@ func (i *impl) QueryPipeline(ctx context.Context, in *pipeline.QueryPipelineRequ
 		set.Add(ins)
 	}
 
+	if in.WithJob {
+		jReq := job.NewQueryJobRequest()
+		jReq.Ids = set.GetJobs()
+		js, err := i.job.QueryJob(ctx, jReq)
+		if err != nil {
+			return nil, err
+		}
+		set.UpdateJobs(js.Items...)
+	}
+
 	// count
 	count, err := i.col.CountDocuments(ctx, r.FindFilter())
 	if err != nil {

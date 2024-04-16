@@ -60,6 +60,14 @@ func (s *JobSet) Add(item *Job) {
 	s.Items = append(s.Items, item)
 }
 
+type JobForEachHandler func(*Job)
+
+func (s *JobSet) ForEach(h JobForEachHandler) {
+	for i := range s.Items {
+		h(s.Items[i])
+	}
+}
+
 func (s *JobSet) Desense() {
 	for i := range s.Items {
 		item := s.Items[i]
@@ -375,10 +383,17 @@ func (r *RunParamSet) SetParamValue(key, value string, readOnly bool) {
 		if param.IsEdit() && param.Name == key {
 			param.Value = value
 			param.ReadOnly = readOnly
+			if value == INJECT_PROVIDER {
+				param.EventInject = true
+				param.ValueDesc = "自动注入"
+			}
 			return
 		}
 	}
-	log.L().Warn().Msgf("set param %s value failed, job no param or readonly", key)
+
+	if value != INJECT_PROVIDER {
+		log.L().Warn().Msgf("set param %s value failed, job no param or readonly", key)
+	}
 }
 
 func (r *RunParamSet) Merge(targets ...*RunParam) {

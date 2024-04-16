@@ -242,6 +242,9 @@ message RunParam {
 	// 默认值, task运行时如果未传人，会填充默认值
 	// @gotags: bson:"value" json:"value"
 	string value = 10;
+	// 有事件触发时 自动注入
+	// @gotags: bson:"event_inject" json:"event_inject"
+	bool event_inject = 18;
 	// 值描述
 	// @gotags: bson:"value_desc" json:"value_desc"
 	string value_desc = 14;

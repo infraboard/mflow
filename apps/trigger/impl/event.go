@@ -6,7 +6,6 @@ import (
 	"github.com/infraboard/mcenter/apps/service"
 	"github.com/infraboard/mcube/v2/exception"
 	"github.com/infraboard/mflow/apps/build"
-	"github.com/infraboard/mflow/apps/job"
 	"github.com/infraboard/mflow/apps/pipeline"
 	"github.com/infraboard/mflow/apps/trigger"
 )
@@ -73,7 +72,7 @@ func (i *impl) RunBuildConf(ctx context.Context, in *trigger.Event, buildConf *b
 	runReq.Labels[build.PIPELINE_TASK_BUILD_CONFIG_LABLE_KEY] = buildConf.Meta.Id
 
 	// 补充Build用户自定义变量
-	runReq.AddRunParam(buildConf.BuildRunParams().Params...)
+	runReq.AddRunParam(buildConf.Spec.CustomParams...)
 
 	// 补充Gitlab事件特有的变量
 	switch in.Provider {
@@ -92,22 +91,6 @@ func (i *impl) RunBuildConf(ctx context.Context, in *trigger.Event, buildConf *b
 			runReq.AddRunParam(event.DateCommitVersion(buildConf.Spec.VersionPrefix))
 		case build.VERSION_NAMED_RULE_GIT_TAG:
 			runReq.AddRunParam(event.TagVersion(buildConf.Spec.VersionPrefix))
-		}
-
-		// 补充构建时系统变量
-		switch buildConf.Spec.TargetType {
-		case build.TARGET_TYPE_IMAGE:
-			ib := buildConf.Spec.ImageBuild
-			// 注入Dockerfile位置信息
-			runReq.AddRunParam(job.NewRunParam(
-				build.SYSTEM_VARIABLE_APP_DOCKERFILE,
-				ib.GetDockerFileWithDefault(build.DEFAULT_DOCKER_FILE_PATH),
-			))
-			// 注入推送代码仓库相关信息
-			runReq.AddRunParam(job.NewRunParam(
-				build.SYSTEM_VARIABLE_IMAGE_REPOSITORY,
-				ib.GetImageRepositoryWithDefault(event.DefaultRepository()),
-			))
 		}
 	}
 

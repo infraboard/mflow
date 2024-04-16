@@ -33,9 +33,7 @@ func TestUpdateMcenterBuildConfig(t *testing.T) {
 	// https://docs.gitlab.com/ee/user/project/integrations/webhook_events.html 中Header值: X-Gitlab-Event
 	req.Spec.Condition.AddEvent("Push Hook")
 	req.Spec.Condition.AddSubEvents("master")
-	req.Spec.ImageBuild.ImageRepository = "registry.cn-hangzhou.aliyuncs.com/infraboard/mcenter"
 	req.Spec.PipelineId = conf.C.MFLOW_PIPELINE_ID
-	req.Spec.DeployId = "mcenter_v1"
 	ins, err := impl.UpdateBuildConfig(ctx, req)
 	if err != nil {
 		t.Fatal(err)

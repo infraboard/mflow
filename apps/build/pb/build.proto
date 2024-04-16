@@ -4,6 +4,7 @@ package infraboard.mflow.build;
 option go_package = "github.com/infraboard/mflow/apps/build";
 
 import "mcube/pb/resource/meta.proto";
+import "mflow/apps/job/pb/job.proto";
 
 message BuildConfigSet {
     // 总数
@@ -39,9 +40,9 @@ message CreateBuildConfigRequest {
     // 队列配置
     // @gotags: bson:"queue" json:"queue"
     Queue queue = 14;
-    // pipeline运行时注入的变量
-    // @gotags: bson:"env_vars" json:"env_vars"
-    map<string,string> env_vars = 5;
+    // pipeline运行时 用户自定义参数
+    // @gotags: bson:"custom_params" json:"custom_params"
+	repeated job.RunParam custom_params = 5;
     // 构建的名称
     // @gotags: bson:"name" json:"name" validate:"required"
     string name = 6;
@@ -49,25 +50,12 @@ message CreateBuildConfigRequest {
     // @gotags: bson:"describe" json:"describe"
     string describe = 7;
 
-    // 专门针对构建触发的参数
-    // 构建目标类型
-    // @gotags: bson:"target_type" json:"target_type"
-    TARGET_TYPE target_type = 8;
-    // 镜像构建配置
-    // @gotags: bson:"image_build" json:"image_build"
-    ImageBuildConfig image_build = 9;
-    // 包构建配置
-    // @gotags: bson:"pkg_build" json:"pkg_build"
-    PkgBuildConfig pkg_build = 10;
     // 版本命名规则
     // @gotags: bson:"version_named_rule" json:"version_named_rule"
     VERSION_NAMED_RULE version_named_rule = 11;
     // 版本前缀
     // @gotags: bson:"version_prefix" json:"version_prefix"
     string version_prefix = 12;
-    // 构建完成后执行部署的Id
-    // @gotags: bson:"deploy_id" json:"deploy_id"
-    string deploy_id = 13;
 
     // 构建配置标签
     // @gotags: bson:"labels" json:"labels"

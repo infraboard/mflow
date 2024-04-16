@@ -64,33 +64,13 @@ func (b *BuildConfig) MarshalJSON() ([]byte, error) {
 	}{b.Meta, b.Spec})
 }
 
-func (b *BuildConfig) BuildRunParams() *job.RunParamSet {
-	params := job.NewRunParamSet()
-	// 补充部署Id
-	if b.Spec.DeployId != "" {
-		params.Add(job.NewRunParam(
-			job.SYSTEM_VARIABLE_DEPLOY_ID,
-			b.Spec.DeployId,
-		))
-	}
-
-	// 补充自定义变量
-	for k, v := range b.Spec.EnvVars {
-		params.Add(job.NewRunParam(k, v))
-	}
-
-	return params
-}
-
 func NewCreateBuildConfigRequest() *CreateBuildConfigRequest {
 	return &CreateBuildConfigRequest{
 		Enabled:       true,
 		VersionPrefix: "v",
 		Condition:     NewTrigger(),
-		ImageBuild:    NewImageBuild(),
-		PkgBuild:      NewPkgBuildConfig(),
 		Labels:        make(map[string]string),
-		EnvVars:       make(map[string]string),
+		CustomParams:  []*job.RunParam{},
 		Extra:         make(map[string]string),
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/infraboard/mcube/v2/pb/request"
 	"github.com/infraboard/mflow/apps/job"
 	"github.com/infraboard/mflow/apps/pipeline"
+	"github.com/infraboard/mflow/apps/trigger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -56,6 +57,15 @@ func (i *impl) QueryPipeline(ctx context.Context, in *pipeline.QueryPipelineRequ
 			return nil, err
 		}
 		set.UpdateJobs(js.Items...)
+	}
+
+	// 补充注入参数
+	if in.WithInjectParams {
+		for k, v := range trigger.InjectParams {
+			set.TaskForEach(func(task *pipeline.RunJobRequest) {
+				task.RunParams.SetParamValue(k, v, true)
+			})
+		}
 	}
 
 	// count

@@ -42,6 +42,9 @@ message QueryPipelineRequest {
     // 是否关联查询出job
 	// @gotags: json:"with_job"
     bool with_job = 5;
+    // 添加自定义变量占位符
+	// @gotags: json:"with_inject_params"
+    bool with_inject_params = 6;
 }
 
 message DescribePipelineRequest {

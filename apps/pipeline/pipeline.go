@@ -42,6 +42,19 @@ func (s *PipelineSet) GetJobs() (ids []string) {
 	return
 }
 
+type TaskForEatchHandler func(*RunJobRequest)
+
+func (s *PipelineSet) TaskForEach(h TaskForEatchHandler) {
+	for i := range s.Items {
+		for stageIndex := range s.Items[i].Spec.Stages {
+			stage := s.Items[i].Spec.Stages[stageIndex]
+			for taskIndex := range stage.Tasks {
+				h(stage.Tasks[taskIndex])
+			}
+		}
+	}
+}
+
 func (s *PipelineSet) UpdateJobs(jobs ...*job.Job) {
 	for i := range s.Items {
 		p := s.Items[i]

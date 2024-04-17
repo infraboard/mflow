@@ -6,7 +6,6 @@ import (
 
 	"github.com/emicklei/go-restful/v3"
 	"github.com/infraboard/mcenter/apps/service"
-	"github.com/infraboard/mcenter/apps/service/provider/gitlab"
 	"github.com/infraboard/mcube/v2/http/restful/response"
 	"github.com/infraboard/mflow/apps/trigger"
 )
@@ -97,26 +96,26 @@ func (h *Handler) BuildEvent(ctx context.Context, in *trigger.Event) error {
 	p.Name = svc.Spec.Name
 
 	// 补充分支相关Commit信息
-	gc, err := repo.MakeGitlabConfig()
-	if err != nil {
-		return err
-	}
-	v4 := gitlab.NewGitlabV4(gc)
-	branchReq := gitlab.NewGetProjectBranchRequest()
-	branchReq.ProjectId = repo.ProjectId
-	branchReq.Branch = event.GetBranch()
-	if branchReq.Branch == "" {
-		branchReq.Branch = in.SubName
-	}
-	b, err := v4.Project().GetProjectBranch(ctx, branchReq)
-	if err != nil {
-		return fmt.Errorf("查询分支: %s 异常, %s", branchReq.Branch, err)
-	}
-	event.Commits = append(event.Commits, &trigger.Commit{
-		Id:        b.Commit.Id,
-		Message:   b.Commit.Message,
-		Title:     b.Commit.Title,
-		Timestamp: b.Commit.CommittedDate,
-	})
+	// gc, err := repo.MakeGitlabConfig()
+	// if err != nil {
+	// 	return err
+	// }
+	// v4 := gitlab.NewGitlabV4(gc)
+	// branchReq := gitlab.NewGetProjectBranchRequest()
+	// branchReq.ProjectId = repo.ProjectId
+	// branchReq.Branch = event.GetBranch()
+	// if branchReq.Branch == "" {
+	// 	branchReq.Branch = in.SubName
+	// }
+	// b, err := v4.Project().GetProjectBranch(ctx, branchReq)
+	// if err != nil {
+	// 	return fmt.Errorf("查询分支: %s 异常, %s", branchReq.Branch, err)
+	// }
+	// event.Commits = append(event.Commits, &trigger.Commit{
+	// 	Id:        b.Commit.Id,
+	// 	Message:   b.Commit.Message,
+	// 	Title:     b.Commit.Title,
+	// 	Timestamp: b.Commit.CommittedDate,
+	// })
 	return nil
 }

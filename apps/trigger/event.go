@@ -155,7 +155,7 @@ func (e *Event) GetGitlabEvent() (*GitlabWebHookEvent, error) {
 	if err != nil {
 		return nil, err
 	}
-	event.ParseEventType(e.From)
+	event.ParseEventType(e.Name)
 	return event, nil
 }
 

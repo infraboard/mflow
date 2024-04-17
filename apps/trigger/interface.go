@@ -3,11 +3,14 @@ package trigger
 import (
 	context "context"
 	"fmt"
-	"net/http"
 	"strings"
 	"time"
 
+	"github.com/emicklei/go-restful/v3"
+	"github.com/infraboard/mcenter/apps/policy"
+	"github.com/infraboard/mcenter/apps/token"
 	"github.com/infraboard/mcube/v2/http/request"
+	"github.com/infraboard/mcube/v2/pb/resource"
 	"github.com/infraboard/mflow/apps/build"
 )
 
@@ -83,15 +86,28 @@ func NewBuildStatus(bc *build.BuildConfig) *BuildStatus {
 	}
 }
 
-func NewQueryRecordRequestFromHTTP(r *http.Request) *QueryRecordRequest {
-	return &QueryRecordRequest{
-		Page: request.NewPageRequestFromHTTP(r),
+func NewQueryRecordRequestFromHTTP(r *restful.Request) *QueryRecordRequest {
+	req := NewQueryRecordRequest()
+	req.Page = request.NewPageRequestFromHTTP(r.Request)
+	req.Scope = token.GetTokenFromRequest(r).GenScope()
+	req.Filters = policy.GetScopeFilterFromRequest(r)
+	req.ServiceId = r.QueryParameter("service_id")
+	req.PipelineTaskId = r.QueryParameter("pipeline_task_id")
+
+	bid := r.QueryParameter("build_conf_ids")
+	if bid != "" {
+		req.BuildConfIds = strings.Split(bid, ",")
 	}
+
+	return req
 }
 
 func NewQueryRecordRequest() *QueryRecordRequest {
 	return &QueryRecordRequest{
-		Page: request.NewDefaultPageRequest(),
+		Page:         request.NewDefaultPageRequest(),
+		Scope:        resource.NewScope(),
+		Filters:      []*resource.LabelRequirement{},
+		BuildConfIds: []string{},
 	}
 }
 

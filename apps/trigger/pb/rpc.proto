@@ -5,6 +5,8 @@ option go_package = "github.com/infraboard/mflow/apps/trigger";
 
 import "mflow/apps/trigger/pb/event.proto";
 import "mcube/pb/page/page.proto";
+import "mcube/pb/resource/meta.proto";
+import "mcube/pb/resource/label.proto";
 
 service RPC {
     // 处理事件
@@ -23,6 +25,15 @@ message QueryRecordRequest {
     // 查询PipelineTask关联的事件
     // @gotags: json:"pipeline_task_id"
     string pipeline_task_id = 3;
+    // 相关构建配置关联的记录
+    // @gotags: json:"build_conf_ids"
+    repeated string build_conf_ids = 6;
+    // 资源范围
+    // @gotags: json:"scope"
+    mcube.resource.Scope scope = 4;
+    // 资源标签过滤
+    // @gotags: json:"filters"
+    repeated mcube.resource.LabelRequirement filters = 5;
 }
 
 

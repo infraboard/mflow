@@ -29,6 +29,7 @@ func NewQueryBuildConfigRequestFromHTTP(r *restful.Request) *QueryBuildConfigReq
 	req.Page = request.NewPageRequestFromHTTP(r.Request)
 	req.Scope = token.GetTokenFromRequest(r).GenScope()
 	req.Filters = policy.GetScopeFilterFromRequest(r)
+	req.WithPipeline = r.QueryParameter("with_pipeline") == "true"
 	return req
 }
 

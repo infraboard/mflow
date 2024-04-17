@@ -9,6 +9,7 @@ import (
 	"github.com/infraboard/mcube/v2/exception"
 	"github.com/infraboard/mcube/v2/pb/request"
 	"github.com/infraboard/mflow/apps/build"
+	"github.com/infraboard/mflow/apps/pipeline"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -58,6 +59,17 @@ func (i *impl) QueryBuildConfig(ctx context.Context, in *build.QueryBuildConfigR
 			return nil, exception.NewInternalServerError("decode build error, error is %s", err)
 		}
 		set.Add(ins)
+	}
+
+	if in.WithPipeline {
+		pReq := pipeline.NewQueryPipelineRequest()
+		pReq.Ids = set.PipelineIds()
+		pReq.Scope = in.Scope
+		pset, err := i.pipeline.QueryPipeline(ctx, pReq)
+		if err != nil {
+			return nil, err
+		}
+		set.UpdatePipeline(pset.Items...)
 	}
 
 	// count

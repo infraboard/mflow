@@ -5,6 +5,7 @@ option go_package = "github.com/infraboard/mflow/apps/build";
 
 import "mcube/pb/resource/meta.proto";
 import "mflow/apps/job/pb/job.proto";
+import "mflow/apps/pipeline/pb/pipeline.proto";
 
 message BuildConfigSet {
     // 总数
@@ -66,6 +67,10 @@ message CreateBuildConfigRequest {
     // 其他信息
     // @gotags: bson:"extra" json:"extra"
     map<string,string> extra = 16;
+
+    // 补充Pipeline对象
+    // @gotags: bson:"-" json:"pipeline"
+    pipeline.Pipeline pipeline = 9;
 }
 
 // 队列

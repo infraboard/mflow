@@ -7,6 +7,7 @@ import (
 
 	"github.com/infraboard/mcube/v2/pb/resource"
 	"github.com/infraboard/mflow/apps/job"
+	"github.com/infraboard/mflow/apps/pipeline"
 )
 
 // New 新建一个domain
@@ -32,6 +33,32 @@ func NewBuildConfigSet() *BuildConfigSet {
 
 func (s *BuildConfigSet) Add(item *BuildConfig) {
 	s.Items = append(s.Items, item)
+}
+
+func (s *BuildConfigSet) BuildConfIds() (ids []string) {
+	for i := range s.Items {
+		ids = append(ids, s.Items[i].Meta.Id)
+	}
+	return
+}
+
+func (s *BuildConfigSet) PipelineIds() (ids []string) {
+	for i := range s.Items {
+		ids = append(ids, s.Items[i].Spec.PipelineId)
+	}
+	return
+}
+
+func (s *BuildConfigSet) UpdatePipeline(pipelines ...*pipeline.Pipeline) {
+	for pIndex := range pipelines {
+		pOjb := pipelines[pIndex]
+		for i := range s.Items {
+			p := s.Items[i]
+			if pOjb.Meta.Id == p.Spec.PipelineId {
+				p.Spec.Pipeline = pOjb
+			}
+		}
+	}
 }
 
 func (s *BuildConfigSet) Len() int {

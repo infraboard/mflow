@@ -59,6 +59,9 @@ message QueryBuildConfigRequest {
 	// 是否启用
 	// @gotags: json:"enabled"
 	optional bool enabled = 7;
+    // 是否关联查询出Pipeline信息
+	// @gotags: json:"with_pipeline"
+	bool with_pipeline = 8;
 }
 
 message UpdateBuildConfigRequest {

@@ -1,6 +1,8 @@
 package build
 
 import (
+	"strings"
+
 	"github.com/emicklei/go-restful/v3"
 	"github.com/infraboard/mcenter/apps/policy"
 	"github.com/infraboard/mcenter/apps/token"
@@ -30,6 +32,12 @@ func NewQueryBuildConfigRequestFromHTTP(r *restful.Request) *QueryBuildConfigReq
 	req.Scope = token.GetTokenFromRequest(r).GenScope()
 	req.Filters = policy.GetScopeFilterFromRequest(r)
 	req.WithPipeline = r.QueryParameter("with_pipeline") == "true"
+
+	sid := r.QueryParameter("service_id")
+	if sid != "" {
+		req.ServiceIds = strings.Split(sid, ",")
+	}
+
 	return req
 }
 

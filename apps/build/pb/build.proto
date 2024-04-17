@@ -49,6 +49,9 @@ message CreateBuildConfigRequest {
     // 构建描述信息
     // @gotags: bson:"describe" json:"describe"
     string describe = 7;
+    // 资源范围
+    // @gotags: json:"scope"
+    mcube.resource.Scope scope = 8;
 
     // 版本命名规则
     // @gotags: bson:"version_named_rule" json:"version_named_rule"

@@ -17,6 +17,7 @@ func New(req *CreateBuildConfigRequest) (*BuildConfig, error) {
 
 	d := &BuildConfig{
 		Meta: resource.NewMeta(),
+
 		Spec: req,
 	}
 
@@ -69,6 +70,7 @@ func NewCreateBuildConfigRequest() *CreateBuildConfigRequest {
 		Enabled:       true,
 		VersionPrefix: "v",
 		Condition:     NewTrigger(),
+		Scope:         resource.NewScope(),
 		Labels:        make(map[string]string),
 		CustomParams:  []*job.RunParam{},
 		Extra:         make(map[string]string),

@@ -30,7 +30,7 @@ func (h *handler) Registry() {
 		Metadata(label.Resource, h.Name()).
 		Metadata(label.Action, label.List.Value()).
 		Metadata(label.Auth, label.Enable).
-		Metadata(label.Permission, label.Disable).
+		Metadata(label.Permission, label.Enable).
 		Reads(build.QueryBuildConfigRequest{}).
 		Writes(build.BuildConfigSet{}).
 		Returns(200, "OK", build.BuildConfigSet{}))

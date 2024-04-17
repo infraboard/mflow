@@ -50,7 +50,7 @@ message CreateBuildConfigRequest {
     // @gotags: bson:"describe" json:"describe"
     string describe = 7;
     // 资源范围
-    // @gotags: json:"scope"
+    // @gotags: bson:",inline" json:"scope"
     mcube.resource.Scope scope = 8;
 
     // 版本命名规则

@@ -319,8 +319,8 @@ type CreateBuildConfigRequest struct {
 	// @gotags: bson:"describe" json:"describe"
 	Describe string `protobuf:"bytes,7,opt,name=describe,proto3" json:"describe" bson:"describe"`
 	// 资源范围
-	// @gotags: json:"scope"
-	Scope *resource.Scope `protobuf:"bytes,8,opt,name=scope,proto3" json:"scope"`
+	// @gotags: bson:",inline" json:"scope"
+	Scope *resource.Scope `protobuf:"bytes,8,opt,name=scope,proto3" json:"scope" bson:",inline"`
 	// 版本命名规则
 	// @gotags: bson:"version_named_rule" json:"version_named_rule"
 	VersionNamedRule VERSION_NAMED_RULE `protobuf:"varint,11,opt,name=version_named_rule,json=versionNamedRule,proto3,enum=infraboard.mflow.build.VERSION_NAMED_RULE" json:"version_named_rule" bson:"version_named_rule"`

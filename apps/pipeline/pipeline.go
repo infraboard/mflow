@@ -390,6 +390,15 @@ func (req *RunPipelineRequest) ToJson() string {
 	return format.Prettify(req)
 }
 
+func (req *RunPipelineRequest) RunParamsKVMap() map[string]string {
+	m := map[string]string{}
+	for i := range req.RunParams {
+		p := req.RunParams[i]
+		m[p.Name] = p.Value
+	}
+	return m
+}
+
 func NewWebHook(url string) *WebHook {
 	return &WebHook{
 		Url:    url,

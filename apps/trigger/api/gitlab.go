@@ -56,7 +56,7 @@ func (h *Handler) MannulGitlabEvent(r *restful.Request, w *restful.Response) {
 		return
 	}
 
-	h.log.Debug().Msgf("mannul event: %s", event.ToJson())
+	h.log.Debug().Msgf("mannul event: %s", event.Raw)
 	ins, err := h.svc.HandleEvent(r.Request.Context(), event)
 	if err != nil {
 		response.Failed(w, err)

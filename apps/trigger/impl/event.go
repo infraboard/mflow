@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/infraboard/mcenter/apps/service"
 	"github.com/infraboard/mcube/v2/exception"
@@ -20,6 +21,7 @@ func (i *impl) HandleEvent(ctx context.Context, in *trigger.Event) (
 	ins := trigger.NewRecord(in)
 
 	// 查询服务相关信息
+	i.log.Debug().Msgf("查询事件关联服务信息...")
 	svc, err := i.mcenter.Service().DescribeService(
 		ctx,
 		service.NewDescribeServiceRequest(in.Token),
@@ -30,6 +32,7 @@ func (i *impl) HandleEvent(ctx context.Context, in *trigger.Event) (
 	ins.Event.ServiceInfo = svc.Desense().ToJSON()
 
 	// 获取该服务对应事件的触发配置
+	i.log.Debug().Msgf("查询该服务是否有关联构建配置...")
 	req := build.NewQueryBuildConfigRequest()
 	req.AddService(in.Token)
 	req.Event = in.Name
@@ -39,7 +42,12 @@ func (i *impl) HandleEvent(ctx context.Context, in *trigger.Event) (
 		return nil, err
 	}
 
+	if set.Len() == 0 {
+		return nil, fmt.Errorf("没有找到服务[%s]的构建规则", svc.Spec.Name)
+	}
+
 	// 子事件匹配
+	i.log.Debug().Msgf("服务[%s]关联%d个构建配置", svc.Spec.Name, set.Len())
 	matched := set.MatchSubEvent(in.SubName)
 	for index := range matched.Items {
 		// 执行构建配置匹配的流水线
@@ -70,6 +78,8 @@ func (i *impl) RunBuildConf(ctx context.Context, in *trigger.Event, buildConf *b
 	runReq.DryRun = in.SkipRunPipeline
 	runReq.Labels[trigger.PIPELINE_TASK_EVENT_LABLE_KEY] = in.Id
 	runReq.Labels[build.PIPELINE_TASK_BUILD_CONFIG_LABLE_KEY] = buildConf.Meta.Id
+	runReq.Domain = buildConf.Spec.Scope.Domain
+	runReq.Namespace = buildConf.Spec.Scope.Namespace
 
 	// 补充Build用户自定义变量
 	runReq.AddRunParam(buildConf.Spec.CustomParams...)
@@ -94,11 +104,13 @@ func (i *impl) RunBuildConf(ctx context.Context, in *trigger.Event, buildConf *b
 		}
 	}
 
-	i.log.Debug().Msgf("run pipeline req: %s", runReq.ToJson())
+	i.log.Debug().Msgf("run pipeline req: %s, params: %v", runReq.PipelineId, runReq.RunParamsKVMap())
 	pt, err := i.task.RunPipeline(ctx, runReq)
 	if err != nil {
 		bs.ErrorMessage = err.Error()
-	} else {
+	}
+	if pt != nil {
+		i.log.Debug().Msgf("update run build conf pipeline task id: %s", pt.Meta.Id)
 		bs.PiplineTaskId = pt.Meta.Id
 		bs.PiplineTask = pt
 	}

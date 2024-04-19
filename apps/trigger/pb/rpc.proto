@@ -31,6 +31,9 @@ message QueryRecordRequest {
     // 资源范围
     // @gotags: json:"scope"
     mcube.resource.Scope scope = 4;
+    // 是否查询出管理的pipeline task对象
+    // @gotags: json:"with_pipeline_task"
+    bool with_pipeline_task = 7;
     // 资源标签过滤
     // @gotags: json:"filters"
     repeated mcube.resource.LabelRequirement filters = 5;

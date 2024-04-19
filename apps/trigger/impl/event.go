@@ -8,6 +8,7 @@ import (
 	"github.com/infraboard/mcube/v2/exception"
 	"github.com/infraboard/mflow/apps/build"
 	"github.com/infraboard/mflow/apps/pipeline"
+	"github.com/infraboard/mflow/apps/task"
 	"github.com/infraboard/mflow/apps/trigger"
 )
 
@@ -107,6 +108,7 @@ func (i *impl) RunBuildConf(ctx context.Context, in *trigger.Event, buildConf *b
 	i.log.Debug().Msgf("run pipeline req: %s, params: %v", runReq.PipelineId, runReq.RunParamsKVMap())
 	pt, err := i.task.RunPipeline(ctx, runReq)
 	if err != nil {
+		i.log.Debug().Msgf("run pipeline error, %s", err)
 		bs.ErrorMessage = err.Error()
 	}
 	if pt != nil {
@@ -135,6 +137,16 @@ func (i *impl) QueryRecord(ctx context.Context, in *trigger.QueryRecordRequest) 
 			return nil, exception.NewInternalServerError("decode event record error, error is %s", err)
 		}
 		set.Add(ins)
+	}
+
+	if in.WithPipelineTask && len(set.Items) > 0 {
+		set.PiplineTaskIds()
+		tReq := task.NewQueryPipelineTaskRequest()
+		ts, err := i.task.QueryPipelineTask(ctx, tReq)
+		if err != nil {
+			return nil, err
+		}
+		set.UpdatePiplineTask(ts.Items...)
 	}
 
 	// count

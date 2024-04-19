@@ -93,6 +93,7 @@ func NewQueryRecordRequestFromHTTP(r *restful.Request) *QueryRecordRequest {
 	req.Filters = policy.GetScopeFilterFromRequest(r)
 	req.ServiceId = r.QueryParameter("service_id")
 	req.PipelineTaskId = r.QueryParameter("pipeline_task_id")
+	req.WithPipelineTask = r.QueryParameter("with_pipeline_task") == "true"
 
 	bid := r.QueryParameter("build_conf_ids")
 	if bid != "" {

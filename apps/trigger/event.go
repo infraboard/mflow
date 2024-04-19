@@ -14,6 +14,7 @@ import (
 	"github.com/infraboard/mcube/v2/ioc/config/validator"
 	build "github.com/infraboard/mflow/apps/build"
 	"github.com/infraboard/mflow/apps/job"
+	"github.com/infraboard/mflow/apps/task"
 	"github.com/infraboard/mflow/common/format"
 	"github.com/rs/xid"
 )
@@ -26,6 +27,33 @@ func NewRecordSet() *RecordSet {
 
 func (s *RecordSet) Add(items ...*Record) {
 	s.Items = append(s.Items, items...)
+}
+
+func (s *RecordSet) PiplineTaskIds() (ids []string) {
+	for i := range s.Items {
+		item := s.Items[i]
+		for bi := range item.BuildStatus {
+			bs := item.BuildStatus[bi]
+			ids = append(ids, bs.PiplineTaskId)
+
+		}
+	}
+	return
+}
+
+func (s *RecordSet) UpdatePiplineTask(tasks ...*task.PipelineTask) {
+	for ti := range tasks {
+		t := tasks[ti]
+		for i := range s.Items {
+			item := s.Items[i]
+			for bi := range item.BuildStatus {
+				bs := item.BuildStatus[bi]
+				if bs.PiplineTaskId == t.Meta.Id {
+					bs.PiplineTask = t
+				}
+			}
+		}
+	}
 }
 
 func (e *Event) ToJson() string {

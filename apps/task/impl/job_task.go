@@ -400,8 +400,8 @@ func (i *impl) WatchJobTaskLog(in *task.WatchJobTaskLogRequest, stream task.JobR
 
 		// 找到Job执行的Pod
 		podReq := meta.NewListRequest().
-			SetNamespace(k8sParams.Namespace).
-			SetLabelSelector(meta.NewLabelSelector().Add("job-name", t.Spec.TaskId))
+			WithNamespace(k8sParams.Namespace).
+			WithLabelSelector(meta.NewLabelSelector().Add("job-name", t.Spec.TaskId))
 		pods, err := k8sClient.WorkLoad().ListPod(stream.Context(), podReq)
 		if err != nil {
 			return fmt.Errorf("list job pod error, %s", err)
@@ -494,8 +494,8 @@ func (i *impl) JobTaskDebug(ctx context.Context, in *task.JobTaskDebugRequest) {
 		// 找到Job执行的Pod
 		term.WriteTextln("正在查询Job Task【%s】运行的Pod", t.Spec.TaskId)
 		podReq := meta.NewListRequest().
-			SetNamespace(k8sParams.Namespace).
-			SetLabelSelector(meta.NewLabelSelector().Add("job-name", t.Spec.TaskId))
+			WithNamespace(k8sParams.Namespace).
+			WithLabelSelector(meta.NewLabelSelector().Add("job-name", t.Spec.TaskId))
 		pods, err := k8sClient.WorkLoad().ListPod(ctx, podReq)
 		if err != nil {
 			term.Failed(err)

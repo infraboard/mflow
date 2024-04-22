@@ -455,7 +455,7 @@ WAIT_TASK_ACTIVE:
 	writer.WriteMessagef("任务当前状态: [%s]", t.Status.Stage)
 	if !t.Status.IsComplete() && maxRetryCount < 30 {
 		if pod != nil {
-			writer.WriteMessagef("当前Pod状态: [%s], 等待任务启动中...", t.Status.Stage)
+			writer.WriteMessagef("当前Pod状态: [%s], 等待任务启动中...", pod.Status.Phase)
 			// Job状态运行成功，返回
 			if pod.Status.Phase != "Pending" {
 				return t, nil
@@ -464,10 +464,20 @@ WAIT_TASK_ACTIVE:
 		time.Sleep(2 * time.Second)
 		maxRetryCount++
 		goto WAIT_TASK_ACTIVE
-	} else {
-		writer.WriteMessagef("当前Pod状态: [%s]", pod.Status.Phase)
 	}
 
+	writer.WriteMessagef("当前Pod状态: [%s]", pod.Status.Phase)
+
+	// 容器Init Container启动失败，则默认查看失败的日志
+	if in.ContainerName == "" {
+		for _, initContainer := range pod.Status.InitContainerStatuses {
+			if !initContainer.Ready {
+				in.ContainerName = initContainer.Name
+				writer.WriteMessagef("Init Container: %s 启动失败, 查看失败日志...", initContainer.Name)
+				break
+			}
+		}
+	}
 	return t, nil
 }
 

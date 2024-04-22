@@ -302,7 +302,9 @@ func (i *impl) DescribeJobTask(ctx context.Context, in *task.DescribeJobTaskRequ
 // 删除任务
 func (i *impl) DeleteJobTask(ctx context.Context, in *task.DeleteJobTaskRequest) (
 	*task.JobTask, error) {
-	ins, err := i.DescribeJobTask(ctx, task.NewDescribeJobTaskRequest(in.Id))
+	descReq := task.NewDescribeJobTaskRequest(in.Id)
+	descReq.WithJob = true
+	ins, err := i.DescribeJobTask(ctx, descReq)
 	if err != nil {
 		return nil, err
 	}
@@ -327,7 +329,7 @@ func (i *impl) DeleteJobTask(ctx context.Context, in *task.DeleteJobTaskRequest)
 
 func (i *impl) CleanTaskResource(ctx context.Context, in *task.JobTask) error {
 	if !in.HasJobSpec() {
-		return fmt.Errorf("job spec is nil")
+		return nil
 	}
 
 	switch in.Job.Spec.RunnerType {
@@ -371,9 +373,8 @@ func (i *impl) CleanTaskResource(ctx context.Context, in *task.JobTask) error {
 		req.Namespace = obj.Namespace
 		err = k8sClient.WorkLoad().DeleteJob(ctx, req)
 		if err != nil {
-			return fmt.Errorf("delete k8s job error, %s", err)
+			i.log.Error().Msgf("delete k8s job error, %s", err)
 		}
-		return err
 	}
 
 	return nil

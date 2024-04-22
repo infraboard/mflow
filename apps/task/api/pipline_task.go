@@ -49,6 +49,15 @@ func (h *PipelineTaskHandler) RegistryUserHandler() {
 		Metadata(label.Permission, label.Enable).
 		Reads(pipeline.RunPipelineRequest{}).
 		Writes(task.PipelineTask{}))
+
+	ws.Route(ws.DELETE("/{id}").To(h.DeletePipelineTask).
+		Doc("删除Pipeline运行任务").
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Metadata(label.Resource, PIPELINE_TASK_RESOURCE_NAME).
+		Metadata(label.Action, label.Get.Value()).
+		Metadata(label.Auth, label.Enable).
+		Metadata(label.Permission, label.Enable).
+		Writes(task.PipelineTask{}))
 }
 
 func (h *PipelineTaskHandler) QueryPipelineTask(r *restful.Request, w *restful.Response) {
@@ -84,4 +93,14 @@ func (h *PipelineTaskHandler) RunPipeline(r *restful.Request, w *restful.Respons
 		return
 	}
 	response.Success(w, set)
+}
+
+func (h *PipelineTaskHandler) DeletePipelineTask(r *restful.Request, w *restful.Response) {
+	req := task.NewDeletePipelineTaskRequest(r.PathParameter("id"))
+	ins, err := h.service.DeletePipelineTask(r.Request.Context(), req)
+	if err != nil {
+		response.Failed(w, err)
+		return
+	}
+	response.Success(w, ins)
 }

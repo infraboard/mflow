@@ -9,6 +9,7 @@ import (
 	"github.com/emicklei/go-restful/v3"
 	"github.com/infraboard/mcenter/apps/policy"
 	"github.com/infraboard/mcenter/apps/token"
+	"github.com/infraboard/mcube/v2/exception"
 	"github.com/infraboard/mcube/v2/http/request"
 	"github.com/infraboard/mcube/v2/pb/resource"
 	"github.com/infraboard/mflow/apps/build"
@@ -20,6 +21,9 @@ const (
 
 type Service interface {
 	RPCServer
+
+	// 删除执行记录
+	DeleteRecord(context.Context, *DeleteRecordRequest) error
 
 	// 事件队列任务执行完成通知
 	EventQueueTaskComplete(context.Context, *EventQueueTaskCompleteRequest) (*BuildStatus, error)
@@ -116,4 +120,30 @@ func NewEventQueueTaskCompleteRequest(pid string) *EventQueueTaskCompleteRequest
 	return &EventQueueTaskCompleteRequest{
 		PipelineTaskId: pid,
 	}
+}
+
+func NewDeleteRecordRequest() *DeleteRecordRequest {
+	return &DeleteRecordRequest{
+		Values: []string{},
+	}
+}
+
+func NewDeleteRecordByPipelineTask(id string) *DeleteRecordRequest {
+	return &DeleteRecordRequest{
+		DeleteBy: DELETE_BY_PIPELINE_TASK_ID,
+		Values:   []string{id},
+	}
+}
+
+func (r *DeleteRecordRequest) Validate() error {
+	if len(r.Values) == 0 {
+		return exception.NewBadRequest("values required")
+	}
+
+	return nil
+}
+
+func (r *DeleteRecordRequest) AddValue(values ...string) error {
+	r.Values = append(r.Values, values...)
+	return nil
 }

@@ -15,6 +15,21 @@ service RPC {
     rpc QueryRecord(QueryRecordRequest) returns(RecordSet);
 }
 
+
+enum DELETE_BY {
+    // id
+    RECORD_ID = 0;
+    // task id
+    PIPELINE_TASK_ID = 1;
+}
+
+message DeleteRecordRequest {
+    // @gotags: json:"delete_by"
+    DELETE_BY delete_by = 1;
+    // @gotags: json:"values"
+    repeated string values = 2;
+}
+
 message QueryRecordRequest {
     // 分页请求
     // @gotags: json:"page"

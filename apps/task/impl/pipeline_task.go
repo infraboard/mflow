@@ -362,6 +362,12 @@ func (i *impl) DeletePipelineTask(ctx context.Context, in *task.DeletePipelineTa
 		return nil, fmt.Errorf("流水线运行结束才能删除, 如果没结束, 请先取消再删除")
 	}
 
+	// 删除关联的构建记录
+	rDel := trigger.NewDeleteRecordByPipelineTask(ins.Meta.Id)
+	if err := i.trigger.DeleteRecord(ctx, rDel); err != nil {
+		i.log.Error().Msgf("delete trigger record error %s", err)
+	}
+
 	// 删除该Pipeline下所有的Job Task
 	tasks := ins.Status.JobTasks()
 	for index := range tasks.Items {

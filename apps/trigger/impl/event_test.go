@@ -27,3 +27,13 @@ func TestQueryRecord(t *testing.T) {
 	}
 	t.Log(tools.MustToJson(set))
 }
+
+func TestDeleteRecord(t *testing.T) {
+	req := trigger.NewDeleteRecordRequest()
+	req.DeleteBy = trigger.DELETE_BY_PIPELINE_TASK_ID
+	req.AddValue("coig4d197i655m4akveg")
+	err := impl.DeleteRecord(ctx, req)
+	if err != nil {
+		t.Fatal(err)
+	}
+}

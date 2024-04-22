@@ -10,6 +10,7 @@ import (
 	"github.com/infraboard/mflow/apps/pipeline"
 	"github.com/infraboard/mflow/apps/task"
 	"github.com/infraboard/mflow/apps/trigger"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // 应用事件处理
@@ -170,4 +171,30 @@ func (i *impl) EventQueueTaskComplete(ctx context.Context, in *trigger.EventQueu
 
 	i.log.Debug().Msgf("%s", rs)
 	return nil, nil
+}
+
+// 删除执行记录
+func (i *impl) DeleteRecord(ctx context.Context, in *trigger.DeleteRecordRequest) error {
+	if err := in.Validate(); err != nil {
+		return err
+	}
+
+	resp, err := i.col.DeleteMany(ctx, DeleteRecordFilter(in))
+	if err != nil {
+		return err
+	}
+	i.log.Info().Msgf("delete %d record", resp.DeletedCount)
+	return nil
+}
+
+func DeleteRecordFilter(r *trigger.DeleteRecordRequest) bson.M {
+	filter := bson.M{}
+
+	switch r.DeleteBy {
+	case trigger.DELETE_BY_PIPELINE_TASK_ID:
+		filter["build_status.pipline_task_id"] = bson.M{"$in": r.Values}
+	default:
+		filter["_id"] = bson.M{"$in": r.Values}
+	}
+	return filter
 }

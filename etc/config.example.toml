@@ -15,7 +15,7 @@ address = "127.0.0.1:18010"
 client_id = "ZvsVVuRSI8teTBPahcINlDnw"
 client_secret = "C7MP1auMriB6TQGhMf40zcNrqfVeYGbQ"
 
-[mongodb]
+[mongo]
 endpoints = ["127.0.0.1:27017"]
 database = "mflow"
 

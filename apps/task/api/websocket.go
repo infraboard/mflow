@@ -38,7 +38,7 @@ func (h *WebsocketHandler) Init() error {
 }
 
 func (h *WebsocketHandler) Name() string {
-	return "ws/task"
+	return "ws/job_tasks"
 }
 
 func (h *WebsocketHandler) Version() string {

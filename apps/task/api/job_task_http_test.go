@@ -7,10 +7,10 @@ import (
 )
 
 var (
-	impl *api.JobTaskHandler
+	impl *api.WebsocketHandler
 )
 
 func init() {
 	tools.DevelopmentSetup()
-	impl = ioc.Api().Get("job_tasks").(*api.JobTaskHandler)
+	impl = ioc.Api().Get("ws/task").(*api.WebsocketHandler)
 }

@@ -1,10 +1,7 @@
 package api
 
 import (
-	"fmt"
-
 	"github.com/infraboard/mcube/v2/ioc"
-	"github.com/infraboard/mcube/v2/ioc/config/http"
 	"github.com/infraboard/mcube/v2/ioc/config/log"
 	"github.com/rs/zerolog"
 
@@ -34,14 +31,6 @@ func (h *JobTaskHandler) Name() string {
 
 func (h *JobTaskHandler) Version() string {
 	return "v1"
-}
-
-func (h *JobTaskHandler) APIPrefix() string {
-	return fmt.Sprintf("%s/%s/%s",
-		http.Get().HTTPPrefix(),
-		h.Version(),
-		h.Name(),
-	)
 }
 
 func (h *JobTaskHandler) Registry() {

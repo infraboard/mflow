@@ -54,7 +54,7 @@ func (h *PipelineTaskHandler) RegistryUserHandler() {
 		Doc("删除Pipeline运行任务").
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Metadata(label.Resource, PIPELINE_TASK_RESOURCE_NAME).
-		Metadata(label.Action, label.Get.Value()).
+		Metadata(label.Action, label.Delete.Value()).
 		Metadata(label.Auth, label.Enable).
 		Metadata(label.Permission, label.Enable).
 		Writes(task.PipelineTask{}))

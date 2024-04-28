@@ -55,7 +55,7 @@ func (h *handler) Registry() {
 		Param(ws.PathParameter("id", "identifier of the secret").DataType("string")).
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Metadata(label.Resource, h.Name()).
-		Metadata(label.Action, label.Get.Value()).
+		Metadata(label.Action, label.Update.Value()).
 		Metadata(label.Auth, label.Enable).
 		Metadata(label.Permission, label.Enable).
 		Reads(job.CreateJobRequest{}).
@@ -68,7 +68,7 @@ func (h *handler) Registry() {
 		Param(ws.PathParameter("id", "identifier of the secret").DataType("string")).
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Metadata(label.Resource, h.Name()).
-		Metadata(label.Action, label.Get.Value()).
+		Metadata(label.Action, label.Update.Value()).
 		Metadata(label.Auth, label.Enable).
 		Metadata(label.Permission, label.Enable).
 		Reads(job.CreateJobRequest{}).

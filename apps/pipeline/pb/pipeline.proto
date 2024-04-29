@@ -94,10 +94,10 @@ message Stage {
 	repeated job.RunParam with = 10;
 	// 需要执行的job
 	// @gotags: bson:"tasks" json:"tasks"
-	repeated RunJobRequest tasks = 11;
+	repeated Task tasks = 11;
 }
 
-message RunJobRequest {
+message Task {
     // 忽略执行
 	// @gotags: bson:"skip_run" json:"skip_run"
     bool skip_run = 16;
@@ -152,6 +152,9 @@ message RunJobRequest {
 	// 任务的关注人, 关注后会及时把任务运行状态通知给他们
 	// @gotags: bson:"mention_users" json:"mention_users"
 	repeated MentionUser mention_users = 17;
+	// 运行时需不需审核
+	// @gotags: bson:"audit" json:"audit"
+	Audit audit = 26;
     // 任务扩展字段
     // @gotags: bson:"extension" json:"extension"
     map<string,string> extension = 24;
@@ -162,23 +165,6 @@ message RunJobRequest {
 	// @gotags: bson:"job" json:"job"
 	job.Job job = 21;
 }
-
-// 关注人
-message MentionUser {
-	// 关注的人
-	// @gotags: bson:"user_name" json:"user_name" validate:"required"
-    string user_name = 1;
-	// 通知方式
-	// @gotags: bson:"notify_type" json:"notify_type"
-	repeated infraboard.mcenter.notify.NOTIFY_TYPE notify_types = 2;
-	// 那些状态下触发通知, 默认任务执行成功后触发
-	// @gotags: bson:"events" json:"events"
-	repeated string events = 3;
-	// 备注信息, 比如发布任务执行成功, 可以备注: 请及时测试
-	// @gotags: bson:"comment" json:"comment"
-    string comment = 4;
-}
-
 
 enum TRIGGER_MODE  {
 	// 人工手动触发
@@ -225,6 +211,27 @@ message RunPipelineRequest {
 	map<string, string> labels = 15;
 }
 
+message CallbackStatus {
+	// POST URL
+	// @gotags: bson:"description" json:"description" validate:"required"
+	string description = 5;
+	// 开始时间
+	// @gotags: bson:"start_at" json:"start_at"
+	int64 start_at = 1;
+	// 耗时多久，单位毫秒
+	// @gotags: bson:"cost" json:"cost"
+	int64 cost = 2;
+	// 是否推送成功
+	// @gotags: bson:"success" json:"success"
+	bool success = 3;
+	// 异常时的错误信息
+	// @gotags: bson:"message" json:"message"
+	string message = 4;
+	// 其他事件
+	// @gotags: bson:"events" json:"events"
+	repeated Event events = 6;
+}
+
 message WebHook {
 	// POST URL
 	// @gotags: bson:"url" json:"url" validate:"required,url"
@@ -238,4 +245,95 @@ message WebHook {
 	// 简单的描述信息
 	// @gotags: bson:"description" json:"description"
 	string description = 4;
+	// 调用 状态
+	// @gotags: bson:"status" json:"status"
+	CallbackStatus status = 5;
+}
+
+// 关注人
+message MentionUser {
+	// 关注的人
+	// @gotags: bson:"user_name" json:"user_name" validate:"required"
+    string user_name = 1;
+	// 通知方式
+	// @gotags: bson:"notify_type" json:"notify_type"
+	repeated infraboard.mcenter.notify.NOTIFY_TYPE notify_types = 2;
+	// 那些状态下触发通知, 默认任务执行成功后触发
+	// @gotags: bson:"events" json:"events"
+	repeated string events = 3;
+	// 备注信息, 比如发布任务执行成功, 可以备注: 请及时测试
+	// @gotags: bson:"comment" json:"comment"
+    string comment = 4;
+	// 通知 状态
+	// @gotags: bson:"status" json:"status"
+	CallbackStatus status = 5;
+}
+
+enum EVENT_LEVEL {
+	// debug信息, 无影响
+	DEBUG = 0;
+	// info, 普通通知
+	INFO = 1;
+	// warn, 可能导致任务异常
+	WARN = 2;
+	// error, 任务的一些错误信息
+	ERROR = 3;
+}
+
+message Event {
+	// 事件发生的时间
+	// @gotags: bson:"time" json:"time"
+    int64 time = 1;
+	// 事件等级
+	// @gotags: bson:"level" json:"level"
+	EVENT_LEVEL level = 2;
+	// 事件描述
+	// @gotags: bson:"message" json:"message"
+	string message = 3;
+	// 事件的详情数据
+	// @gotags: bson:"detail" json:"detail"
+	string detail = 4;
+	// 标签
+	// @gotags: bson:"labels" json:"labels"
+	map<string, string> labels = 15;
+}
+
+// 任务审核
+message Audit {
+	// 是否开启审核
+	// @gotags: bson:"enable" json:"enable"
+	bool enable = 1;
+	// 审核人(user id)
+	// @gotags: bson:"auditors" json:"auditors"
+	repeated string auditors = 2;
+	// 审核状态
+	// @gotags: bson:"status" json:"status"
+	AuditStatus status = 3;
+}
+
+enum AUDIT_STAGE {
+	// 等待审核
+	PENDDING = 0;
+	// 审核失败
+	DENY = 1;
+	// 审核通过
+	PASS = 2;
+}
+
+message AuditStatus {
+	// 状态
+	// @gotags: bson:"stage" json:"stage"
+	AUDIT_STAGE stage = 1;
+	// 审核人
+	// @gotags: bson:"audit_by" json:"audit_by"
+	string audit_by = 2;
+	// 审核时间
+	// @gotags: bson:"audit_at" json:"audit_at"
+	int64 audit_at = 3;
+	// 审核备注
+	// @gotags: bson:"comment" json:"comment"
+	int64 comment = 4;
+	// 扩展字段
+	// @gotags: bson:"extension" json:"extension"
+	map<string, string> extension = 15;
 }

@@ -47,7 +47,7 @@ func testPipelineWebHook(url string) []*pipeline.WebHook {
 }
 
 func testPipelineStep() *task.JobTask {
-	t := task.NewJobTask(pipeline.NewRunJobRequest("test"))
+	t := task.NewJobTask(pipeline.NewTask("test"))
 	t.Spec.RunParams.Add(
 		job.NewRunParam("ENV1", "VALUE1"),
 	)

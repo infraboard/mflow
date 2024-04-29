@@ -79,7 +79,7 @@ func (s *JobTaskSet) GetJobTaskByStage(stage STAGE) (tasks []*JobTask) {
 }
 
 func NewDefaultJobTask() *JobTask {
-	req := pipeline.NewRunJobRequest("")
+	req := pipeline.NewTask("")
 	return NewJobTask(req)
 }
 
@@ -89,7 +89,7 @@ func NewMeta() *Meta {
 	}
 }
 
-func NewJobTask(req *pipeline.RunJobRequest) *JobTask {
+func NewJobTask(req *pipeline.Task) *JobTask {
 	req.SetDefault()
 	t := &JobTask{
 		Meta:   NewMeta(),
@@ -171,7 +171,7 @@ func (p *JobTask) GetNamespace() string {
 	return p.Spec.Namespace
 }
 
-func (p *JobTask) AddNotifyStatus(items ...*CallbackStatus) {
+func (p *JobTask) AddNotifyStatus(items ...*pipeline.MentionUser) {
 	p.Status.AddNotifyStatus(items...)
 }
 
@@ -179,7 +179,7 @@ func (p *JobTask) AddErrorEvent(format string, a ...any) {
 	p.Status.AddErrorEvent(format, a...)
 }
 
-func (p *JobTask) AddWebhookStatus(items ...*CallbackStatus) {
+func (p *JobTask) AddWebhookStatus(items ...*pipeline.WebHook) {
 	p.Status.AddWebhookStatus(items...)
 }
 
@@ -256,7 +256,7 @@ func (p *JobTask) SystemRunParam() (items []*job.RunParam) {
 
 func (p *JobTask) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		*pipeline.RunJobRequest
+		*pipeline.Task
 		*Meta
 		Status *JobTaskStatus `json:"status"`
 		Job    *job.Job       `json:"job"`
@@ -368,12 +368,12 @@ func (t *JobTaskStatus) IsComplete() bool {
 	return t.Stage >= STAGE_CANCELED
 }
 
-func (p *JobTaskStatus) AddWebhookStatus(items ...*CallbackStatus) {
-	p.WebhookStatus = append(p.WebhookStatus, items...)
+func (p *JobTaskStatus) AddWebhookStatus(items ...*pipeline.WebHook) {
+	p.Webhooks = append(p.Webhooks, items...)
 }
 
-func (p *JobTaskStatus) AddNotifyStatus(items ...*CallbackStatus) {
-	p.NotifyStatus = append(p.NotifyStatus, items...)
+func (p *JobTaskStatus) AddNotifyStatus(items ...*pipeline.MentionUser) {
+	p.MentionUsers = append(p.MentionUsers, items...)
 }
 
 func (t *JobTaskStatus) UpdateStatus(req *UpdateJobTaskStatusRequest) {
@@ -470,11 +470,11 @@ func (t *JobTaskStatus) AddTemporaryResource(items ...*TemporaryResource) {
 }
 
 func (t *JobTaskStatus) AddErrorEvent(format string, a ...any) {
-	t.Events = append(t.Events, NewEvent(EVENT_LEVEL_ERROR, fmt.Sprintf(format, a...)))
+	t.Events = append(t.Events, pipeline.NewEvent(pipeline.EVENT_LEVEL_ERROR, fmt.Sprintf(format, a...)))
 }
 
-func (t *JobTaskStatus) AddEvent(level EVENT_LEVEL, format string, a ...any) {
-	t.Events = append(t.Events, NewEvent(level, fmt.Sprintf(format, a...)))
+func (t *JobTaskStatus) AddEvent(level pipeline.EVENT_LEVEL, format string, a ...any) {
+	t.Events = append(t.Events, pipeline.NewEvent(level, fmt.Sprintf(format, a...)))
 }
 
 func (t *JobTaskStatus) GetTemporaryResource(kind, name string) *TemporaryResource {
@@ -504,25 +504,4 @@ func NewMentionUser(username string, nt notify.NOTIFY_TYPE) *pipeline.MentionUse
 	m.AddEvent(STAGE_SUCCEEDED.String())
 	m.AddNotifyType(nt)
 	return m
-}
-
-func NewErrorEvent(message string) *Event {
-	return NewEvent(EVENT_LEVEL_ERROR, message)
-}
-
-func NewDebugEvent(message string) *Event {
-	return NewEvent(EVENT_LEVEL_DEBUG, message)
-}
-
-func NewEvent(level EVENT_LEVEL, message string) *Event {
-	return &Event{
-		Time:    time.Now().Unix(),
-		Level:   level,
-		Message: message,
-	}
-}
-
-func (e *Event) SetDetail(detail string) *Event {
-	e.Detail = detail
-	return e
 }

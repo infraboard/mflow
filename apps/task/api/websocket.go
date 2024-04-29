@@ -66,12 +66,12 @@ func (h *WebsocketHandler) RegistryUserHandler() {
 
 	// Socket内鉴权
 	ws.Route(ws.GET("/{id}/debug").
-		To(h.JobTaskDebug).
+		To(h.DebugJobTask).
 		Doc("任务在线Debug[WebSocket]").
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Metadata(label.Resource, JOB_TASK_RESOURCE_NAME).
 		Metadata(label.Action, label.Get.Value()).
-		Reads(task.JobTaskDebugRequest{}).
+		Reads(task.DebugJobTaskRequest{}).
 		Writes(task.JobTaskStreamReponse{}))
 }
 
@@ -123,7 +123,7 @@ func (h *WebsocketHandler) JobTaskLog(r *restful.Request, w *restful.Response) {
 	term.Success("ok")
 }
 
-func (h *WebsocketHandler) JobTaskDebug(r *restful.Request, w *restful.Response) {
+func (h *WebsocketHandler) DebugJobTask(r *restful.Request, w *restful.Response) {
 	ws, err := upgrader.Upgrade(w, r.Request, nil)
 	if err != nil {
 		response.Failed(w, err)
@@ -143,7 +143,7 @@ func (h *WebsocketHandler) JobTaskDebug(r *restful.Request, w *restful.Response)
 	}
 
 	// 读取请求
-	in := task.NewJobTaskDebugRequest(r.PathParameter("id"))
+	in := task.NewDebugJobTaskRequest(r.PathParameter("id"))
 	if err = term.ReadReq(in); err != nil {
 		term.Failed(err)
 		return
@@ -151,7 +151,7 @@ func (h *WebsocketHandler) JobTaskDebug(r *restful.Request, w *restful.Response)
 
 	// 进入容器
 	in.SetWebTerminal(term)
-	h.service.JobTaskDebug(r.Request.Context(), in)
+	h.service.DebugJobTask(r.Request.Context(), in)
 
 	term.Success("ok")
 }

@@ -31,21 +31,24 @@ type Service interface {
 
 type JobService interface {
 	// 执行Job
-	RunJob(context.Context, *pipeline.RunJobRequest) (*JobTask, error)
+	RunJob(context.Context, *pipeline.Task) (*JobTask, error)
 	// 删除任务
 	DeleteJobTask(context.Context, *DeleteJobTaskRequest) (*JobTask, error)
 	// 任务Debug
-	JobTaskDebug(context.Context, *JobTaskDebugRequest)
+	DebugJobTask(context.Context, *DebugJobTaskRequest)
+	// 审核任务
+	AuditJobTask(context.Context, *AuditJobTaskRequest) (*JobTask, error)
+
 	JobRPCServer
 }
 
-func NewJobTaskDebugRequest(taskId string) *JobTaskDebugRequest {
-	return &JobTaskDebugRequest{
+func NewDebugJobTaskRequest(taskId string) *DebugJobTaskRequest {
+	return &DebugJobTaskRequest{
 		TaskId: taskId,
 	}
 }
 
-type JobTaskDebugRequest struct {
+type DebugJobTaskRequest struct {
 	// 任务Id
 	TaskId string `json:"task_id"`
 	// 容器名称
@@ -56,7 +59,7 @@ type JobTaskDebugRequest struct {
 	terminal *terminal.WebSocketTerminal
 }
 
-func (r *JobTaskDebugRequest) CopyPodRunRequest(namespace, podName string) *workload.CopyPodRunRequest {
+func (r *DebugJobTaskRequest) CopyPodRunRequest(namespace, podName string) *workload.CopyPodRunRequest {
 	req := workload.NewCopyPodRunRequest()
 	req.SourcePod.Name = podName
 	req.SourcePod.Namespace = namespace
@@ -68,11 +71,11 @@ func (r *JobTaskDebugRequest) CopyPodRunRequest(namespace, podName string) *work
 	return req
 }
 
-func (r *JobTaskDebugRequest) WebTerminal() *terminal.WebSocketTerminal {
+func (r *DebugJobTaskRequest) WebTerminal() *terminal.WebSocketTerminal {
 	return r.terminal
 }
 
-func (r *JobTaskDebugRequest) SetWebTerminal(term *terminal.WebSocketTerminal) {
+func (r *DebugJobTaskRequest) SetWebTerminal(term *terminal.WebSocketTerminal) {
 	r.terminal = term
 	r.terminal.SetSize(r.Terminal)
 }
@@ -178,6 +181,13 @@ func NewUpdateJobTaskOutputRequest(id string) *UpdateJobTaskOutputRequest {
 	}
 }
 
+func NewAuditJobTaskRequest(id string) *AuditJobTaskRequest {
+	return &AuditJobTaskRequest{
+		TaskId: id,
+		Status: pipeline.NewAuditStatus(),
+	}
+}
+
 func (req *UpdateJobTaskOutputRequest) AddRuntimeEnv(name, value string) {
 	req.RuntimeEnvs = append(req.RuntimeEnvs, job.NewRunParam(name, value))
 }
@@ -241,7 +251,7 @@ type TaskMessage interface {
 type WebHookMessage interface {
 	TaskMessage
 	// Web事件回调
-	AddWebhookStatus(items ...*CallbackStatus)
+	AddWebhookStatus(items ...*pipeline.WebHook)
 }
 
 // Task状态变更用户通知
@@ -250,7 +260,7 @@ type MentionUserMessage interface {
 	// Task状态变化通知消息
 	TaskMessage
 	// 通知回调, 是否通知成功
-	AddNotifyStatus(items ...*CallbackStatus)
+	AddNotifyStatus(items ...*pipeline.MentionUser)
 }
 
 func NewJobTaskStreamReponse() *JobTaskStreamReponse {

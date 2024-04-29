@@ -1,4 +1,4 @@
-package task
+package pipeline
 
 import (
 	"fmt"
@@ -68,4 +68,25 @@ func (h *CallbackStatus) SendSuccess(message string) {
 	}
 	h.Success = true
 	h.Message = message
+}
+
+func NewErrorEvent(message string) *Event {
+	return NewEvent(EVENT_LEVEL_ERROR, message)
+}
+
+func NewDebugEvent(message string) *Event {
+	return NewEvent(EVENT_LEVEL_DEBUG, message)
+}
+
+func NewEvent(level EVENT_LEVEL, message string) *Event {
+	return &Event{
+		Time:    time.Now().Unix(),
+		Level:   level,
+		Message: message,
+	}
+}
+
+func (e *Event) SetDetail(detail string) *Event {
+	e.Detail = detail
+	return e
 }

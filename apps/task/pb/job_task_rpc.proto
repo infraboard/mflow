@@ -6,6 +6,7 @@ option go_package = "github.com/infraboard/mflow/apps/task";
 import "mflow/apps/task/pb/job_task.proto";
 import "mcube/pb/page/page.proto";
 import "mflow/apps/job/pb/job.proto";
+import "mflow/apps/pipeline/pb/pipeline.proto";
 import "mcube/pb/resource/meta.proto";
 import "mcube/pb/resource/label.proto";
 
@@ -22,6 +23,15 @@ service JobRPC {
 
     // 查询Task日志
     rpc WatchJobTaskLog(WatchJobTaskLogRequest) returns(stream JobTaskStreamReponse);
+}
+
+message AuditJobTaskRequest {
+	// 任务Id
+	// @gotags: json:"task_id"
+    string task_id = 1;
+	// 审核结果
+	// @gotags: json:"status"
+    pipeline.AuditStatus status = 2;
 }
 
 message WatchJobTaskLogRequest {

@@ -52,14 +52,14 @@ message PipelineTaskStatus {
 	// @gotags: bson:"stage_status" json:"stage_status"
 	repeated StageStatus stage_status = 6;
 	// 事件回调状态
-	// @gotags: bson:"webhook_status" json:"webhook_status"
-	repeated CallbackStatus webhook_status = 7;
-	// Pipline 关注人通知状态
-	// @gotags: bson:"notify_status" json:"notify_status"
-	repeated CallbackStatus notify_status = 8;
+	// @gotags: bson:"webhooks" json:"webhooks"
+	repeated pipeline.WebHook webhooks = 7;
+	// Jot Task 关注人通知状态
+	// @gotags: bson:"mention_users" json:"mention_users"
+	repeated pipeline.MentionUser mention_users = 8;
 	// 任务事件
 	// @gotags: bson:"events" json:"events"
-	repeated Event events = 9;
+	repeated pipeline.Event events = 9;
 	// 如果有下一个需要运行的Pipeline Task 的id
 	// @gotags: bson:"next_pipeline_task_id" json:"next_pipeline_task_id"
 	string next_pipeline_task_id = 10;

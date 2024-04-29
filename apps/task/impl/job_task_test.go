@@ -26,7 +26,7 @@ func TestQueryJobTask(t *testing.T) {
 }
 
 func TestRunBuildJob(t *testing.T) {
-	req := pipeline.NewRunJobRequest("docker_build@default.default")
+	req := pipeline.NewTask("docker_build@default.default")
 	// 添加飞书通知的Webhook
 	req.AddWebhook(pipeline.NewWebHook(conf.C.FEISHU_BOT_URL))
 	// 添加任务执行成功提醒
@@ -50,7 +50,7 @@ func TestRunBuildJob(t *testing.T) {
 }
 
 func TestRunDeployJob(t *testing.T) {
-	req := pipeline.NewRunJobRequest("docker_deploy@default.default")
+	req := pipeline.NewTask("docker_deploy@default.default")
 	params := job.NewRunParamSet()
 	params.DryRun = false
 	params.Params = job.NewRunParamWithKVPaire(

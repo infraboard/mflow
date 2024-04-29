@@ -35,14 +35,13 @@ var (
 
 func newJobTaskRequest(hook *pipeline.WebHook, t task.WebHookMessage, wg *sync.WaitGroup) *request {
 	// 因为AddWebhookStatus是非并非安全的， 因此不能放到Push(Push 是并发的)里面跑
-	status := task.NewCallbackStatus(hook.ShowName())
-	t.AddWebhookStatus(status)
+	hook.Status = pipeline.NewCallbackStatus(hook.ShowName())
+	t.AddWebhookStatus(hook)
 	wg.Add(1)
 	return &request{
-		hook:   hook,
-		task:   t,
-		status: status,
-		wg:     wg,
+		hook: hook,
+		task: t,
+		wg:   wg,
 	}
 }
 
@@ -51,13 +50,12 @@ type request struct {
 	task     task.TaskMessage
 	matchRes string
 
-	status *task.CallbackStatus
-	wg     *sync.WaitGroup
+	wg *sync.WaitGroup
 }
 
 func (r *request) Push(ctx context.Context) {
 	defer r.wg.Done()
-	r.status.StartAt = time.Now().UnixMilli()
+	r.hook.Status.StartAt = time.Now().UnixMilli()
 
 	// 准备请求,适配主流机器人
 	var messageObj interface{}
@@ -77,13 +75,13 @@ func (r *request) Push(ctx context.Context) {
 
 	body, err := json.Marshal(messageObj)
 	if err != nil {
-		r.status.SendFailed("marshal step to json error, %s", err)
+		r.hook.Status.SendFailed("marshal step to json error, %s", err)
 		return
 	}
 
 	req, err := http.NewRequestWithContext(ctx, "POST", r.hook.Url, bytes.NewReader(body))
 	if err != nil {
-		r.status.SendFailed("new post request error, %s", err)
+		r.hook.Status.SendFailed("new post request error, %s", err)
 		return
 	}
 
@@ -95,7 +93,7 @@ func (r *request) Push(ctx context.Context) {
 	// 发起请求
 	resp, err := client.Do(req)
 	if err != nil {
-		r.status.SendFailed("send request error, %s", err)
+		r.hook.Status.SendFailed("send request error, %s", err)
 		return
 	}
 	defer resp.Body.Close()
@@ -103,26 +101,26 @@ func (r *request) Push(ctx context.Context) {
 	// 读取body
 	bytesB, err := io.ReadAll(resp.Body)
 	if err != nil {
-		r.status.SendFailed("read response error, %s", err)
+		r.hook.Status.SendFailed("read response error, %s", err)
 		return
 	}
 	respString := string(bytesB)
 
 	if (resp.StatusCode / 100) != 2 {
-		r.status.SendFailed("status code[%d] is not 200, response %s", resp.StatusCode, respString)
+		r.hook.Status.SendFailed("status code[%d] is not 200, response %s", resp.StatusCode, respString)
 		return
 	}
 
 	// 通过返回匹配字符串来判断通知是否成功
 	if r.matchRes != "" {
 		if !strings.Contains(respString, r.matchRes) {
-			r.status.SendFailed("reponse not match string %s, response: %s",
+			r.hook.Status.SendFailed("reponse not match string %s, response: %s",
 				r.matchRes, respString)
 			return
 		}
 	}
 
-	r.status.SendSuccess(respString)
+	r.hook.Status.SendSuccess(respString)
 }
 
 func (r *request) BotType() string {

@@ -316,15 +316,15 @@ func (p *PipelineTask) AddErrorEvent(format string, a ...any) {
 	p.Status.AddErrorEvent(format, a...)
 }
 
-func (p *PipelineTask) AddSuccessEvent(format string, a ...any) *Event {
+func (p *PipelineTask) AddSuccessEvent(format string, a ...any) *pipeline.Event {
 	return p.Status.AddSuccessEvent(format, a...)
 }
 
-func (p *PipelineTask) AddWebhookStatus(items ...*CallbackStatus) {
+func (p *PipelineTask) AddWebhookStatus(items ...*pipeline.WebHook) {
 	p.Status.AddWebhookStatus(items...)
 }
 
-func (p *PipelineTask) AddNotifyStatus(items ...*CallbackStatus) {
+func (p *PipelineTask) AddNotifyStatus(items ...*pipeline.MentionUser) {
 	p.Status.AddNotifyStatus(items...)
 }
 
@@ -365,11 +365,11 @@ func (s *PipelineTask) SetParamValueToPipeline() {
 
 func NewPipelineTaskStatus() *PipelineTaskStatus {
 	return &PipelineTaskStatus{
-		RuntimeEnvs:   job.NewRunParamSet(),
-		StageStatus:   []*StageStatus{},
-		WebhookStatus: []*CallbackStatus{},
-		NotifyStatus:  []*CallbackStatus{},
-		Events:        []*Event{},
+		RuntimeEnvs:  job.NewRunParamSet(),
+		StageStatus:  []*StageStatus{},
+		Webhooks:     []*pipeline.WebHook{},
+		MentionUsers: []*pipeline.MentionUser{},
+		Events:       []*pipeline.Event{},
 	}
 }
 
@@ -387,21 +387,21 @@ func (s *PipelineTaskStatus) AddStage(item *StageStatus) {
 }
 
 func (t *PipelineTaskStatus) AddErrorEvent(format string, a ...any) {
-	t.Events = append(t.Events, NewEvent(EVENT_LEVEL_ERROR, fmt.Sprintf(format, a...)))
+	t.Events = append(t.Events, pipeline.NewEvent(pipeline.EVENT_LEVEL_ERROR, fmt.Sprintf(format, a...)))
 }
 
-func (t *PipelineTaskStatus) AddSuccessEvent(format string, a ...any) *Event {
-	e := NewEvent(EVENT_LEVEL_INFO, fmt.Sprintf(format, a...))
+func (t *PipelineTaskStatus) AddSuccessEvent(format string, a ...any) *pipeline.Event {
+	e := pipeline.NewEvent(pipeline.EVENT_LEVEL_INFO, fmt.Sprintf(format, a...))
 	t.Events = append(t.Events, e)
 	return e
 }
 
-func (t *PipelineTaskStatus) AddEvent(level EVENT_LEVEL, format string, a ...any) {
-	t.Events = append(t.Events, NewEvent(level, fmt.Sprintf(format, a...)))
+func (t *PipelineTaskStatus) AddEvent(level pipeline.EVENT_LEVEL, format string, a ...any) {
+	t.Events = append(t.Events, pipeline.NewEvent(level, fmt.Sprintf(format, a...)))
 }
 
-func (p *PipelineTaskStatus) AddWebhookStatus(items ...*CallbackStatus) {
-	p.WebhookStatus = append(p.WebhookStatus, items...)
+func (p *PipelineTaskStatus) AddWebhookStatus(items ...*pipeline.WebHook) {
+	p.Webhooks = append(p.Webhooks, items...)
 }
 
 func (s *PipelineTaskStatus) GetJobTask(id string) *JobTask {
@@ -416,8 +416,8 @@ func (s *PipelineTaskStatus) GetJobTask(id string) *JobTask {
 	return nil
 }
 
-func (p *PipelineTaskStatus) AddNotifyStatus(items ...*CallbackStatus) {
-	p.NotifyStatus = append(p.NotifyStatus, items...)
+func (p *PipelineTaskStatus) AddNotifyStatus(items ...*pipeline.MentionUser) {
+	p.MentionUsers = append(p.MentionUsers, items...)
 }
 
 func NewStageStatus(s *pipeline.Stage, pipelineTaskId string) *StageStatus {

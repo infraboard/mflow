@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v5.26.0
-// source: mflow/apps/task/pb/pipeline_rpc.proto
+// source: mflow/apps/task/pb/pipeline_task_rpc.proto
 
 package task
 
@@ -225,5 +225,5 @@ var PipelineRPC_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "mflow/apps/task/pb/pipeline_rpc.proto",
+	Metadata: "mflow/apps/task/pb/pipeline_task_rpc.proto",
 }

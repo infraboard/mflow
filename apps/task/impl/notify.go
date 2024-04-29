@@ -15,7 +15,7 @@ func (i *impl) TaskMention(ctx context.Context, mu *pipeline.MentionUser, in tas
 		return
 	}
 
-	status := task.NewCallbackStatus(mu.UserName)
+	status := pipeline.NewCallbackStatus(mu.UserName)
 	// 调用mcenter api 通知用户
 	for _, nt := range mu.NotifyTypes {
 		switch nt {
@@ -27,18 +27,18 @@ func (i *impl) TaskMention(ctx context.Context, mu *pipeline.MentionUser, in tas
 			)
 			resp, err := i.mcenter.Notify().SendNotify(ctx, req)
 			if err != nil {
-				status.AddEvent(task.NewErrorEvent(err.Error()))
+				status.AddEvent(pipeline.NewErrorEvent(err.Error()))
 			} else {
-				status.AddEvent(task.NewDebugEvent(resp.ToJson()))
+				status.AddEvent(pipeline.NewDebugEvent(resp.ToJson()))
 				message := resp.FailedResponseToMessage()
 				if message != "" {
-					status.AddEvent(task.NewErrorEvent(message))
+					status.AddEvent(pipeline.NewErrorEvent(message))
 				}
 			}
 		case notify.NOTIFY_TYPE_SMS:
-			status.AddEvent(task.NewErrorEvent("sms not impl"))
+			status.AddEvent(pipeline.NewErrorEvent("sms not impl"))
 		case notify.NOTIFY_TYPE_VOICE:
-			status.AddEvent(task.NewErrorEvent("voice not impl"))
+			status.AddEvent(pipeline.NewErrorEvent("voice not impl"))
 		case notify.NOTIFY_TYPE_IM:
 			req := notify.NewSendNotifyRequest()
 			req.Domain = in.GetDomain()
@@ -49,16 +49,17 @@ func (i *impl) TaskMention(ctx context.Context, mu *pipeline.MentionUser, in tas
 			req.Content = in.MarkdownContent()
 			resp, err := i.mcenter.Notify().SendNotify(ctx, req)
 			if err != nil {
-				status.AddEvent(task.NewErrorEvent(err.Error()))
+				status.AddEvent(pipeline.NewErrorEvent(err.Error()))
 			} else {
-				status.AddEvent(task.NewDebugEvent(resp.ToJson()))
+				status.AddEvent(pipeline.NewDebugEvent(resp.ToJson()))
 				message := resp.FailedResponseToMessage()
 				if message != "" {
-					status.AddEvent(task.NewErrorEvent(message))
+					status.AddEvent(pipeline.NewErrorEvent(message))
 				}
 			}
 		}
 	}
 	status.MakeStatusUseEvent()
-	in.AddNotifyStatus(status)
+	mu.Status = status
+	in.AddNotifyStatus(mu)
 }

@@ -23,7 +23,7 @@ import (
 	"github.com/infraboard/mpaas/provider/k8s/workload"
 )
 
-func (i *impl) RunJob(ctx context.Context, in *pipeline.RunJobRequest) (
+func (i *impl) RunJob(ctx context.Context, in *pipeline.Task) (
 	*task.JobTask, error) {
 	if in.TaskId != "" {
 		// 如果任务重新运行, 需要等待之前的任务结束后才能执行
@@ -37,7 +37,7 @@ func (i *impl) RunJob(ctx context.Context, in *pipeline.RunJobRequest) (
 	}
 	ins := task.NewJobTask(in)
 
-	// 忽略执行
+	// 如果不忽略执行, 则执行
 	if in.Enabled() {
 		// 查询需要执行的Job
 		req := job.NewDescribeJobRequestByName(in.JobName)
@@ -105,7 +105,7 @@ func (i *impl) RunJob(ctx context.Context, in *pipeline.RunJobRequest) (
 }
 
 // 加载Pipeline 提供的运行时参数
-func (i *impl) LoadPipelineRunParam(ctx context.Context, in *pipeline.RunJobRequest, params *job.RunParamSet) error {
+func (i *impl) LoadPipelineRunParam(ctx context.Context, in *pipeline.Task, params *job.RunParamSet) error {
 	if in.PipelineTask == "" {
 		return nil
 	}
@@ -353,7 +353,7 @@ func (i *impl) CleanTaskResource(ctx context.Context, in *task.JobTask) error {
 				if err != nil {
 					return fmt.Errorf("delete config map error, %s", err)
 				}
-				in.Status.AddEvent(task.EVENT_LEVEL_DEBUG, "delete job runtime env configmap: %s", resource.Name)
+				in.Status.AddEvent(pipeline.EVENT_LEVEL_DEBUG, "delete job runtime env configmap: %s", resource.Name)
 				resource.ReleaseAt = time.Now().Unix()
 			}
 		}
@@ -483,7 +483,7 @@ WAIT_TASK_ACTIVE:
 }
 
 // Task Debug
-func (i *impl) JobTaskDebug(ctx context.Context, in *task.JobTaskDebugRequest) {
+func (i *impl) DebugJobTask(ctx context.Context, in *task.DebugJobTaskRequest) {
 	term := in.WebTerminal()
 
 	// 查询Task信息
@@ -566,4 +566,41 @@ func (w *WatchJobTaskLogServerWriter) WriteMessagef(format string, a ...any) {
 	if err != nil {
 		log.L().Error().Msgf("write message error, %s", err)
 	}
+}
+
+// 审核任务
+func (i *impl) AuditJobTask(
+	ctx context.Context,
+	in *task.AuditJobTaskRequest) (
+	*task.JobTask, error) {
+	t, err := i.DescribeJobTask(ctx, task.NewDescribeJobTaskRequest(in.TaskId))
+	if err != nil {
+		return nil, err
+	}
+
+	if !t.Status.Audit.Enable {
+		return nil, exception.NewBadRequest("任务没有开启审核")
+	}
+
+	if !t.Spec.IsAuditor(in.Status.AuditBy) {
+		return nil, exception.NewBadRequest("你不在审核人名单中")
+	}
+
+	in.Status.AuditAt = time.Now().Unix()
+	t.Status.Audit.Status = in.Status
+
+	if _, err := i.jcol.UpdateByID(ctx, in.TaskId, bson.M{"$set": bson.M{"status.audit": in.Status}}); err != nil {
+		return nil, exception.NewInternalServerError("update task(%s) document error, %s",
+			in.TaskId, err)
+	}
+
+	// 如果审核通过, 再次触发任务状态变化
+	if in.Status.Stage.Equal(pipeline.AUDIT_STAGE_PASS) {
+		_, err := i.PipelineTaskStatusChanged(ctx, t)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return t, nil
 }

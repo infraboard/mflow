@@ -42,7 +42,7 @@ func (s *PipelineSet) GetJobs() (ids []string) {
 	return
 }
 
-type TaskForEatchHandler func(*RunJobRequest)
+type TaskForEatchHandler func(*Task)
 
 func (s *PipelineSet) TaskForEach(h TaskForEatchHandler) {
 	for i := range s.Items {
@@ -228,8 +228,8 @@ func (req *CreatePipelineRequest) AddStage(stages ...*Stage) {
 	req.Stages = append(req.Stages, stages...)
 }
 
-func NewRunJobRequest(jobName string) *RunJobRequest {
-	return &RunJobRequest{
+func NewTask(jobName string) *Task {
+	return &Task{
 		JobName:      jobName,
 		RunParams:    job.NewRunParamSet(),
 		Webhooks:     []*WebHook{},
@@ -239,7 +239,7 @@ func NewRunJobRequest(jobName string) *RunJobRequest {
 	}
 }
 
-func (r *RunJobRequest) UpdateFromToken(tk *token.Token) {
+func (r *Task) UpdateFromToken(tk *token.Token) {
 	if tk == nil {
 		return
 	}
@@ -249,26 +249,44 @@ func (r *RunJobRequest) UpdateFromToken(tk *token.Token) {
 	r.RunBy = tk.UserId
 }
 
-func (r *RunJobRequest) VersionName(version string) string {
+func (r *Task) VersionName(version string) string {
 	if strings.Contains(r.JobName, job.UNIQ_VERSION_SPLITER) {
 		return r.JobName
 	}
 	return fmt.Sprintf("%s%s%s", r.JobName, job.UNIQ_VERSION_SPLITER, version)
 }
 
-func (r *RunJobRequest) Enabled() bool {
+func (r *Task) Enabled() bool {
 	return !r.SkipRun
 }
 
-func (r *RunJobRequest) StageNumberString() string {
+func (r *Task) AuditPass() bool {
+	if !r.Audit.Enable {
+		return true
+	}
+
+	return r.Audit.Status.Stage.Equal(AUDIT_STAGE_PASS)
+}
+
+func (r *Task) IsAuditor(auditor string) bool {
+	for _, aid := range r.Audit.Auditors {
+		if aid == auditor {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (r *Task) StageNumberString() string {
 	return fmt.Sprintf("%d", r.StageNumber)
 }
 
-func (r *RunJobRequest) TaskNumberString() string {
+func (r *Task) TaskNumberString() string {
 	return fmt.Sprintf("%d", r.Number)
 }
 
-func (r *RunJobRequest) MatchedWebHooks(event string) []*WebHook {
+func (r *Task) MatchedWebHooks(event string) []*WebHook {
 	hooks := []*WebHook{}
 	for i := range r.Webhooks {
 		h := r.Webhooks[i]
@@ -280,15 +298,15 @@ func (r *RunJobRequest) MatchedWebHooks(event string) []*WebHook {
 	return hooks
 }
 
-func (r *RunJobRequest) AddWebhook(items ...*WebHook) {
+func (r *Task) AddWebhook(items ...*WebHook) {
 	r.Webhooks = append(r.Webhooks, items...)
 }
 
-func (r *RunJobRequest) AddMentionUser(items ...*MentionUser) {
+func (r *Task) AddMentionUser(items ...*MentionUser) {
 	r.MentionUsers = append(r.MentionUsers, items...)
 }
 
-func (r *RunJobRequest) BuildSearchLabel() {
+func (r *Task) BuildSearchLabel() {
 	if r.Labels == nil {
 		r.Labels = map[string]string{}
 	}
@@ -302,7 +320,7 @@ func (r *RunJobRequest) BuildSearchLabel() {
 	}
 }
 
-func (r *RunJobRequest) SetDefault() {
+func (r *Task) SetDefault() {
 	if r.TaskId == "" {
 		r.TaskId = "task-" + xid.New().String()
 	}
@@ -323,7 +341,7 @@ func (r *RunJobRequest) SetDefault() {
 	}
 }
 
-func (r *RunJobRequest) GetJobShortName() string {
+func (r *Task) GetJobShortName() string {
 	nl := strings.Split(r.JobName, "@")
 	if len(nl) > 0 && nl[0] != "" {
 		return nl[0]
@@ -464,7 +482,7 @@ func (s *Stage) JobIds() (ids []string) {
 	return
 }
 
-func (s *Stage) GetTaskByNumber(number int32) *RunJobRequest {
+func (s *Stage) GetTaskByNumber(number int32) *Task {
 	if s.Tasks == nil {
 		return nil
 	}
@@ -477,4 +495,10 @@ func (s *Stage) GetTaskByNumber(number int32) *RunJobRequest {
 	}
 
 	return nil
+}
+
+func NewAuditStatus() *AuditStatus {
+	return &AuditStatus{
+		Extension: map[string]string{},
+	}
 }

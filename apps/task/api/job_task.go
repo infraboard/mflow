@@ -39,7 +39,7 @@ func (h *JobTaskHandler) RegistryUserHandler() {
 		Metadata(label.Action, label.Create.Value()).
 		Metadata(label.Auth, label.Enable).
 		Metadata(label.Permission, label.Enable).
-		Reads(pipeline.RunJobRequest{}).
+		Reads(pipeline.Task{}).
 		Writes(task.JobTask{}))
 
 	ws.Route(ws.GET("/{id}").
@@ -51,6 +51,18 @@ func (h *JobTaskHandler) RegistryUserHandler() {
 		Metadata(label.Auth, label.Enable).
 		Metadata(label.Permission, label.Enable).
 		Reads(task.DescribeJobTaskRequest{}).
+		Writes(task.JobTask{}))
+
+	// 内部通过审核人列表判断权限
+	ws.Route(ws.POST("/{id}/audit").
+		To(h.UpdateJobTaskStatus).
+		Doc("任务审核").
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Metadata(label.Resource, JOB_TASK_RESOURCE_NAME).
+		Metadata(label.Action, label.Update.Value()).
+		Metadata(label.Auth, label.Enable).
+		Metadata(label.Permission, label.Disable).
+		Reads(task.AuditJobTaskRequest{}).
 		Writes(task.JobTask{}))
 
 	// 通过Job自身的Token进行认证
@@ -96,7 +108,7 @@ func (h *JobTaskHandler) DescribeJobTask(r *restful.Request, w *restful.Response
 }
 
 func (h *JobTaskHandler) RunJob(r *restful.Request, w *restful.Response) {
-	req := pipeline.NewRunJobRequest("")
+	req := pipeline.NewTask("")
 	if err := r.ReadEntity(req); err != nil {
 		response.Failed(w, err)
 		return
@@ -112,11 +124,12 @@ func (h *JobTaskHandler) RunJob(r *restful.Request, w *restful.Response) {
 }
 
 func (h *JobTaskHandler) UpdateJobTaskOutput(r *restful.Request, w *restful.Response) {
-	req := task.NewUpdateJobTaskOutputRequest(r.PathParameter("id"))
+	req := task.NewUpdateJobTaskOutputRequest("")
 	if err := r.ReadEntity(req); err != nil {
 		response.Failed(w, err)
 		return
 	}
+	req.Id = r.PathParameter("id")
 
 	set, err := h.service.UpdateJobTaskOutput(r.Request.Context(), req)
 	if err != nil {
@@ -127,13 +140,33 @@ func (h *JobTaskHandler) UpdateJobTaskOutput(r *restful.Request, w *restful.Resp
 }
 
 func (h *JobTaskHandler) UpdateJobTaskStatus(r *restful.Request, w *restful.Response) {
-	req := task.NewUpdateJobTaskStatusRequest(r.PathParameter("id"))
+	req := task.NewUpdateJobTaskStatusRequest("")
 	if err := r.ReadEntity(req); err != nil {
 		response.Failed(w, err)
 		return
 	}
+	req.Id = r.PathParameter("id")
 
 	set, err := h.service.UpdateJobTaskStatus(r.Request.Context(), req)
+	if err != nil {
+		response.Failed(w, err)
+		return
+	}
+	response.Success(w, set)
+}
+
+func (h *JobTaskHandler) AuditJobTask(r *restful.Request, w *restful.Response) {
+	req := task.NewAuditJobTaskRequest("")
+	if err := r.ReadEntity(req); err != nil {
+		response.Failed(w, err)
+		return
+	}
+	req.TaskId = r.PathParameter("id")
+
+	tk := token.GetTokenFromRequest(r)
+	req.Status.AuditBy = tk.UserId
+
+	set, err := h.service.AuditJobTask(r.Request.Context(), req)
 	if err != nil {
 		response.Failed(w, err)
 		return

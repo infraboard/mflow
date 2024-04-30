@@ -35,10 +35,15 @@ func (i *impl) RunJob(ctx context.Context, in *pipeline.Task) (
 			return nil, exception.NewConflict("任务: %s 当前处于运行中, 需要等待运行结束后才能执行", in.TaskId)
 		}
 	}
-	ins := task.NewJobTask(in)
 
-	// 如果不忽略执行, 则执行
-	if in.Enabled() {
+	// 调整当前任务审核状态为等待审核
+	if in.Audit.Enable {
+		in.Audit.Status.Stage = pipeline.AUDIT_STAGE_WAITING
+	}
+
+	ins := task.NewJobTask(in)
+	// 如果不忽略执行, 并且审核通过, 则执行
+	if in.Enabled() && in.AuditPass() {
 		// 查询需要执行的Job
 		req := job.NewDescribeJobRequestByName(in.JobName)
 
@@ -589,18 +594,23 @@ func (i *impl) AuditJobTask(
 	in.Status.AuditAt = time.Now().Unix()
 	t.Status.Audit.Status = in.Status
 
-	if _, err := i.jcol.UpdateByID(ctx, in.TaskId, bson.M{"$set": bson.M{"status.audit": in.Status}}); err != nil {
+	// 审核通过直接运行Job
+	// 审核失败结束任务, 更新任务状态
+	if t.Spec.AuditPass() {
+		i.RunJob(ctx, t.Spec)
+	} else {
+		t.Status.MarkedError(fmt.Errorf("审核没通过, %s", in.Status.Comment))
+	}
+
+	if _, err := i.jcol.UpdateByID(ctx, in.TaskId, bson.M{"$set": bson.M{"status": t.Status}}); err != nil {
 		return nil, exception.NewInternalServerError("update task(%s) document error, %s",
 			in.TaskId, err)
 	}
 
 	// 如果审核通过, 再次触发任务状态变化
-	if in.Status.Stage.Equal(pipeline.AUDIT_STAGE_PASS) {
-		_, err := i.PipelineTaskStatusChanged(ctx, t)
-		if err != nil {
-			return nil, err
-		}
+	_, err = i.PipelineTaskStatusChanged(ctx, t)
+	if err != nil {
+		return nil, err
 	}
-
 	return t, nil
 }

@@ -135,11 +135,6 @@ func (i *impl) PipelineTaskStatusChanged(ctx context.Context, in *task.JobTask) 
 		return nil, exception.NewBadRequest("job task or job task status is nil")
 	}
 
-	// 如果任务开启了审核但是审核没有通过
-	if !in.Spec.AuditPass() {
-		return nil, exception.NewBadRequest("audit required")
-	}
-
 	if in.Spec.PipelineTask == "" {
 		return nil, exception.NewBadRequest("Pipeline Id参数缺失")
 	}
@@ -178,7 +173,7 @@ func (i *impl) PipelineTaskStatusChanged(ctx context.Context, in *task.JobTask) 
 		task.STAGE_CREATING,
 		task.STAGE_ACTIVE,
 		task.STAGE_CANCELING:
-		// Pipeline Task状态无变化
+		// Task状态无变化
 		return p, nil
 	case task.STAGE_CANCELED:
 		// 任务取消, pipeline 取消执行

@@ -146,7 +146,7 @@ message Task {
 	// job回滚时参数, 如果要回滚 则回滚参数必填
 	// @gotags: bson:"rollback_params" json:"rollback_params"
 	job.RunParamSet rollback_params = 10;
-	// WebHook配置, 及时把job执行状态推送给外部, 常用于外部系统的集成，比如飞书机器人
+	// WebHook配置, 及时把job执行状态推送给外部, 常用于外部系统的集成
 	// @gotags: bson:"webhooks" json:"webhooks"
 	repeated WebHook webhooks = 13;
 	// 任务的关注人, 关注后会及时把任务运行状态通知给他们
@@ -155,6 +155,9 @@ message Task {
 	// 运行时需不需审核
 	// @gotags: bson:"audit" json:"audit"
 	Audit audit = 26;
+	// im群机器人通知
+	// @gotags: bson:"im_robot_notify" json:"im_robot_notify"
+	repeated WebHook im_robot_notify = 27;
     // 任务扩展字段
     // @gotags: bson:"extension" json:"extension"
     map<string,string> extension = 24;
@@ -164,6 +167,10 @@ message Task {
 	// 补充Task关联Job信息
 	// @gotags: bson:"job" json:"job"
 	job.Job job = 21;
+}
+
+message IMNotify {
+	
 }
 
 enum TRIGGER_MODE  {
@@ -262,8 +269,8 @@ message MentionUser {
 	// @gotags: bson:"events" json:"events"
 	repeated string events = 3;
 	// 备注信息, 比如发布任务执行成功, 可以备注: 请及时测试
-	// @gotags: bson:"comment" json:"comment"
-    string comment = 4;
+	// @gotags: bson:"description" json:"description"
+    string description = 4;
 	// 通知 状态
 	// @gotags: bson:"status" json:"status"
 	CallbackStatus status = 5;
@@ -312,12 +319,14 @@ message Audit {
 }
 
 enum AUDIT_STAGE {
-	// 等待审核
+	// 初始状态
 	PENDDING = 0;
+	// 等待审核
+	WAITING = 1;
 	// 审核失败
-	DENY = 1;
+	DENY = 2;
 	// 审核通过
-	PASS = 2;
+	PASS = 3;
 }
 
 message AuditStatus {
@@ -332,7 +341,7 @@ message AuditStatus {
 	int64 audit_at = 3;
 	// 审核备注
 	// @gotags: bson:"comment" json:"comment"
-	int64 comment = 4;
+	string comment = 4;
 	// 扩展字段
 	// @gotags: bson:"extension" json:"extension"
 	map<string, string> extension = 15;

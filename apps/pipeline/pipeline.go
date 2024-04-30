@@ -92,11 +92,12 @@ func (req *CreatePipelineRequest) BuildNumber() {
 		stage := req.Stages[m]
 		stage.Number = int32(m) + 1
 		for n := range stage.Tasks {
-			j := stage.Tasks[n]
-			j.Number = int32(n) + 1
-			j.StageName = stage.Name
-			j.StageNumber = stage.Number
-			j.Job = nil
+			t := stage.Tasks[n]
+			t.Number = int32(n) + 1
+			t.StageName = stage.Name
+			t.StageNumber = stage.Number
+			t.Job = nil
+			t.Init()
 		}
 	}
 }
@@ -276,6 +277,18 @@ func (r *Task) IsAuditor(auditor string) bool {
 	}
 
 	return false
+}
+
+func (r *Task) Init() {
+	if r.Audit == nil {
+		r.Audit = NewAudit()
+	}
+	if r.Webhooks == nil {
+		r.Webhooks = []*WebHook{}
+	}
+	if r.ImRobotNotify == nil {
+		r.ImRobotNotify = []*WebHook{}
+	}
 }
 
 func (r *Task) StageNumberString() string {
@@ -500,5 +513,12 @@ func (s *Stage) GetTaskByNumber(number int32) *Task {
 func NewAuditStatus() *AuditStatus {
 	return &AuditStatus{
 		Extension: map[string]string{},
+	}
+}
+
+func NewAudit() *Audit {
+	return &Audit{
+		Auditors: []string{},
+		Status:   NewAuditStatus(),
 	}
 }

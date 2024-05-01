@@ -67,6 +67,9 @@ func (r *queryRequest) FindFilter() bson.M {
 	if r.Stage != nil {
 		filter["status.stage"] = *r.Stage
 	}
+	if r.Auditor != "" {
+		filter["audit.auditors"] = r.Auditor
+	}
 	if r.AuditEnable != nil {
 		filter["audit.enable"] = *r.AuditEnable
 	}

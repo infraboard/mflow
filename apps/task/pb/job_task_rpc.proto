@@ -87,6 +87,9 @@ message QueryJobTaskRequest {
     // 审核状态
 	// @gotags: json:"audit_stages"
     repeated pipeline.AUDIT_STAGE audit_stages = 10;
+    // 审核人
+	// @gotags: json:"auditor"
+    string auditor = 11;
     // 任务标签
     // @gotags: json:"labels"
     map<string,string> labels = 15;

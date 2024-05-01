@@ -87,6 +87,7 @@ func NewQueryTaskRequestFromHttp(r *restful.Request) *QueryJobTaskRequest {
 	req.Filters = policy.GetScopeFilterFromRequest(r)
 	req.JobId = r.QueryParameter("job_id")
 	req.PipelineTaskId = r.QueryParameter("pipeline_task_id")
+	req.Auditor = r.QueryParameter("auditor")
 	auditEnable := r.QueryParameter("audit_enable")
 	if auditEnable != "" {
 		req.WithAuditEnable(auditEnable == "true")
@@ -100,7 +101,6 @@ func NewQueryTaskRequestFromHttp(r *restful.Request) *QueryJobTaskRequest {
 			}
 			req.AuditStages = append(req.AuditStages, v)
 		}
-
 	}
 	return req
 }

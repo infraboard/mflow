@@ -326,10 +326,46 @@ func (s *JobTask) ShowTitle() string {
 	return fmt.Sprintf("任务[%s]当前状态: %s", s.Spec.JobName, s.Status.Stage.String())
 }
 
+func (t *JobTask) AuditPass() bool {
+	// 没有开启审核
+	if !t.Spec.Audit.Enable {
+		return true
+	}
+
+	// 状态已经更新
+	if t.Status.Audit != nil {
+		return t.Status.Audit.Status.Stage.Equal(pipeline.AUDIT_STAGE_PASS)
+	}
+
+	return false
+}
+
+// 兼容空数据
+func (t *JobTask) AuditStatus() pipeline.AUDIT_STAGE {
+	if t.Status.Audit == nil || t.Status.Audit.Status == nil {
+		return pipeline.AUDIT_STAGE_PENDDING
+	}
+	return t.Status.Audit.Status.Stage
+}
+
+// 兼容空数据
+func (t *JobTask) CheckUpdateStage(updatedStage pipeline.AUDIT_STAGE) error {
+	current := t.AuditStatus()
+	if updatedStage <= current {
+		return fmt.Errorf("更新状态[%s], 落后或者等于当前状态[%s]", updatedStage, current)
+	}
+	return nil
+}
+
 func NewJobTaskStatus() *JobTaskStatus {
 	return &JobTaskStatus{
 		StartAt:            time.Now().Unix(),
 		TemporaryResources: []*TemporaryResource{},
+		Events:             []*pipeline.Event{},
+		ImRobotNotify:      []*pipeline.WebHook{},
+		Webhooks:           []*pipeline.WebHook{},
+		MentionUsers:       []*pipeline.MentionUser{},
+		Audit:              pipeline.NewAudit(),
 		Extension:          map[string]string{},
 	}
 }

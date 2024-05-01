@@ -231,12 +231,14 @@ func (req *CreatePipelineRequest) AddStage(stages ...*Stage) {
 
 func NewTask(jobName string) *Task {
 	return &Task{
-		JobName:      jobName,
-		RunParams:    job.NewRunParamSet(),
-		Webhooks:     []*WebHook{},
-		MentionUsers: []*MentionUser{},
-		Extension:    map[string]string{},
-		Labels:       map[string]string{},
+		JobName:       jobName,
+		RunParams:     job.NewRunParamSet(),
+		Webhooks:      []*WebHook{},
+		MentionUsers:  []*MentionUser{},
+		ImRobotNotify: []*WebHook{},
+		Audit:         NewAudit(),
+		Extension:     map[string]string{},
+		Labels:        map[string]string{},
 	}
 }
 
@@ -259,14 +261,6 @@ func (r *Task) VersionName(version string) string {
 
 func (r *Task) Enabled() bool {
 	return !r.SkipRun
-}
-
-func (r *Task) AuditPass() bool {
-	if !r.Audit.Enable {
-		return true
-	}
-
-	return r.Audit.Status.Stage.Equal(AUDIT_STAGE_PASS)
 }
 
 func (r *Task) IsAuditor(auditor string) bool {

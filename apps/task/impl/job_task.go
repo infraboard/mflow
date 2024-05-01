@@ -36,15 +36,9 @@ func (i *impl) RunJob(ctx context.Context, in *pipeline.Task) (
 		}
 	}
 
-	// 调整当前任务审核状态为等待审核
-	if in.Audit.Enable {
-		in.Audit.Status.Stage = pipeline.AUDIT_STAGE_WAITING
-		i.log.Debug().Msgf("任务: %s 审核状态修改为, %s", in.TaskId, in.Audit.Status.Stage)
-	}
-
 	ins := task.NewJobTask(in)
 	// 如果不忽略执行, 并且审核通过, 则执行
-	if in.Enabled() && in.AuditPass() {
+	if in.Enabled() && ins.AuditPass() {
 		// 查询需要执行的Job
 		req := job.NewDescribeJobRequestByName(in.JobName)
 
@@ -135,6 +129,21 @@ func (i *impl) CheckJotTaskIsActive(ctx context.Context, jobTaskId string) (bool
 	ins, err := i.DescribeJobTask(ctx, task.NewDescribeJobTaskRequest(jobTaskId))
 	if err != nil && !exception.IsNotFoundError(err) {
 		return false, err
+	}
+
+	// 开启审核后, 执行任务则 调整审核状态为等待中
+	if ins.Spec.Audit.Enable {
+		if ins.Status.Audit == nil {
+			ins.Status.Audit = ins.Spec.Audit
+		}
+		if ins.Status.Audit.Status == nil {
+			ins.Status.Audit.Status = pipeline.NewAuditStatus()
+		}
+		// 调整当前任务审核状态为等待审核
+		if ins.Status.Audit.Status.Stage.Equal(pipeline.AUDIT_STAGE_PENDDING) {
+			ins.Status.Audit.Status.Stage = pipeline.AUDIT_STAGE_WAITING
+			i.log.Debug().Msgf("任务: %s 审核状态修改为, %s", ins.Spec.TaskId, ins.Spec.Audit.Status.Stage)
+		}
 	}
 
 	return ins.Status.Stage.Equal(task.STAGE_ACTIVE), nil
@@ -579,12 +588,16 @@ func (i *impl) AuditJobTask(
 	ctx context.Context,
 	in *task.AuditJobTaskRequest) (
 	*task.JobTask, error) {
+	if err := in.Validate(); err != nil {
+		return nil, exception.NewBadRequest("参数校验失败: %s", err.Error())
+	}
+
 	t, err := i.DescribeJobTask(ctx, task.NewDescribeJobTaskRequest(in.TaskId))
 	if err != nil {
 		return nil, err
 	}
 
-	if !t.Status.Audit.Enable {
+	if !t.Spec.Audit.Enable {
 		return nil, exception.NewBadRequest("任务没有开启审核")
 	}
 
@@ -592,26 +605,32 @@ func (i *impl) AuditJobTask(
 		return nil, exception.NewBadRequest("你不在审核人名单中")
 	}
 
-	in.Status.AuditAt = time.Now().Unix()
+	if err := t.CheckUpdateStage(in.Status.Stage); err != nil {
+		return nil, exception.NewBadRequest("状态更新异常, %s", err)
+	}
+
+	t.Status.Audit = t.Spec.Audit
 	t.Status.Audit.Status = in.Status
 
 	// 审核通过直接运行Job
 	// 审核失败结束任务, 更新任务状态
-	if t.Spec.AuditPass() {
-		i.RunJob(ctx, t.Spec)
+	if t.AuditPass() {
+		_, err := i.RunJob(ctx, t.Spec)
+		if err != nil {
+			return nil, err
+		}
 	} else {
+		// 如果审核通过, 再次触发任务状态变化
 		t.Status.MarkedError(fmt.Errorf("审核没通过, %s", in.Status.Comment))
+		_, err = i.PipelineTaskStatusChanged(ctx, t)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if _, err := i.jcol.UpdateByID(ctx, in.TaskId, bson.M{"$set": bson.M{"status": t.Status}}); err != nil {
 		return nil, exception.NewInternalServerError("update task(%s) document error, %s",
 			in.TaskId, err)
-	}
-
-	// 如果审核通过, 再次触发任务状态变化
-	_, err = i.PipelineTaskStatusChanged(ctx, t)
-	if err != nil {
-		return nil, err
 	}
 	return t, nil
 }

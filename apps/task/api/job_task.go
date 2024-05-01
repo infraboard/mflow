@@ -1,6 +1,8 @@
 package api
 
 import (
+	"time"
+
 	restfulspec "github.com/emicklei/go-restful-openapi/v2"
 	"github.com/emicklei/go-restful/v3"
 	"github.com/infraboard/mcenter/apps/token"
@@ -55,7 +57,7 @@ func (h *JobTaskHandler) RegistryUserHandler() {
 
 	// 内部通过审核人列表判断权限
 	ws.Route(ws.POST("/{id}/audit").
-		To(h.UpdateJobTaskStatus).
+		To(h.AuditJobTask).
 		Doc("任务审核").
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Metadata(label.Resource, JOB_TASK_RESOURCE_NAME).
@@ -156,15 +158,15 @@ func (h *JobTaskHandler) UpdateJobTaskStatus(r *restful.Request, w *restful.Resp
 }
 
 func (h *JobTaskHandler) AuditJobTask(r *restful.Request, w *restful.Response) {
-	req := task.NewAuditJobTaskRequest("")
-	if err := r.ReadEntity(req); err != nil {
+	req := task.NewAuditJobTaskRequest(r.PathParameter("id"))
+	if err := r.ReadEntity(req.Status); err != nil {
 		response.Failed(w, err)
 		return
 	}
-	req.TaskId = r.PathParameter("id")
 
 	tk := token.GetTokenFromRequest(r)
 	req.Status.AuditBy = tk.UserId
+	req.Status.AuditAt = time.Now().Unix()
 
 	set, err := h.service.AuditJobTask(r.Request.Context(), req)
 	if err != nil {

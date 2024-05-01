@@ -214,6 +214,17 @@ func NewAuditJobTaskRequest(id string) *AuditJobTaskRequest {
 	}
 }
 
+func (req *AuditJobTaskRequest) Validate() error {
+	switch req.Status.Stage {
+	case pipeline.AUDIT_STAGE_DENY:
+		if req.Status.Comment == "" {
+			return fmt.Errorf("审核失败, 需要填写失败原因")
+		}
+	}
+
+	return nil
+}
+
 func (req *UpdateJobTaskOutputRequest) AddRuntimeEnv(name, value string) {
 	req.RuntimeEnvs = append(req.RuntimeEnvs, job.NewRunParam(name, value))
 }

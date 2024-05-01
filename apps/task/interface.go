@@ -87,18 +87,44 @@ func NewQueryTaskRequestFromHttp(r *restful.Request) *QueryJobTaskRequest {
 	req.Filters = policy.GetScopeFilterFromRequest(r)
 	req.JobId = r.QueryParameter("job_id")
 	req.PipelineTaskId = r.QueryParameter("pipeline_task_id")
+	auditEnable := r.QueryParameter("audit_enable")
+	if auditEnable != "" {
+		req.WithAuditEnable(auditEnable == "true")
+	}
+	auditStage := r.QueryParameter("audit_stages")
+	if auditStage != "" {
+		for _, stage := range strings.Split(auditStage, ",") {
+			v, err := pipeline.ParseAUDIT_STAGEFromString(stage)
+			if err != nil {
+				continue
+			}
+			req.AuditStages = append(req.AuditStages, v)
+		}
+
+	}
 	return req
 }
 
 func NewQueryTaskRequest() *QueryJobTaskRequest {
 	return &QueryJobTaskRequest{
-		Page: request.NewDefaultPageRequest(),
-		Ids:  []string{},
+		Page:        request.NewDefaultPageRequest(),
+		Ids:         []string{},
+		AuditStages: []pipeline.AUDIT_STAGE{},
 	}
 }
 
 func (req *QueryJobTaskRequest) HasLabel() bool {
 	return req.Labels != nil && len(req.Labels) > 0
+}
+
+func (req *QueryJobTaskRequest) WithAuditEnable(v bool) *QueryJobTaskRequest {
+	req.AuditEnable = &v
+	return req
+}
+
+func (req *QueryJobTaskRequest) AddAuditStage(ss ...pipeline.AUDIT_STAGE) *QueryJobTaskRequest {
+	req.AuditStages = append(req.AuditStages, ss...)
+	return req
 }
 
 func NewRunTaskRequest(name, spec string, params *job.RunParamSet) *RunTaskRequest {

@@ -67,6 +67,12 @@ func (r *queryRequest) FindFilter() bson.M {
 	if r.Stage != nil {
 		filter["status.stage"] = *r.Stage
 	}
+	if r.AuditEnable != nil {
+		filter["audit.enable"] = *r.AuditEnable
+	}
+	if len(r.AuditStages) > 0 {
+		filter["audit.status.stage"] = bson.M{"$in": r.AuditStages}
+	}
 
 	if r.HasLabel() {
 		for k, v := range r.Labels {

@@ -1249,8 +1249,8 @@ type MentionUser struct {
 	// @gotags: bson:"user_name" json:"user_name" validate:"required"
 	UserName string `protobuf:"bytes,1,opt,name=user_name,json=userName,proto3" json:"user_name" bson:"user_name" validate:"required"`
 	// 通知方式
-	// @gotags: bson:"notify_type" json:"notify_type"
-	NotifyTypes []notify.NOTIFY_TYPE `protobuf:"varint,2,rep,packed,name=notify_types,json=notifyTypes,proto3,enum=infraboard.mcenter.notify.NOTIFY_TYPE" json:"notify_type" bson:"notify_type"`
+	// @gotags: bson:"notify_types" json:"notify_types"
+	NotifyTypes []notify.NOTIFY_TYPE `protobuf:"varint,2,rep,packed,name=notify_types,json=notifyTypes,proto3,enum=infraboard.mcenter.notify.NOTIFY_TYPE" json:"notify_types" bson:"notify_types"`
 	// 那些状态下触发通知, 默认任务执行成功后触发
 	// @gotags: bson:"events" json:"events"
 	Events []string `protobuf:"bytes,3,rep,name=events,proto3" json:"events" bson:"events"`

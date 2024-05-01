@@ -39,6 +39,7 @@ func (i *impl) RunJob(ctx context.Context, in *pipeline.Task) (
 	// 调整当前任务审核状态为等待审核
 	if in.Audit.Enable {
 		in.Audit.Status.Stage = pipeline.AUDIT_STAGE_WAITING
+		i.log.Debug().Msgf("任务: %s 审核状态修改为, %s", in.TaskId, in.Audit.Status.Stage)
 	}
 
 	ins := task.NewJobTask(in)

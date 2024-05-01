@@ -81,6 +81,12 @@ message QueryJobTaskRequest {
 	// 排序方式
 	// @gotags: json:"sort_type"
     SORT_TYPE sort_type = 8;
+    // 查询任务是否开启审核
+	// @gotags: json:"audit_enable"
+    optional bool audit_enable = 9;
+    // 审核状态
+	// @gotags: json:"audit_stages"
+    repeated pipeline.AUDIT_STAGE audit_stages = 10;
     // 任务标签
     // @gotags: json:"labels"
     map<string,string> labels = 15;

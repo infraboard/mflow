@@ -263,7 +263,7 @@ message MentionUser {
 	// @gotags: bson:"user_name" json:"user_name" validate:"required"
     string user_name = 1;
 	// 通知方式
-	// @gotags: bson:"notify_type" json:"notify_type"
+	// @gotags: bson:"notify_types" json:"notify_types"
 	repeated infraboard.mcenter.notify.NOTIFY_TYPE notify_types = 2;
 	// 那些状态下触发通知, 默认任务执行成功后触发
 	// @gotags: bson:"events" json:"events"

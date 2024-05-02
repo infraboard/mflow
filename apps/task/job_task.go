@@ -350,7 +350,7 @@ func (t *JobTask) IsAuditStatus(stage pipeline.AUDIT_STAGE) bool {
 
 // 兼容空数据
 func (t *JobTask) SetAuditStatus(stage pipeline.AUDIT_STAGE) {
-	if t.Status.Audit != nil {
+	if t.Status.Audit == nil {
 		t.Status.Audit = pipeline.NewAudit()
 	}
 	if t.Status.Audit.Status == nil {

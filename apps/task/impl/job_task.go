@@ -33,14 +33,6 @@ func (i *impl) RunJob(ctx context.Context, in *pipeline.Task) (
 		return nil, err
 	}
 
-	// 任务状态检查与处理
-	switch ins.Status.Stage {
-	case task.STAGE_PENDDING:
-		ins.Status.Stage = task.STAGE_CREATING
-	case task.STAGE_ACTIVE:
-		return nil, exception.NewConflict("任务: %s 当前处于运行中, 需要等待运行结束后才能执行", in.TaskId)
-	}
-
 	// 开启审核后, 执行任务则 调整审核状态为等待中
 	if ins.Spec.Audit.Enable {
 		auditStatus := ins.AuditStatus()
@@ -55,6 +47,14 @@ func (i *impl) RunJob(ctx context.Context, in *pipeline.Task) (
 
 	// 如果不忽略执行, 并且审核通过, 则执行
 	if in.Enabled() && ins.AuditPass() {
+		// 任务状态检查与处理
+		switch ins.Status.Stage {
+		case task.STAGE_PENDDING:
+			ins.Status.Stage = task.STAGE_CREATING
+		case task.STAGE_ACTIVE:
+			return nil, exception.NewConflict("任务: %s 当前处于运行中, 需要等待运行结束后才能执行", in.TaskId)
+		}
+
 		// 查询需要执行的Job
 		req := job.NewDescribeJobRequestByName(in.JobName)
 

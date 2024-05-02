@@ -335,6 +335,25 @@ func (t *JobTask) AuditPass() bool {
 	return t.IsAuditStatus(pipeline.AUDIT_STAGE_PASS)
 }
 
+func (t *JobTask) Init() {
+	t.Spec.Init()
+	if t.Status == nil {
+		t.Status = NewJobTaskStatus()
+	}
+	if t.Status.Audit == nil {
+		t.Status.Audit = t.Spec.Audit
+	}
+	if t.Status.Audit.Status == nil {
+		t.Status.Audit.Status = pipeline.NewAuditStatus()
+	}
+}
+
+func (t *JobTask) UpdateAuditStatus(status *pipeline.AuditStatus) {
+	t.Status.Audit.Enable = t.Spec.Audit.Enable
+	t.Status.Audit.Auditors = t.Spec.Audit.Auditors
+	t.Status.Audit.Status = status
+}
+
 // 兼容空数据
 func (t *JobTask) AuditStatus() pipeline.AUDIT_STAGE {
 	if t.Status.Audit == nil || t.Status.Audit.Status == nil {
@@ -343,12 +362,12 @@ func (t *JobTask) AuditStatus() pipeline.AUDIT_STAGE {
 	return t.Status.Audit.Status.Stage
 }
 
-// 兼容空数据
+// 审核状态判断
 func (t *JobTask) IsAuditStatus(stage pipeline.AUDIT_STAGE) bool {
 	return t.AuditStatus().Equal(stage)
 }
 
-// 兼容空数据
+// 审核状态修改
 func (t *JobTask) SetAuditStatus(stage pipeline.AUDIT_STAGE) {
 	if t.Status.Audit == nil {
 		t.Status.Audit = pipeline.NewAudit()
@@ -356,6 +375,7 @@ func (t *JobTask) SetAuditStatus(stage pipeline.AUDIT_STAGE) {
 	if t.Status.Audit.Status == nil {
 		t.Status.Audit.Status = pipeline.NewAuditStatus()
 	}
+
 	t.Status.Audit.Status.Stage = stage
 }
 
@@ -372,6 +392,8 @@ func NewJobTaskStatus() *JobTaskStatus {
 	return &JobTaskStatus{
 		StartAt:            time.Now().Unix(),
 		TemporaryResources: []*TemporaryResource{},
+		RunParams:          job.NewRunParamSet(),
+		RuntimeEnvs:        job.NewRunParamSet(),
 		Events:             []*pipeline.Event{},
 		ImRobotNotify:      []*pipeline.WebHook{},
 		Webhooks:           []*pipeline.WebHook{},

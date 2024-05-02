@@ -99,7 +99,10 @@ func TestDescribeJobTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(tools.MustToJson(ins))
+	t.Log(ins.Spec.TaskId)
+	t.Log(ins.Status.Audit)
+	t.Log(ins.AuditStatus())
+	t.Log(ins.AuditPass())
 }
 
 func TestDeleteJobTask(t *testing.T) {

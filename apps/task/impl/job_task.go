@@ -115,7 +115,7 @@ func (i *impl) RunJob(ctx context.Context, in *pipeline.Task) (
 	updateOpt := options.Update()
 	updateOpt.SetUpsert(true)
 	if _, err := i.jcol.UpdateByID(ctx, ins.Spec.TaskId, bson.M{"$set": ins}, updateOpt); err != nil {
-		return nil, exception.NewInternalServerError("inserted a job task document error, %s", err)
+		return nil, exception.NewInternalServerError("upsert a job task document error, %s", err)
 	}
 	return ins, nil
 }
@@ -183,7 +183,7 @@ func (i *impl) QueryJobTask(ctx context.Context, in *task.QueryJobTaskRequest) (
 		if err := resp.Decode(ins); err != nil {
 			return nil, exception.NewInternalServerError("decode deploy error, error is %s", err)
 		}
-		ins.AuditPass()
+		ins.Init()
 		set.Add(ins)
 	}
 
@@ -319,6 +319,7 @@ func (i *impl) DescribeJobTask(ctx context.Context, in *task.DescribeJobTaskRequ
 		ins.Job = j
 	}
 
+	ins.Init()
 	return ins, nil
 }
 
@@ -617,8 +618,8 @@ func (i *impl) AuditJobTask(
 		return nil, exception.NewBadRequest("状态更新异常, %s", err)
 	}
 
-	t.Status.Audit = t.Spec.Audit
-	t.Status.Audit.Status = in.Status
+	// 更新任务审核状态
+	t.UpdateAuditStatus(in.Status)
 
 	// 审核失败结束任务, 更新任务状态, 并且触发流水线状态
 	if !t.AuditPass() {

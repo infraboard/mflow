@@ -38,7 +38,7 @@ func (i *impl) RunJob(ctx context.Context, in *pipeline.Task) (
 		auditStatus := ins.AuditStatus()
 		switch auditStatus {
 		case pipeline.AUDIT_STAGE_PENDDING:
-			ins.SetAuditStatus(pipeline.AUDIT_STAGE_WAITING)
+			ins.AuditStatusFlowTo(pipeline.AUDIT_STAGE_WAITING)
 		case pipeline.AUDIT_STAGE_DENY:
 			return nil, fmt.Errorf("任务审核未通过")
 		}

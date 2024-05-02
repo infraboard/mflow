@@ -368,7 +368,7 @@ func (t *JobTask) IsAuditStatus(stage pipeline.AUDIT_STAGE) bool {
 }
 
 // 审核状态修改
-func (t *JobTask) SetAuditStatus(stage pipeline.AUDIT_STAGE) {
+func (t *JobTask) AuditStatusFlowTo(stage pipeline.AUDIT_STAGE) error {
 	if t.Status.Audit == nil {
 		t.Status.Audit = pipeline.NewAudit()
 	}
@@ -376,7 +376,12 @@ func (t *JobTask) SetAuditStatus(stage pipeline.AUDIT_STAGE) {
 		t.Status.Audit.Status = pipeline.NewAuditStatus()
 	}
 
+	if err := t.CheckUpdateStage(stage); err != nil {
+		return err
+	}
+
 	t.Status.Audit.Status.Stage = stage
+	return nil
 }
 
 // 兼容空数据

@@ -172,7 +172,7 @@ func (p *JobTask) GetNamespace() string {
 }
 
 func (p *JobTask) AddNotifyStatus(items ...*pipeline.MentionUser) {
-	p.Status.AddNotifyStatus(items...)
+	p.Spec.AddMentionUser(items...)
 }
 
 func (p *JobTask) AddErrorEvent(format string, a ...any) {
@@ -180,7 +180,7 @@ func (p *JobTask) AddErrorEvent(format string, a ...any) {
 }
 
 func (p *JobTask) AddWebhookStatus(items ...*pipeline.WebHook) {
-	p.Status.AddWebhookStatus(items...)
+	p.Spec.AddWebhook(items...)
 }
 
 func (p *JobTask) BuildSearchLabel() {
@@ -340,26 +340,18 @@ func (t *JobTask) Init() {
 	if t.Status == nil {
 		t.Status = NewJobTaskStatus()
 	}
-	if t.Status.Audit == nil {
-		t.Status.Audit = t.Spec.Audit
-	}
-	if t.Status.Audit.Status == nil {
-		t.Status.Audit.Status = pipeline.NewAuditStatus()
-	}
 }
 
 func (t *JobTask) UpdateAuditStatus(status *pipeline.AuditStatus) {
-	t.Status.Audit.Enable = t.Spec.Audit.Enable
-	t.Status.Audit.Auditors = t.Spec.Audit.Auditors
-	t.Status.Audit.Status = status
+	t.Spec.Audit.Status = status
 }
 
 // 兼容空数据
 func (t *JobTask) AuditStatus() pipeline.AUDIT_STAGE {
-	if t.Status.Audit == nil || t.Status.Audit.Status == nil {
+	if t.Spec.Audit == nil || t.Spec.Audit.Status == nil {
 		return pipeline.AUDIT_STAGE_PENDDING
 	}
-	return t.Status.Audit.Status.Stage
+	return t.Spec.Audit.Status.Stage
 }
 
 // 审核状态判断
@@ -369,18 +361,18 @@ func (t *JobTask) IsAuditStatus(stage pipeline.AUDIT_STAGE) bool {
 
 // 审核状态修改
 func (t *JobTask) AuditStatusFlowTo(stage pipeline.AUDIT_STAGE) error {
-	if t.Status.Audit == nil {
-		t.Status.Audit = pipeline.NewAudit()
+	if t.Spec.Audit == nil {
+		t.Spec.Audit = pipeline.NewAudit()
 	}
-	if t.Status.Audit.Status == nil {
-		t.Status.Audit.Status = pipeline.NewAuditStatus()
+	if t.Spec.Audit.Status == nil {
+		t.Spec.Audit.Status = pipeline.NewAuditStatus()
 	}
 
 	if err := t.CheckUpdateStage(stage); err != nil {
 		return err
 	}
 
-	t.Status.Audit.Status.Stage = stage
+	t.Spec.Audit.Status.Stage = stage
 	return nil
 }
 
@@ -400,10 +392,6 @@ func NewJobTaskStatus() *JobTaskStatus {
 		RunParams:          job.NewRunParamSet(),
 		RuntimeEnvs:        job.NewRunParamSet(),
 		Events:             []*pipeline.Event{},
-		ImRobotNotify:      []*pipeline.WebHook{},
-		Webhooks:           []*pipeline.WebHook{},
-		MentionUsers:       []*pipeline.MentionUser{},
-		Audit:              pipeline.NewAudit(),
 		Extension:          map[string]string{},
 	}
 }
@@ -440,14 +428,6 @@ func (t *JobTaskStatus) EndAtAtFormat() string {
 
 func (t *JobTaskStatus) IsComplete() bool {
 	return t.Stage >= STAGE_CANCELED
-}
-
-func (p *JobTaskStatus) AddWebhookStatus(items ...*pipeline.WebHook) {
-	p.Webhooks = append(p.Webhooks, items...)
-}
-
-func (p *JobTaskStatus) AddNotifyStatus(items ...*pipeline.MentionUser) {
-	p.MentionUsers = append(p.MentionUsers, items...)
 }
 
 func (t *JobTaskStatus) UpdateStatus(req *UpdateJobTaskStatusRequest) {

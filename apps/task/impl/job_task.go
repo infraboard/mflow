@@ -256,7 +256,7 @@ func (i *impl) UpdateJobTaskStatus(ctx context.Context, in *task.UpdateJobTaskSt
 	i.JobTaskStatusChangedCallback(ctx, ins)
 
 	// 更新数据库
-	if err := i.updateJobTask(ctx, ins); err != nil {
+	if err := i.updateJobTaskStatus(ctx, ins); err != nil {
 		return nil, err
 	}
 
@@ -605,6 +605,7 @@ func (i *impl) AuditJobTask(
 	if err != nil {
 		return nil, err
 	}
+	currentAuditStaus := t.AuditStatus()
 
 	if !t.Spec.Audit.Enable {
 		return nil, exception.NewBadRequest("任务没有开启审核")
@@ -631,13 +632,12 @@ func (i *impl) AuditJobTask(
 		}
 	}
 
-	if _, err := i.jcol.UpdateByID(ctx, in.TaskId, bson.M{"$set": bson.M{"status": t.Status}}); err != nil {
-		return nil, exception.NewInternalServerError("update task(%s) document error, %s",
-			in.TaskId, err)
+	if err := i.updateJobTaskStatus(ctx, t); err != nil {
+		return nil, err
 	}
 
-	// 审核通过直接运行Job
-	if t.AuditPass() {
+	// 审核通过, 且审核状态为等待执行
+	if t.AuditPass() && currentAuditStaus.Equal(pipeline.AUDIT_STAGE_WAITING) {
 		_, err := i.RunJob(ctx, t.Spec)
 		if err != nil {
 			return nil, err

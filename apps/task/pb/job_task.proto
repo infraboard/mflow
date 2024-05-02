@@ -98,18 +98,6 @@ message JobTaskStatus {
 	// 任务事件
 	// @gotags: bson:"events" json:"events"
 	repeated pipeline.Event events = 9;
-	// 事件回调状态
-	// @gotags: bson:"webhooks" json:"webhooks"
-	repeated pipeline.WebHook webhooks = 10;
-	// Jot Task 关注人通知状态
-	// @gotags: bson:"mention_users" json:"mention_users"
-	repeated pipeline.MentionUser mention_users = 11;
-	// im群机器人通知
-	// @gotags: bson:"im_robot_notify" json:"im_robot_notify"
-	repeated pipeline.WebHook im_robot_notify = 27;
-	// 运行时需不需审核
-	// @gotags: bson:"audit" json:"audit"
-	pipeline.Audit audit = 13;
 	// 状态扩展属性
 	// @gotags: bson:"extension" json:"extension"
 	map<string, string> extension = 15;

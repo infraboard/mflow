@@ -100,7 +100,7 @@ func TestDescribeJobTask(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Log(ins.Spec.TaskId)
-	t.Log(ins.Status.Audit)
+	t.Log(ins.Spec.Audit)
 	t.Log(ins.AuditStatus())
 	t.Log(ins.AuditPass())
 }

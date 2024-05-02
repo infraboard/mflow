@@ -86,11 +86,13 @@ func (r *queryRequest) FindFilter() bson.M {
 	return filter
 }
 
-func (i *impl) updateJobTask(ctx context.Context, ins *task.JobTask) error {
+func (i *impl) updateJobTaskStatus(ctx context.Context, t *task.JobTask) error {
+	i.log.Debug().Msgf("任务[%s] 执行状态: %s 审核状态: %s", t.Spec.TaskId, t.Status.Stage, t.AuditStatus())
+
 	// 更新数据库
-	if _, err := i.jcol.UpdateByID(ctx, ins.Spec.TaskId, bson.M{"$set": ins}); err != nil {
+	if _, err := i.jcol.UpdateByID(ctx, t.Spec.TaskId, bson.M{"$set": bson.M{"status": t.Status}}); err != nil {
 		return exception.NewInternalServerError("update task(%s) document error, %s",
-			ins.Spec.TaskId, err)
+			t.Spec.TaskId, err)
 	}
 	return nil
 }

@@ -327,17 +327,12 @@ func (s *JobTask) ShowTitle() string {
 }
 
 func (t *JobTask) AuditPass() bool {
-	// 没有开启审核
+	// 没有开启 直接通过
 	if !t.Spec.Audit.Enable {
 		return true
 	}
 
-	// 状态已经更新
-	if t.Status.Audit != nil {
-		return t.Status.Audit.Status.Stage.Equal(pipeline.AUDIT_STAGE_PASS)
-	}
-
-	return false
+	return t.IsAuditStatus(pipeline.AUDIT_STAGE_PASS)
 }
 
 // 兼容空数据
@@ -346,6 +341,22 @@ func (t *JobTask) AuditStatus() pipeline.AUDIT_STAGE {
 		return pipeline.AUDIT_STAGE_PENDDING
 	}
 	return t.Status.Audit.Status.Stage
+}
+
+// 兼容空数据
+func (t *JobTask) IsAuditStatus(stage pipeline.AUDIT_STAGE) bool {
+	return t.AuditStatus().Equal(stage)
+}
+
+// 兼容空数据
+func (t *JobTask) SetAuditStatus(stage pipeline.AUDIT_STAGE) {
+	if t.Status.Audit != nil {
+		t.Status.Audit = pipeline.NewAudit()
+	}
+	if t.Status.Audit.Status == nil {
+		t.Status.Audit.Status = pipeline.NewAuditStatus()
+	}
+	t.Status.Audit.Status.Stage = stage
 }
 
 // 兼容空数据

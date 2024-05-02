@@ -25,18 +25,34 @@ import (
 
 func (i *impl) RunJob(ctx context.Context, in *pipeline.Task) (
 	*task.JobTask, error) {
-	if in.TaskId != "" {
-		// 如果任务重新运行, 需要等待之前的任务结束后才能执行
-		isActive, err := i.CheckJotTaskIsActive(ctx, in.TaskId)
-		if err != nil {
-			return nil, err
-		}
-		if isActive {
-			return nil, exception.NewConflict("任务: %s 当前处于运行中, 需要等待运行结束后才能执行", in.TaskId)
-		}
+	ins := task.NewJobTask(in)
+
+	// 获取之前任务的状态, 因为里面有当前任务的审核状态
+	err := i.GetJotTaskStatus(ctx, ins)
+	if err != nil {
+		return nil, err
 	}
 
-	ins := task.NewJobTask(in)
+	// 任务状态检查与处理
+	switch ins.Status.Stage {
+	case task.STAGE_PENDDING:
+		ins.Status.Stage = task.STAGE_CREATING
+	case task.STAGE_ACTIVE:
+		return nil, exception.NewConflict("任务: %s 当前处于运行中, 需要等待运行结束后才能执行", in.TaskId)
+	}
+
+	// 开启审核后, 执行任务则 调整审核状态为等待中
+	if ins.Spec.Audit.Enable {
+		auditStatus := ins.AuditStatus()
+		switch auditStatus {
+		case pipeline.AUDIT_STAGE_PENDDING:
+			ins.SetAuditStatus(pipeline.AUDIT_STAGE_WAITING)
+		case pipeline.AUDIT_STAGE_DENY:
+			return nil, fmt.Errorf("任务审核未通过")
+		}
+		i.log.Debug().Msgf("任务: %s 审核状态为, %s", ins.Spec.TaskId, auditStatus)
+	}
+
 	// 如果不忽略执行, 并且审核通过, 则执行
 	if in.Enabled() && ins.AuditPass() {
 		// 查询需要执行的Job
@@ -124,29 +140,20 @@ func (i *impl) LoadPipelineRunParam(ctx context.Context, in *pipeline.Task, para
 	return nil
 }
 
-// 判断任务是否还处于运行中
-func (i *impl) CheckJotTaskIsActive(ctx context.Context, jobTaskId string) (bool, error) {
-	ins, err := i.DescribeJobTask(ctx, task.NewDescribeJobTaskRequest(jobTaskId))
-	if err != nil && !exception.IsNotFoundError(err) {
-		return false, err
+func (i *impl) GetJotTaskStatus(ctx context.Context, t *task.JobTask) error {
+	if t.Spec.TaskId == "" {
+		return nil
 	}
 
-	// 开启审核后, 执行任务则 调整审核状态为等待中
-	if ins.Spec.Audit.Enable {
-		if ins.Status.Audit == nil {
-			ins.Status.Audit = ins.Spec.Audit
-		}
-		if ins.Status.Audit.Status == nil {
-			ins.Status.Audit.Status = pipeline.NewAuditStatus()
-		}
-		// 调整当前任务审核状态为等待审核
-		if ins.Status.Audit.Status.Stage.Equal(pipeline.AUDIT_STAGE_PENDDING) {
-			ins.Status.Audit.Status.Stage = pipeline.AUDIT_STAGE_WAITING
-			i.log.Debug().Msgf("任务: %s 审核状态修改为, %s", ins.Spec.TaskId, ins.Spec.Audit.Status.Stage)
-		}
+	ins, err := i.DescribeJobTask(ctx, task.NewDescribeJobTaskRequest(t.Spec.TaskId))
+	if err != nil && exception.IsNotFoundError(err) {
+		return err
+	}
+	if ins != nil && ins.Status != nil {
+		t.Status = ins.Status
 	}
 
-	return ins.Status.Stage.Equal(task.STAGE_ACTIVE), nil
+	return nil
 
 }
 
@@ -176,6 +183,7 @@ func (i *impl) QueryJobTask(ctx context.Context, in *task.QueryJobTaskRequest) (
 		if err := resp.Decode(ins); err != nil {
 			return nil, exception.NewInternalServerError("decode deploy error, error is %s", err)
 		}
+		ins.AuditPass()
 		set.Add(ins)
 	}
 
@@ -612,25 +620,27 @@ func (i *impl) AuditJobTask(
 	t.Status.Audit = t.Spec.Audit
 	t.Status.Audit.Status = in.Status
 
-	// 审核通过直接运行Job
-	// 审核失败结束任务, 更新任务状态
-	if t.AuditPass() {
-		_, err := i.RunJob(ctx, t.Spec)
-		if err != nil {
-			return nil, err
-		}
-	} else {
+	// 审核失败结束任务, 更新任务状态, 并且触发流水线状态
+	if !t.AuditPass() {
 		// 如果审核通过, 再次触发任务状态变化
 		t.Status.MarkedError(fmt.Errorf("审核没通过, %s", in.Status.Comment))
 		_, err = i.PipelineTaskStatusChanged(ctx, t)
 		if err != nil {
-			return nil, err
+			i.log.Error().Msgf("流水线状态更新异常: %s", err)
 		}
 	}
 
 	if _, err := i.jcol.UpdateByID(ctx, in.TaskId, bson.M{"$set": bson.M{"status": t.Status}}); err != nil {
 		return nil, exception.NewInternalServerError("update task(%s) document error, %s",
 			in.TaskId, err)
+	}
+
+	// 审核通过直接运行Job
+	if t.AuditPass() {
+		_, err := i.RunJob(ctx, t.Spec)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return t, nil
 }

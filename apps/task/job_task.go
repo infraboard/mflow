@@ -164,16 +164,8 @@ func (p *JobTask) GetNamespace() string {
 	return p.Spec.Namespace
 }
 
-func (p *JobTask) AddNotifyStatus(items ...*pipeline.MentionUser) {
-	p.Spec.AddMentionUser(items...)
-}
-
 func (p *JobTask) AddErrorEvent(format string, a ...any) {
 	p.Status.AddErrorEvent(format, a...)
-}
-
-func (p *JobTask) AddWebhookStatus(items ...*pipeline.WebHook) {
-	p.Spec.AddWebhook(items...)
 }
 
 func (p *JobTask) BuildSearchLabel() {

@@ -285,21 +285,6 @@ type TaskMessage interface {
 	AddErrorEvent(format string, a ...any)
 }
 
-type WebHookMessage interface {
-	TaskMessage
-	// Web事件回调
-	AddWebhookStatus(items ...*pipeline.WebHook)
-}
-
-// Task状态变更用户通知
-type MentionUserMessage interface {
-
-	// Task状态变化通知消息
-	TaskMessage
-	// 通知回调, 是否通知成功
-	AddNotifyStatus(items ...*pipeline.MentionUser)
-}
-
 func NewJobTaskStreamReponse() *JobTaskStreamReponse {
 	return &JobTaskStreamReponse{
 		Data: make([]byte, 0, 512),

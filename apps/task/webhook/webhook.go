@@ -20,7 +20,7 @@ type WebHook struct {
 	log *zerolog.Logger
 }
 
-func (h *WebHook) SendTaskStatus(ctx context.Context, hooks []*pipeline.WebHook, t task.WebHookMessage) {
+func (h *WebHook) SendTaskStatus(ctx context.Context, hooks []*pipeline.WebHook, t task.TaskMessage) {
 	if t == nil {
 		return
 	}

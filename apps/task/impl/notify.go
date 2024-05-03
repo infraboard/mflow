@@ -9,7 +9,7 @@ import (
 )
 
 // 调用mcenter api 通知用户Job Task执行状态
-func (i *impl) TaskMention(ctx context.Context, mu *pipeline.MentionUser, in task.MentionUserMessage) {
+func (i *impl) TaskMention(ctx context.Context, mu *pipeline.MentionUser, in task.TaskMessage) {
 	if !mu.IsMatch(in.GetStatusStage().String()) {
 		i.log.Debug().Msgf("stage: %s not matched target: %s", mu.Events, in.GetStatusStage())
 		return
@@ -61,5 +61,4 @@ func (i *impl) TaskMention(ctx context.Context, mu *pipeline.MentionUser, in tas
 	}
 	status.MakeStatusUseEvent()
 	mu.Status = status
-	in.AddNotifyStatus(mu)
 }

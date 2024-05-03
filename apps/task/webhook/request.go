@@ -34,10 +34,9 @@ var (
 	}
 )
 
-func newJobTaskRequest(hook *pipeline.WebHook, t task.WebHookMessage, wg *sync.WaitGroup, log *zerolog.Logger) *request {
+func newJobTaskRequest(hook *pipeline.WebHook, t task.TaskMessage, wg *sync.WaitGroup, log *zerolog.Logger) *request {
 	// 因为AddWebhookStatus是非并非安全的， 因此不能放到Push(Push 是并发的)里面跑
 	hook.Status = pipeline.NewCallbackStatus(hook.ShowName())
-	t.AddWebhookStatus(hook)
 	wg.Add(1)
 	return &request{
 		hook: hook,

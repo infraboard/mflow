@@ -415,7 +415,7 @@ func (t *JobTaskStatus) CostFormat() string {
 	if t.EndAt == 0 {
 		return "未结束"
 	}
-	return time.Duration(t.EndAt - t.StartAt).String()
+	return time.Duration((t.EndAt - t.StartAt) * int64(time.Second)).String()
 }
 
 func (t *JobTaskStatus) EndAtFormat() string {

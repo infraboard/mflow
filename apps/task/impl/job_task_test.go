@@ -113,7 +113,6 @@ func TestFeishuWebHook(t *testing.T) {
 	sender := webhook.NewWebHook()
 
 	imRobotHooks := ins.Spec.MatchedImRobotNotify(ins.Status.Stage.String())
-	imRobotHooks[0].Url = conf.C.FEISHU_BOT_URL
 	sender.SendTaskStatus(ctx, imRobotHooks, ins)
 	t.Log(imRobotHooks)
 }

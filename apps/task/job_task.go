@@ -440,6 +440,10 @@ func (t *JobTaskStatus) UpdateStatus(req *UpdateJobTaskStatusRequest) {
 	t.Stage = req.Stage
 	t.Message = req.Message
 
+	if !t.Stage.Equal(req.Stage) {
+		t.Changed = true
+	}
+
 	// 更新扩展属性
 	for k, v := range req.Extension {
 		t.Extension[k] = v

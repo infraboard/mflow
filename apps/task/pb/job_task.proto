@@ -73,6 +73,9 @@ message JobTaskStatus {
 	// 任务当前状态
 	// @gotags: bson:"stage" json:"stage"
     STAGE stage = 1;
+	// 状态是否改变, 统一的状态可能触发多次事件, 方便去除重复状态未变化事件
+	// @gotags: bson:"changed" json:"changed"
+    bool changed = 10;
 	// 任务开始时间
 	// @gotags: bson:"start_at" json:"start_at"
     int64 start_at = 2;

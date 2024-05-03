@@ -276,7 +276,8 @@ func (i *impl) UpdateJobTaskStatus(ctx context.Context, in *task.UpdateJobTaskSt
 }
 
 func (i *impl) JobTaskStatusChangedCallback(ctx context.Context, in *task.JobTask) {
-	if in.Status == nil {
+	// 状态未变化不通知
+	if in.Status == nil && !in.Status.Changed {
 		return
 	}
 

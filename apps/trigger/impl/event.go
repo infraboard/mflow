@@ -124,7 +124,9 @@ func (i *impl) RunBuildConf(ctx context.Context, in *trigger.Event, buildConf *b
 func (i *impl) QueryRecord(ctx context.Context, in *trigger.QueryRecordRequest) (
 	*trigger.RecordSet, error) {
 	r := newQueryRequest(in)
-	resp, err := i.col.Find(ctx, r.FindFilter(), r.FindOptions())
+	filter := r.FindFilter()
+	i.log.Debug().Msgf("query filter: %s", filter)
+	resp, err := i.col.Find(ctx, filter, r.FindOptions())
 
 	if err != nil {
 		return nil, exception.NewInternalServerError("find event record error, error is %s", err)
@@ -151,7 +153,7 @@ func (i *impl) QueryRecord(ctx context.Context, in *trigger.QueryRecordRequest) 
 	}
 
 	// count
-	count, err := i.col.CountDocuments(ctx, r.FindFilter())
+	count, err := i.col.CountDocuments(ctx, filter)
 	if err != nil {
 		return nil, exception.NewInternalServerError("get event record count error, error is %s", err)
 	}

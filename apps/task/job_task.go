@@ -109,7 +109,7 @@ var (
 	// 关于Go模版语法可以参考: https://www.tizi365.com/archives/85.html
 	JOB_TASK_MARKDOWN_TEMPLATE = `**开始时间: ** {{ .Status.StartAtFormat }}              **耗时: ** {{ .Status.CostFormat }}
 **任务参数: **
-{{ range .Spec.RunParams.Params -}}
+{{ range .Status.RunParams.Params -}}
 ▫ {{.Name}}:  {{.Value}}
 {{end}}
 `
@@ -135,8 +135,8 @@ var (
 	JOB_TASK_HTML_TEMPLATE = `
 开始时间: {{ .Status.StartAtFormat }}                 耗时: {{ .Status.CostFormat }}
 任务参数: 
-{{ range .Spec.RunParams.Params -}}
- {{.Name}}:  {{.Value}}
+{{ range .Status.RunParams.Params -}}
+▫ {{.Name}}:  {{.Value}}
 {{end}}
 `
 )
@@ -429,12 +429,11 @@ func (t *JobTaskStatus) IsComplete() bool {
 }
 
 func (t *JobTaskStatus) UpdateStatus(req *UpdateJobTaskStatusRequest) {
+	t.Changed = !t.Stage.Equal(req.Stage)
+
+	// 状态更新
 	t.Stage = req.Stage
 	t.Message = req.Message
-
-	if !t.Stage.Equal(req.Stage) {
-		t.Changed = true
-	}
 
 	// 更新扩展属性
 	for k, v := range req.Extension {

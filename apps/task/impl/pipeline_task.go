@@ -139,9 +139,6 @@ func (i *impl) PipelineTaskStatusChanged(ctx context.Context, in *task.JobTask) 
 		return nil, exception.NewBadRequest("Pipeline Id参数缺失")
 	}
 
-	i.log.Debug().Msgf("task %s[%s] status changed: %s",
-		in.Spec.TaskName, in.Spec.TaskId, in.Status.Stage)
-
 	runErrorJobTasks := []*task.UpdateJobTaskStatusRequest{}
 	// 获取Pipeline Task, 因为Job Task是先保存在触发的回调, 这里获取的Pipeline Task是最新的
 	descReq := task.NewDescribePipelineTaskRequest(in.Spec.PipelineTask)

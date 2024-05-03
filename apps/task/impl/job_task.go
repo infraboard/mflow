@@ -248,23 +248,24 @@ func (i *impl) UpdateJobTaskStatus(ctx context.Context, in *task.UpdateJobTaskSt
 		return nil, err
 	}
 
+	i.log.Debug().Msgf("更新任务状态: %s，当前状态: %s, 更新状态: %s",
+		ins.Spec.TaskId, ins.Status.Stage, in.Stage)
 	// 状态更新
-	preStatus := ins.Status.Stage
 	ins.Status.UpdateStatus(in)
-
-	// Job Task状态变更回调
-	i.JobTaskStatusChangedCallback(ctx, ins)
 
 	// 更新数据库
 	if err := i.updateJobTaskStatus(ctx, ins); err != nil {
 		return nil, err
 	}
 
+	// Job Task状态变更回调
+	i.JobTaskStatusChangedCallback(ctx, ins)
+
 	// Pipeline Task 状态变更回调
 	if ins.Spec.PipelineTask != "" {
 		// 如果状态未变化, 不触发流水线更新
-		if !in.ForceTriggerPipeline && preStatus.Equal(in.Stage) {
-			i.log.Debug().Msgf("task %s status not changed: %s, skip update pipeline", in.Id, in.Stage)
+		if !in.ForceTriggerPipeline && !ins.Status.Changed {
+			i.log.Debug().Msgf("task %s status not changed: [%s], skip update pipeline", in.Id, in.Stage)
 			return ins, nil
 		}
 		_, err := i.PipelineTaskStatusChanged(ctx, ins)
@@ -277,10 +278,15 @@ func (i *impl) UpdateJobTaskStatus(ctx context.Context, in *task.UpdateJobTaskSt
 
 func (i *impl) JobTaskStatusChangedCallback(ctx context.Context, in *task.JobTask) {
 	// 状态未变化不通知
-	if in.Status == nil && !in.Status.Changed {
+	if in.Status == nil {
 		return
 	}
 
+	// 状态未变化不通知
+	if !in.Status.Changed {
+		i.log.Debug().Msgf("task %s status not changed [%s], skip status callback", in.Spec.TaskId, in.Status.Stage)
+		return
+	}
 	i.log.Debug().Msgf("task %s 执行状态变化回调...", in.Spec.TaskId)
 
 	// 个人通知

@@ -318,7 +318,21 @@ func (r *Task) MatchedImRobotNotify(event string) []*WebHook {
 }
 
 func (r *Task) AddWebhook(items ...*WebHook) {
-	r.Webhooks = append(r.Webhooks, items...)
+	for i := range items {
+		item := items[i]
+		if !r.HasWebhook(item) {
+			r.Webhooks = append(r.Webhooks, items...)
+		}
+	}
+}
+
+func (r *Task) HasWebhook(hook *WebHook) bool {
+	for i := range r.Webhooks {
+		if r.Webhooks[i].Url == hook.Url {
+			return true
+		}
+	}
+	return false
 }
 
 func (r *Task) AddMentionUser(items ...*MentionUser) {

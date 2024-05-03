@@ -284,15 +284,19 @@ func (i *impl) JobTaskStatusChangedCallback(ctx context.Context, in *task.JobTas
 		return
 	}
 
-	// WebHook回调
-	webhooks := in.Spec.MatchedWebHooks(in.Status.Stage.String())
-	i.hook.SendTaskStatus(ctx, webhooks, in)
-
-	// 关注人通知回调
+	// 个人通知
 	for index := range in.Spec.MentionUsers {
 		mu := in.Spec.MentionUsers[index]
 		i.TaskMention(ctx, mu, in)
 	}
+
+	// 群组通知
+	imRobotHooks := in.Spec.MatchedImRobotNotify(in.Status.Stage.String())
+	i.hook.SendTaskStatus(ctx, imRobotHooks, in)
+
+	// WebHook回调
+	webhooks := in.Spec.MatchedWebHooks(in.Status.Stage.String())
+	i.hook.SendTaskStatus(ctx, webhooks, in)
 }
 
 // 任务执行详情

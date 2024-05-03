@@ -108,10 +108,7 @@ func NewJobTask(req *pipeline.Task) *JobTask {
 var (
 	// 关于Go模版语法可以参考: https://www.tizi365.com/archives/85.html
 	JOB_TASK_MARKDOWN_TEMPLATE = `
-**开始时间: **
-{{ .Status.StartAtFormat }}
-**结束时间: **
-{{ .Status.EndAtAtFormat }}
+**开始时间: ** {{ .Status.StartAtFormat }}              **耗时: ** {{ .Status.CostFormat }}
 **任务参数: **
 {{ range .Spec.RunParams.Params -}}
 ▫ *{{.Name}}:  {{.Value}}*
@@ -126,6 +123,7 @@ func (p *JobTask) MarkdownContent() string {
 	if err != nil {
 		return err.Error()
 	}
+	p.Status.EndAtAtFormat()
 
 	err = tmpl.Execute(buf, p)
 	if err != nil {
@@ -137,10 +135,7 @@ func (p *JobTask) MarkdownContent() string {
 var (
 	// 关于Go模版语法可以参考: https://www.tizi365.com/archives/85.html
 	JOB_TASK_HTML_TEMPLATE = `
-开始时间: 
-{{ .Status.StartAtFormat }}
-结束时间: 
-{{ .Status.EndAtAtFormat }}
+开始时间: {{ .Status.StartAtFormat }}                 耗时: {{ .Status.CostFormat }}
 任务参数: 
 {{ range .Spec.RunParams.Params -}}
 ▫ *{{.Name}}:  {{.Value}}*
@@ -423,6 +418,19 @@ func (t *JobTaskStatus) StartAtFormat() string {
 
 func (t *JobTaskStatus) EndAtAtFormat() string {
 	start := time.Unix(t.EndAt, 0)
+	return start.Format("2006-01-02 03:04:05")
+}
+
+func (t *JobTaskStatus) CostFormat() string {
+	if t.EndAt == 0 {
+		return "未结束"
+	}
+	return time.Duration(t.EndAt - t.StartAt).String()
+}
+
+func (t *JobTaskStatus) EndAtFormat() string {
+	start := time.Unix(t.EndAt, 0)
+
 	return start.Format("2006-01-02 03:04:05")
 }
 

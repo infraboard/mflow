@@ -305,6 +305,18 @@ func (r *Task) MatchedWebHooks(event string) []*WebHook {
 	return hooks
 }
 
+func (r *Task) MatchedImRobotNotify(event string) []*WebHook {
+	hooks := []*WebHook{}
+	for i := range r.ImRobotNotify {
+		h := r.ImRobotNotify[i]
+		if h.IsMatch(event) {
+			hooks = append(hooks, h)
+		}
+	}
+
+	return hooks
+}
+
 func (r *Task) AddWebhook(items ...*WebHook) {
 	r.Webhooks = append(r.Webhooks, items...)
 }

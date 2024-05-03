@@ -107,11 +107,10 @@ func NewJobTask(req *pipeline.Task) *JobTask {
 
 var (
 	// 关于Go模版语法可以参考: https://www.tizi365.com/archives/85.html
-	JOB_TASK_MARKDOWN_TEMPLATE = `
-**开始时间: ** {{ .Status.StartAtFormat }}              **耗时: ** {{ .Status.CostFormat }}
+	JOB_TASK_MARKDOWN_TEMPLATE = `**开始时间: ** {{ .Status.StartAtFormat }}              **耗时: ** {{ .Status.CostFormat }}
 **任务参数: **
 {{ range .Spec.RunParams.Params -}}
-▫ *{{.Name}}:  {{.Value}}*
+▫ {{.Name}}:  {{.Value}}
 {{end}}
 `
 )
@@ -123,7 +122,6 @@ func (p *JobTask) MarkdownContent() string {
 	if err != nil {
 		return err.Error()
 	}
-	p.Status.EndAtAtFormat()
 
 	err = tmpl.Execute(buf, p)
 	if err != nil {
@@ -138,7 +136,7 @@ var (
 开始时间: {{ .Status.StartAtFormat }}                 耗时: {{ .Status.CostFormat }}
 任务参数: 
 {{ range .Spec.RunParams.Params -}}
-▫ *{{.Name}}:  {{.Value}}*
+ {{.Name}}:  {{.Value}}
 {{end}}
 `
 )
@@ -318,7 +316,7 @@ func (t *JobTask) ValidateToken(token string) error {
 }
 
 func (s *JobTask) ShowTitle() string {
-	return fmt.Sprintf("任务[%s]当前状态: %s", s.Spec.JobName, s.Status.Stage.String())
+	return fmt.Sprintf("任务[%s]当前状态: %s", s.Spec.TaskName, s.Status.Stage.String())
 }
 
 func (t *JobTask) AuditPass() bool {
@@ -408,7 +406,7 @@ func (t *JobTaskStatus) MarkedCreating() {
 
 func (t *JobTaskStatus) MarkedSuccess() {
 	t.Stage = STAGE_SUCCEEDED
-	t.EndAt = time.Now().Unix()
+	t.EndAt = time.Now().Unix() + 10
 }
 
 func (t *JobTaskStatus) StartAtFormat() string {

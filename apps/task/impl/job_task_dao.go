@@ -6,6 +6,7 @@ import (
 	"github.com/infraboard/mcenter/apps/policy"
 	"github.com/infraboard/mcenter/apps/token"
 	"github.com/infraboard/mcube/v2/exception"
+	"github.com/infraboard/mflow/apps/pipeline"
 	"github.com/infraboard/mflow/apps/task"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -95,4 +96,22 @@ func (i *impl) updateJobTaskStatus(ctx context.Context, t *task.JobTask) error {
 			t.Spec.TaskId, err)
 	}
 	return nil
+}
+
+func (i *impl) updateJobTaskImRobotNotify(ctx context.Context, taskId string, t []*pipeline.WebHook) {
+	if _, err := i.jcol.UpdateByID(ctx, taskId, bson.M{"$set": bson.M{"im_robot_notify": t}}); err != nil {
+		i.log.Error().Msgf("update task %s im_robot_notify error, %s", taskId, err)
+	}
+}
+
+func (i *impl) updateJobTaskWebHook(ctx context.Context, taskId string, t []*pipeline.WebHook) {
+	if _, err := i.jcol.UpdateByID(ctx, taskId, bson.M{"$set": bson.M{"webhooks": t}}); err != nil {
+		i.log.Error().Msgf("update task %s webhooks error, %s", taskId, err)
+	}
+}
+
+func (i *impl) updateJobTaskMentionUser(ctx context.Context, taskId string, t []*pipeline.MentionUser) {
+	if _, err := i.jcol.UpdateByID(ctx, taskId, bson.M{"$set": bson.M{"mention_users": t}}); err != nil {
+		i.log.Error().Msgf("update task %s mention_users error, %s", taskId, err)
+	}
 }

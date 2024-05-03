@@ -15,6 +15,7 @@ import (
 	"github.com/infraboard/mflow/apps/task/webhook/dingding"
 	"github.com/infraboard/mflow/apps/task/webhook/feishu"
 	"github.com/infraboard/mflow/apps/task/webhook/wechat"
+	"github.com/rs/zerolog"
 )
 
 const (
@@ -33,7 +34,7 @@ var (
 	}
 )
 
-func newJobTaskRequest(hook *pipeline.WebHook, t task.WebHookMessage, wg *sync.WaitGroup) *request {
+func newJobTaskRequest(hook *pipeline.WebHook, t task.WebHookMessage, wg *sync.WaitGroup, log *zerolog.Logger) *request {
 	// 因为AddWebhookStatus是非并非安全的， 因此不能放到Push(Push 是并发的)里面跑
 	hook.Status = pipeline.NewCallbackStatus(hook.ShowName())
 	t.AddWebhookStatus(hook)
@@ -42,6 +43,7 @@ func newJobTaskRequest(hook *pipeline.WebHook, t task.WebHookMessage, wg *sync.W
 		hook: hook,
 		task: t,
 		wg:   wg,
+		log:  log,
 	}
 }
 
@@ -49,6 +51,7 @@ type request struct {
 	hook     *pipeline.WebHook
 	task     task.TaskMessage
 	matchRes string
+	log      *zerolog.Logger
 
 	wg *sync.WaitGroup
 }
@@ -78,6 +81,7 @@ func (r *request) Push(ctx context.Context) {
 		r.hook.Status.SendFailed("marshal step to json error, %s", err)
 		return
 	}
+	r.log.Debug().Msgf("send body %s", string(body))
 
 	req, err := http.NewRequestWithContext(ctx, "POST", r.hook.Url, bytes.NewReader(body))
 	if err != nil {

@@ -276,27 +276,36 @@ func (i *impl) UpdateJobTaskStatus(ctx context.Context, in *task.UpdateJobTaskSt
 }
 
 func (i *impl) JobTaskStatusChangedCallback(ctx context.Context, in *task.JobTask) {
-	if !in.HasJobSpec() {
-		return
-	}
-
 	if in.Status == nil {
 		return
 	}
+
+	i.log.Debug().Msgf("task %s 执行状态变化回调...", in.Spec.TaskId)
 
 	// 个人通知
 	for index := range in.Spec.MentionUsers {
 		mu := in.Spec.MentionUsers[index]
 		i.TaskMention(ctx, mu, in)
 	}
+	if len(in.Spec.MentionUsers) > 0 {
+		i.updateJobTaskMentionUser(ctx, in.Spec.TaskId, in.Spec.MentionUsers)
+	}
 
 	// 群组通知
 	imRobotHooks := in.Spec.MatchedImRobotNotify(in.Status.Stage.String())
+	i.log.Debug().Msgf("task %s 群组通知: %v", in.Spec.TaskId, imRobotHooks)
 	i.hook.SendTaskStatus(ctx, imRobotHooks, in)
+	if len(imRobotHooks) > 0 {
+		i.updateJobTaskImRobotNotify(ctx, in.Spec.TaskId, imRobotHooks)
+	}
 
 	// WebHook回调
 	webhooks := in.Spec.MatchedWebHooks(in.Status.Stage.String())
+	i.log.Debug().Msgf("task %s WebHook通知: %v", in.Spec.TaskId, webhooks)
 	i.hook.SendTaskStatus(ctx, webhooks, in)
+	if len(webhooks) > 0 {
+		i.updateJobTaskWebHook(ctx, in.Spec.TaskId, webhooks)
+	}
 }
 
 // 任务执行详情

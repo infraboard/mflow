@@ -37,7 +37,7 @@ func (h *WebHook) SendTaskStatus(ctx context.Context, hooks []*pipeline.WebHook,
 	h.log.Debug().Msgf("start send job task[%s] webhook, total %d", t.ShowTitle(), len(hooks))
 	wg := &sync.WaitGroup{}
 	for i := range hooks {
-		req := newJobTaskRequest(hooks[i], t, wg)
+		req := newJobTaskRequest(hooks[i], t, wg, h.log)
 		go req.Push(ctx)
 	}
 	wg.Wait()

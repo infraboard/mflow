@@ -14,9 +14,12 @@ import (
 )
 
 var (
-	ctx    = context.Background()
-	sender = webhook.NewWebHook()
-	jt     = testPipelineStep()
+	ctx = context.Background()
+)
+
+var (
+	sender *webhook.WebHook
+	jt     *task.JobTask
 )
 
 func TestFeishuWebHook(t *testing.T) {
@@ -50,6 +53,7 @@ func testPipelineStep() *task.JobTask {
 	t := task.NewJobTask(pipeline.NewTask("test"))
 	t.Spec.RunParams.Add(
 		job.NewRunParam("ENV1", "VALUE1"),
+		job.NewRunParam("ENV2", "VALUE2"),
 	)
 	t.Status.MarkedSuccess()
 
@@ -58,4 +62,7 @@ func testPipelineStep() *task.JobTask {
 
 func init() {
 	tools.DevelopmentSetup()
+
+	sender = webhook.NewWebHook()
+	jt = testPipelineStep()
 }

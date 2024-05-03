@@ -10,6 +10,7 @@ import (
 	"github.com/infraboard/mflow/apps/job"
 	"github.com/infraboard/mflow/apps/pipeline"
 	"github.com/infraboard/mflow/apps/task"
+	"github.com/infraboard/mflow/apps/task/webhook"
 	"github.com/infraboard/mflow/test/conf"
 	"github.com/infraboard/mflow/test/tools"
 )
@@ -99,10 +100,22 @@ func TestDescribeJobTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(ins.Spec.TaskId)
-	t.Log(ins.Spec.Audit)
-	t.Log(ins.AuditStatus())
-	t.Log(ins.AuditPass())
+	t.Log(ins.MarkdownContent())
+}
+
+func TestFeishuWebHook(t *testing.T) {
+	req := task.NewDescribeJobTaskRequest(conf.C.MCENTER_BUILD_TASK_ID)
+	ins, err := impl.DescribeJobTask(ctx, req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	sender := webhook.NewWebHook()
+
+	imRobotHooks := ins.Spec.MatchedImRobotNotify(ins.Status.Stage.String())
+	imRobotHooks[0].Url = conf.C.FEISHU_BOT_URL
+	sender.SendTaskStatus(ctx, imRobotHooks, ins)
+	t.Log(imRobotHooks)
 }
 
 func TestDeleteJobTask(t *testing.T) {

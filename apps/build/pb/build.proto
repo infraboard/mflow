@@ -44,6 +44,18 @@ message CreateBuildConfigRequest {
     // pipeline运行时 用户自定义参数
     // @gotags: bson:"custom_params" json:"custom_params"
 	repeated job.RunParam custom_params = 5;
+    // 运行时追加的审核人
+    // @gotags: bson:"auditors" json:"auditors"
+	repeated pipeline.Audit auditors = 17;
+    // 追加WebHook配置, 及时把job执行状态推送给外部, 常用于外部系统的集成
+	// @gotags: bson:"webhooks" json:"webhooks"
+	repeated pipeline.WebHook webhooks = 18;
+	// 追加任务的关注人, 关注后会及时把任务运行状态通知给他们
+	// @gotags: bson:"mention_users" json:"mention_users"
+	repeated pipeline.MentionUser mention_users = 19;
+	// 追加im群机器人通知
+	// @gotags: bson:"im_robot_notify" json:"im_robot_notify"
+	repeated pipeline.WebHook im_robot_notify = 20;
     // 构建的名称
     // @gotags: bson:"name" json:"name" validate:"required"
     string name = 6;

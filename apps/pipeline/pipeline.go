@@ -455,6 +455,7 @@ func NewWebHook(url string) *WebHook {
 		Url:    url,
 		Header: map[string]string{},
 		Events: []string{},
+		Scope:  job.NewParamScope(),
 	}
 }
 
@@ -482,6 +483,7 @@ func NewMentionUser(username string) *MentionUser {
 		UserName:    username,
 		Events:      []string{},
 		NotifyTypes: []notify.NOTIFY_TYPE{},
+		Scope:       job.NewParamScope(),
 	}
 }
 
@@ -540,5 +542,6 @@ func NewAudit() *Audit {
 	return &Audit{
 		Auditors: []string{},
 		Status:   NewAuditStatus(),
+		Scope:    job.NewParamScope(),
 	}
 }

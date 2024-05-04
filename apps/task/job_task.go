@@ -317,6 +317,11 @@ func (t *JobTask) AuditPass() bool {
 		return true
 	}
 
+	// 没有审核人 直接通过
+	if len(t.Spec.Audit.Auditors) == 0 {
+		return true
+	}
+
 	return t.IsAuditStatus(pipeline.AUDIT_STAGE_PASS)
 }
 

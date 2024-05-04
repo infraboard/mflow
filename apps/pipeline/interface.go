@@ -96,8 +96,12 @@ func (r *QueryPipelineRequest) SetIsTemplate(v bool) {
 
 func NewRunPipelineRequest(pipelineId string) *RunPipelineRequest {
 	return &RunPipelineRequest{
-		PipelineId: pipelineId,
-		RunParams:  []*job.RunParam{},
-		Labels:     make(map[string]string),
+		PipelineId:    pipelineId,
+		RunParams:     []*job.RunParam{},
+		Auditors:      []*Audit{},
+		ImRobotNotify: []*WebHook{},
+		MentionUsers:  []*MentionUser{},
+		Webhooks:      []*WebHook{},
+		Labels:        make(map[string]string),
 	}
 }

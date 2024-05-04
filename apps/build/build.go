@@ -100,6 +100,10 @@ func NewCreateBuildConfigRequest() *CreateBuildConfigRequest {
 		Scope:         resource.NewScope(),
 		Labels:        make(map[string]string),
 		CustomParams:  []*job.RunParam{},
+		Auditors:      []*pipeline.Audit{},
+		ImRobotNotify: []*pipeline.WebHook{},
+		MentionUsers:  []*pipeline.MentionUser{},
+		Webhooks:      []*pipeline.WebHook{},
 		Extra:         make(map[string]string),
 	}
 }

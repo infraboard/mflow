@@ -213,6 +213,18 @@ message RunPipelineRequest {
 	// Pipeline 的运行时参数
 	// @gotags: bson:"run_params" json:"run_params"
 	repeated job.RunParam run_params = 9;
+    // 运行时追加的审核人
+    // @gotags: bson:"auditors" json:"auditors"
+	repeated Audit auditors = 11;
+    // 追加WebHook配置, 及时把job执行状态推送给外部, 常用于外部系统的集成
+	// @gotags: bson:"webhooks" json:"webhooks"
+	repeated WebHook webhooks = 12;
+	// 追加任务的关注人, 关注后会及时把任务运行状态通知给他们
+	// @gotags: bson:"mention_users" json:"mention_users"
+	repeated MentionUser mention_users = 13;
+	// 追加im群机器人通知
+	// @gotags: bson:"im_robot_notify" json:"im_robot_notify"
+	repeated WebHook im_robot_notify = 14;
 	// 任务标签
 	// @gotags: bson:"labels" json:"labels"
 	map<string, string> labels = 15;
@@ -252,6 +264,9 @@ message WebHook {
 	// 简单的描述信息
 	// @gotags: bson:"description" json:"description"
 	string description = 4;
+	// Web参数范围
+	// @gotags: bson:"scope" json:"scope"
+	job.ParamScope scope = 6;
 	// 调用 状态
 	// @gotags: bson:"status" json:"status"
 	CallbackStatus status = 5;
@@ -271,6 +286,9 @@ message MentionUser {
 	// 备注信息, 比如发布任务执行成功, 可以备注: 请及时测试
 	// @gotags: bson:"description" json:"description"
     string description = 4;
+	// Web参数范围
+	// @gotags: bson:"scope" json:"scope"
+	job.ParamScope scope = 6;
 	// 通知 状态
 	// @gotags: bson:"status" json:"status"
 	CallbackStatus status = 5;
@@ -313,6 +331,9 @@ message Audit {
 	// 审核人(user id)
 	// @gotags: bson:"auditors" json:"auditors"
 	repeated string auditors = 2;
+	// Web参数范围
+	// @gotags: bson:"scope" json:"scope"
+	job.ParamScope scope = 4;
 	// 审核状态
 	// @gotags: bson:"status" json:"status"
 	AuditStatus status = 3;

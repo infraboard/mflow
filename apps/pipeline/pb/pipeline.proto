@@ -228,6 +228,9 @@ message RunPipelineRequest {
 	// 任务标签
 	// @gotags: bson:"labels" json:"labels"
 	map<string, string> labels = 15;
+	// 扩展字段
+	// @gotags: bson:"extension" json:"extension"
+	map<string, string> extension = 16;
 }
 
 message CallbackStatus {

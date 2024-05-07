@@ -103,5 +103,6 @@ func NewRunPipelineRequest(pipelineId string) *RunPipelineRequest {
 		MentionUsers:  []*MentionUser{},
 		Webhooks:      []*WebHook{},
 		Labels:        make(map[string]string),
+		Extension:     make(map[string]string),
 	}
 }

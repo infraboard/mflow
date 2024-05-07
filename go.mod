@@ -8,7 +8,7 @@ require (
 	github.com/emicklei/go-restful-openapi/v2 v2.9.1
 	github.com/emicklei/go-restful/v3 v3.12.0
 	github.com/go-openapi/spec v0.21.0
-	github.com/gorilla/websocket v1.5.0
+	github.com/gorilla/websocket v1.5.1
 	github.com/infraboard/mcenter v0.0.34
 	github.com/infraboard/mcube/v2 v2.0.13
 	github.com/infraboard/mpaas v0.0.15

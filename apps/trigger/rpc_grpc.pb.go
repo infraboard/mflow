@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	RPC_HandleEvent_FullMethodName = "/infraboard.mflow.trigger.RPC/HandleEvent"
-	RPC_QueryRecord_FullMethodName = "/infraboard.mflow.trigger.RPC/QueryRecord"
+	RPC_HandleEvent_FullMethodName    = "/infraboard.mflow.trigger.RPC/HandleEvent"
+	RPC_QueryRecord_FullMethodName    = "/infraboard.mflow.trigger.RPC/QueryRecord"
+	RPC_DescribeRecord_FullMethodName = "/infraboard.mflow.trigger.RPC/DescribeRecord"
 )
 
 // RPCClient is the client API for RPC service.
@@ -29,8 +30,10 @@ const (
 type RPCClient interface {
 	// 处理事件
 	HandleEvent(ctx context.Context, in *Event, opts ...grpc.CallOption) (*Record, error)
-	// 查询事件
+	// 查询事件列表
 	QueryRecord(ctx context.Context, in *QueryRecordRequest, opts ...grpc.CallOption) (*RecordSet, error)
+	// 查询事件详情
+	DescribeRecord(ctx context.Context, in *DescribeRecordRequest, opts ...grpc.CallOption) (*Record, error)
 }
 
 type rPCClient struct {
@@ -59,14 +62,25 @@ func (c *rPCClient) QueryRecord(ctx context.Context, in *QueryRecordRequest, opt
 	return out, nil
 }
 
+func (c *rPCClient) DescribeRecord(ctx context.Context, in *DescribeRecordRequest, opts ...grpc.CallOption) (*Record, error) {
+	out := new(Record)
+	err := c.cc.Invoke(ctx, RPC_DescribeRecord_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RPCServer is the server API for RPC service.
 // All implementations must embed UnimplementedRPCServer
 // for forward compatibility
 type RPCServer interface {
 	// 处理事件
 	HandleEvent(context.Context, *Event) (*Record, error)
-	// 查询事件
+	// 查询事件列表
 	QueryRecord(context.Context, *QueryRecordRequest) (*RecordSet, error)
+	// 查询事件详情
+	DescribeRecord(context.Context, *DescribeRecordRequest) (*Record, error)
 	mustEmbedUnimplementedRPCServer()
 }
 
@@ -79,6 +93,9 @@ func (UnimplementedRPCServer) HandleEvent(context.Context, *Event) (*Record, err
 }
 func (UnimplementedRPCServer) QueryRecord(context.Context, *QueryRecordRequest) (*RecordSet, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryRecord not implemented")
+}
+func (UnimplementedRPCServer) DescribeRecord(context.Context, *DescribeRecordRequest) (*Record, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DescribeRecord not implemented")
 }
 func (UnimplementedRPCServer) mustEmbedUnimplementedRPCServer() {}
 
@@ -129,6 +146,24 @@ func _RPC_QueryRecord_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RPC_DescribeRecord_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DescribeRecordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RPCServer).DescribeRecord(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RPC_DescribeRecord_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RPCServer).DescribeRecord(ctx, req.(*DescribeRecordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RPC_ServiceDesc is the grpc.ServiceDesc for RPC service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -143,6 +178,10 @@ var RPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "QueryRecord",
 			Handler:    _RPC_QueryRecord_Handler,
+		},
+		{
+			MethodName: "DescribeRecord",
+			Handler:    _RPC_DescribeRecord_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -36,6 +36,7 @@ func (i *impl) RunPipeline(ctx context.Context, in *pipeline.RunPipelineRequest)
 
 	// 从pipeline 取出需要执行的任务
 	ins := task.NewPipelineTask(p, in)
+
 	ts, err := ins.NextRun()
 	if err != nil {
 		return nil, fmt.Errorf("find next run task error, %s", err)

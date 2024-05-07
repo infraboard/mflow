@@ -11,6 +11,7 @@ import (
 	"github.com/infraboard/mflow/apps/task"
 	"github.com/infraboard/mflow/apps/trigger"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // 应用事件处理
@@ -199,4 +200,20 @@ func DeleteRecordFilter(r *trigger.DeleteRecordRequest) bson.M {
 		filter["_id"] = bson.M{"$in": r.Values}
 	}
 	return filter
+}
+
+// 查询事件详情
+func (i *impl) DescribeRecord(
+	ctx context.Context,
+	in *trigger.DescribeRecordRequest) (
+	*trigger.Record, error) {
+	ins := trigger.NewDefaultRecord()
+	if err := i.col.FindOne(ctx, bson.M{"_id": in.Id}).Decode(ins); err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, exception.NewNotFound("trigger event record %s not found", in.Id)
+		}
+
+		return nil, exception.NewInternalServerError("find trigger event record %s error, %s", in.Id, err)
+	}
+	return ins, nil
 }

@@ -11,8 +11,10 @@ import "mcube/pb/resource/label.proto";
 service RPC {
     // 处理事件
     rpc HandleEvent(Event) returns(Record);
-    // 查询事件
+    // 查询事件列表
     rpc QueryRecord(QueryRecordRequest) returns(RecordSet);
+    // 查询事件详情
+    rpc DescribeRecord(DescribeRecordRequest) returns(Record);
 }
 
 
@@ -28,6 +30,11 @@ message DeleteRecordRequest {
     DELETE_BY delete_by = 1;
     // @gotags: json:"values"
     repeated string values = 2;
+}
+
+message DescribeRecordRequest {
+    // @gotags: json:"id"
+    string id = 1;
 }
 
 message QueryRecordRequest {

@@ -56,12 +56,25 @@ func (h *Handler) Registry() {
 
 	ws := gorestful.ObjectRouter(h)
 	ws.Route(ws.GET("records").To(h.QueryRecord).
-		Doc("查询触发记录").
+		Doc("查询触发记录列表").
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Metadata(label.Resource, "trigger_records").
 		Metadata(label.Action, label.List.Value()).
 		Metadata(label.Auth, label.Enable).
 		Metadata(label.Permission, label.Enable))
+
+	ws.Route(ws.GET("records/{id}").To(h.DescribeRecord).
+		Doc("查询触发记录详情").
+		Param(ws.PathParameter("id", "identifier of the secret").DataType("string")).
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Metadata(label.Resource, h.Name()).
+		Metadata(label.Action, label.Get.Value()).
+		Metadata(label.Auth, label.Enable).
+		Metadata(label.Permission, label.Disable).
+		Writes(trigger.Record{}).
+		Returns(200, "OK", trigger.Record{}).
+		Returns(404, "Not Found", nil))
+
 	ws.Route(ws.POST("gitlab").To(h.HandleGitlabEvent).
 		Doc("处理Gitlab Webhook事件").
 		Metadata(restfulspec.KeyOpenAPITags, tags).

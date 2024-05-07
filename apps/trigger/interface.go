@@ -147,3 +147,9 @@ func (r *DeleteRecordRequest) AddValue(values ...string) error {
 	r.Values = append(r.Values, values...)
 	return nil
 }
+
+func NewDescribeRecordRequest(recordId string) *DescribeRecordRequest {
+	return &DescribeRecordRequest{
+		Id: recordId,
+	}
+}

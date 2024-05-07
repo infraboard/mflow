@@ -144,7 +144,7 @@ func (p *PipelineTask) NextRun() (*JobTaskSet, error) {
 		return set, nil
 	}
 
-	// 如果这些未执行当中的Job Task 有处于运行中的, 不会执行下个一个任务
+	// TODO: 如果这些未执行当中的Job Task 有处于运行中的, 不会执行下个一个任务
 	if set.HasStage(STAGE_ACTIVE) {
 		return set, exception.NewConflict("Stage 还处于运行中")
 	}

@@ -30,7 +30,7 @@ func (i *impl) RunPipeline(ctx context.Context, in *pipeline.RunPipelineRequest)
 	}
 
 	// 检查Pipeline状态
-	if err := i.CheckPipelineAllowRun(ctx, p, in.ApprovalId); err != nil {
+	if err := i.CheckPipelineAllowRun(ctx, p, in.ApprovalId, in.Labels); err != nil {
 		return nil, err
 	}
 
@@ -81,7 +81,14 @@ func (i *impl) RunPipeline(ctx context.Context, in *pipeline.RunPipelineRequest)
 	return ins, nil
 }
 
-func (i *impl) CheckPipelineAllowRun(ctx context.Context, ins *pipeline.Pipeline, approlvalId string) error {
+// lables 参数: 因为一个Pipeline可能同时被多个服务的多个构建使用到, 只是不允许同一个构建的任务被同时触发，
+// 但是允许不同构建的任务同时触发
+func (i *impl) CheckPipelineAllowRun(
+	ctx context.Context,
+	ins *pipeline.Pipeline,
+	approlvalId string,
+	lables map[string]string,
+) error {
 	// 1. 检查审核状态
 	if ins.Spec.RequiredApproval {
 		if approlvalId == "" {
@@ -109,6 +116,9 @@ func (i *impl) CheckPipelineAllowRun(ctx context.Context, ins *pipeline.Pipeline
 		req := task.NewQueryPipelineTaskRequest()
 		req.PipelineId = ins.Meta.Id
 		req.Page.PageSize = 1
+		if lables != nil {
+			req.Labels = lables
+		}
 		set, err := i.QueryPipelineTask(ctx, req)
 		if err != nil {
 			return err
@@ -286,8 +296,9 @@ func (i *impl) mustUpdatePipelineStatus(ctx context.Context, in *task.PipelineTa
 func (i *impl) QueryPipelineTask(ctx context.Context, in *task.QueryPipelineTaskRequest) (
 	*task.PipelineTaskSet, error) {
 	r := newQueryPipelineTaskRequest(in)
-	resp, err := i.pcol.Find(ctx, r.FindFilter(), r.FindOptions())
-
+	filter := r.FindFilter()
+	i.log.Debug().Msgf("query pipeline task filter: %s", filter)
+	resp, err := i.pcol.Find(ctx, filter, r.FindOptions())
 	if err != nil {
 		return nil, exception.NewInternalServerError("find pipeline task error, error is %s", err)
 	}
@@ -303,7 +314,7 @@ func (i *impl) QueryPipelineTask(ctx context.Context, in *task.QueryPipelineTask
 	}
 
 	// count
-	count, err := i.pcol.CountDocuments(ctx, r.FindFilter())
+	count, err := i.pcol.CountDocuments(ctx, filter)
 	if err != nil {
 		return nil, exception.NewInternalServerError("get pipeline task count error, error is %s", err)
 	}

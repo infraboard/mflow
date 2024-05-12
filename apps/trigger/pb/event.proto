@@ -25,13 +25,26 @@ message Record {
     repeated BuildStatus build_status = 3;
 }
 
+enum STAGE {
+    // 等待执行
+    PENDDING = 0;
+    // 已经放入执行队列
+    ENQUEUE = 1;
+    // 取消执行
+    CANCELED = 2;
+    // 触发执行成功
+    SUCCESS = 3;
+    // 触发执行失败
+    FAILED = 4;
+}
+
 message BuildStatus {
     // 构建信息, 由于可能修改, 因此需要保存整个对象
     // @gotags: bson:"build_config" json:"build_config"
     build.BuildConfig build_config = 1;
-    // 事件队列, 当前Task没有执行完成则放到队列中
-    // @gotags: bson:"event_queue" json:"event_queue"
-    repeated Event event_queue = 5;
+    // 触发状态
+    // @gotags: bson:"stage" json:"stage"
+    STAGE stage = 5;
     // 构建信息
     // @gotags: bson:"pipline_task_id" json:"pipline_task_id"
     string pipline_task_id = 2;

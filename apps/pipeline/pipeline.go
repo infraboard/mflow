@@ -450,6 +450,18 @@ func (req *RunPipelineRequest) RunParamsKVMap() map[string]string {
 	return m
 }
 
+func (req *RunPipelineRequest) MergeLabels(labels map[string]string, overwrite bool) {
+	if req.Labels == nil {
+		req.Labels = map[string]string{}
+	}
+	for k, v := range labels {
+		if req.Labels[k] != "" && !overwrite {
+			continue
+		}
+		req.Labels[k] = v
+	}
+}
+
 func NewWebHook(url string) *WebHook {
 	return &WebHook{
 		Url:    url,

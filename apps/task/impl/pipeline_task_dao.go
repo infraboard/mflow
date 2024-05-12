@@ -54,6 +54,10 @@ func (r *queryPipelineTaskRequest) FindFilter() bson.M {
 	if len(r.Stages) > 0 {
 		filter["status.stage"] = bson.M{"$in": r.Stages}
 	}
+	// 补充标签
+	for k, v := range r.Labels {
+		filter[fmt.Sprintf("labels.%s", k)] = v
+	}
 
 	return filter
 }

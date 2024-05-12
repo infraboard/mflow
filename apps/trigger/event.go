@@ -272,3 +272,12 @@ func (i *Record) MarshalJSON() ([]byte, error) {
 func NewDefaultRecord() *Record {
 	return NewRecord(&Event{})
 }
+
+func (s *BuildStatus) Failed(err error) {
+	s.ErrorMessage = err.Error()
+	s.Stage = STAGE_FAILED
+}
+
+func (s *BuildStatus) Success() {
+	s.Stage = STAGE_SUCCESS
+}

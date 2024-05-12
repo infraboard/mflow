@@ -32,6 +32,9 @@ func NewPipelineTask(p *pipeline.Pipeline, in *pipeline.RunPipelineRequest) *Pip
 	pt.Pipeline = p
 	pt.Params = in
 
+	// 合并来自于Pipeline的标签
+	pt.Params.MergeLabels(p.Spec.Labels, false)
+
 	// 如果传入了id 则使用传入的id
 	if in.PipelineTaskId != "" {
 		pt.Meta.Id = in.PipelineTaskId

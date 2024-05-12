@@ -92,7 +92,7 @@ func (i *impl) RunBuildConf(ctx context.Context, in *trigger.Event, buildConf *b
 	case trigger.EVENT_PROVIDER_GITLAB:
 		event, err := in.GetGitlabEvent()
 		if err != nil {
-			bs.ErrorMessage = err.Error()
+			bs.Failed(err)
 			return bs
 		}
 
@@ -111,8 +111,11 @@ func (i *impl) RunBuildConf(ctx context.Context, in *trigger.Event, buildConf *b
 	pt, err := i.task.RunPipeline(ctx, runReq)
 	if err != nil {
 		i.log.Debug().Msgf("run pipeline error, %s", err)
-		bs.ErrorMessage = err.Error()
+		bs.Failed(err)
+	} else {
+		bs.Success()
 	}
+
 	if pt != nil {
 		i.log.Debug().Msgf("update run build conf pipeline task id: %s", pt.Meta.Id)
 		bs.PiplineTaskId = pt.Meta.Id

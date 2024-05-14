@@ -130,7 +130,7 @@ func (i *impl) CheckPipelineAllowRun(
 
 		t := set.Items[0]
 		if t.IsActive() {
-			return fmt.Errorf("流水线【%s】当前处于运行中, 请取消或者等待之前运行结束", t.Pipeline.Spec.Name)
+			return task.ERR_PIPELINE_IS_RUNNING.WithMessagef("%s", t.Pipeline.Spec.Name)
 		}
 	}
 

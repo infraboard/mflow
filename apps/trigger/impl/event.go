@@ -3,9 +3,11 @@ package impl
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/infraboard/mcenter/apps/service"
 	"github.com/infraboard/mcube/v2/exception"
+	"github.com/infraboard/mcube/v2/ioc/config/lock"
 	"github.com/infraboard/mflow/apps/build"
 	"github.com/infraboard/mflow/apps/pipeline"
 	"github.com/infraboard/mflow/apps/task"
@@ -55,6 +57,15 @@ func (i *impl) HandleEvent(ctx context.Context, in *trigger.Event) (
 	for index := range matched.Items {
 		// 执行构建配置匹配的流水线
 		buildConf := matched.Items[index]
+
+		// 避免构建同时触发
+		m := lock.L().New(buildConf.Meta.Id, 5*time.Second)
+		if err := m.Lock(ctx); err != nil {
+			i.log.Error().Msgf("lock error, %s", err)
+		} else {
+			defer m.UnLock(ctx)
+		}
+
 		bs := i.RunBuildConf(ctx, in, buildConf)
 		ins.AddBuildStatus(bs)
 	}
@@ -110,17 +121,17 @@ func (i *impl) RunBuildConf(ctx context.Context, in *trigger.Event, buildConf *b
 	i.log.Debug().Msgf("run pipeline req: %s, params: %v", runReq.PipelineId, runReq.RunParamsKVMap())
 	pt, err := i.task.RunPipeline(ctx, runReq)
 	if err != nil {
-		i.log.Debug().Msgf("run pipeline error, %s", err)
-		bs.Failed(err)
+		if exception.IsError(err, task.ERR_PIPELINE_IS_RUNNING) {
+			bs.Enqueue()
+		} else {
+			i.log.Debug().Msgf("run pipeline error, %s", err)
+			bs.Failed(err)
+		}
 	} else {
-		bs.Success()
+		i.log.Debug().Msgf("update run build conf pipeline task id: %s", pt.Meta.Id)
+		bs.Success(pt)
 	}
 
-	if pt != nil {
-		i.log.Debug().Msgf("update run build conf pipeline task id: %s", pt.Meta.Id)
-		bs.PiplineTaskId = pt.Meta.Id
-		bs.PiplineTask = pt
-	}
 	return bs
 }
 
@@ -171,6 +182,25 @@ func (i *impl) EventQueueTaskComplete(ctx context.Context, in *trigger.EventQueu
 	req := trigger.NewQueryRecordRequest()
 	req.PipelineTaskId = in.PipelineTaskId
 	rs, err := i.QueryRecord(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(rs.Items) == 0 {
+		return nil, exception.NewBadRequest("task %s event record not found", err)
+	}
+
+	// 查询PipelineTask对应的BuildConf
+	record := rs.Items[0]
+	bc := record.GetBuildStatusByPipelineTask(req.PipelineTaskId)
+	if bc == nil || bc.BuildConfig == nil {
+		return nil, exception.NewBadRequest("find pipeline task %s build config not found", req.PipelineTaskId)
+	}
+
+	// 从BuildConf的队列中获取最近需要执行的一个
+	queueReq := trigger.NewQueryRecordRequest()
+	req.BuildConfIds = []string{bc.BuildConfig.Meta.Id}
+	rs, err = i.QueryRecord(ctx, queueReq)
 	if err != nil {
 		return nil, err
 	}

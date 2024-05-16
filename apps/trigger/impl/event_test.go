@@ -21,7 +21,7 @@ func TestHandleEvent(t *testing.T) {
 
 func TestQueryRecord(t *testing.T) {
 	req := trigger.NewQueryRecordRequest()
-	req.PipelineTaskId = "coqelqh97i67olecsoqg"
+	req.BuildStages = append(req.BuildStages, trigger.STAGE_SUCCESS)
 	set, err := impl.QueryRecord(ctx, req)
 	if err != nil {
 		t.Fatal(err)

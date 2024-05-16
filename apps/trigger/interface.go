@@ -129,6 +129,22 @@ func NewQueryRecordRequest() *QueryRecordRequest {
 	}
 }
 
+func (r *QueryRecordRequest) AddBuildConfId(ids ...string) {
+	r.BuildConfIds = append(r.BuildConfIds, ids...)
+}
+
+func (r *QueryRecordRequest) AddBuildStage(stages ...STAGE) {
+	r.BuildStages = append(r.BuildStages, stages...)
+}
+
+func (r *QueryRecordRequest) SortValue() int {
+	if r.IsOrderAscend {
+		return 1
+	}
+
+	return -1
+}
+
 func NewEventQueueTaskCompleteRequest(pid string) *EventQueueTaskCompleteRequest {
 	return &EventQueueTaskCompleteRequest{
 		PipelineTaskId: pid,

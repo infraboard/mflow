@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/infraboard/mflow/apps/trigger"
 	"go.mongodb.org/mongo-driver/bson"
@@ -22,9 +23,11 @@ func (r *queryRequest) FindOptions() *options.FindOptions {
 	pageSize := int64(r.Page.PageSize)
 	skip := int64(r.Page.PageSize) * int64(r.Page.PageNumber-1)
 
+	r.AddBuildStage()
+
 	opt := &options.FindOptions{
 		Sort: bson.D{
-			{Key: "time", Value: -1},
+			{Key: "time", Value: r.SortValue()},
 		},
 		Limit: &pageSize,
 		Skip:  &skip,
@@ -54,10 +57,10 @@ func (r *queryRequest) FindFilter() bson.M {
 
 // 查询事件详情
 func (i *impl) UpdateRecordBuildConf(
-	ctx context.Context, recordId, buildConfId string, stage trigger.STAGE) error {
-	filter := bson.M{"_id": recordId, "build_status.build_config._id": buildConfId}
+	ctx context.Context, recordId string, buildIndex int, bc *trigger.BuildStatus) error {
+	filter := bson.M{"_id": recordId}
 	if _, err := i.col.UpdateOne(ctx, filter, bson.M{"$set": bson.M{
-		"build_status.$.stage": stage,
+		fmt.Sprintf("build_status.%d", buildIndex): bc,
 	}}); err != nil {
 		return err
 	}

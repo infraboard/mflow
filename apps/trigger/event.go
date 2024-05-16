@@ -262,15 +262,26 @@ func (e *Record) AddBuildStatus(bs *BuildStatus) {
 	e.BuildStatus = append(e.BuildStatus, bs)
 }
 
-func (e *Record) GetBuildStatusByPipelineTask(taskId string) *BuildStatus {
+func (e *Record) GetBuildStatusByPipelineTask(taskId string) (*BuildStatus, int) {
 	for i := range e.BuildStatus {
 		status := e.BuildStatus[i]
 		if status.PiplineTaskId == taskId {
-			return status
+			return status, i
 		}
 	}
 
-	return nil
+	return nil, 0
+}
+
+func (e *Record) GetBuildStatusByBuildConfId(buildConfId string) (*BuildStatus, int) {
+	for i := range e.BuildStatus {
+		status := e.BuildStatus[i]
+		if status.BuildConfig.Meta.Id == buildConfId {
+			return status, i
+		}
+	}
+
+	return nil, 0
 }
 
 func (i *Record) MarshalJSON() ([]byte, error) {
@@ -287,6 +298,10 @@ func NewDefaultRecord() *Record {
 func (s *BuildStatus) Failed(err error) {
 	s.ErrorMessage = err.Error()
 	s.Stage = STAGE_FAILED
+}
+
+func (s *BuildStatus) IsComplete() bool {
+	return s.Stage > STAGE_RUNNING
 }
 
 func (s *BuildStatus) Enqueue() {

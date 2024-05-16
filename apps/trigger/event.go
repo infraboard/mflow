@@ -293,10 +293,13 @@ func (s *BuildStatus) Enqueue() {
 	s.Stage = STAGE_ENQUEUE
 }
 
-func (s *BuildStatus) Success(t *task.PipelineTask) {
-	s.Stage = STAGE_SUCCESS
-	s.PiplineTask = t
+func (s *BuildStatus) Running(t *task.PipelineTask) {
+	s.Stage = STAGE_RUNNING
 	if t != nil {
 		s.PiplineTaskId = t.Meta.Id
 	}
+}
+
+func (s *BuildStatus) Success() {
+	s.Stage = STAGE_SUCCESS
 }

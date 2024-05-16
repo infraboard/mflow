@@ -129,9 +129,8 @@ func (i *impl) RunBuildConf(ctx context.Context, in *trigger.Event, buildConf *b
 		}
 	} else {
 		i.log.Debug().Msgf("update run build conf pipeline task id: %s", pt.Meta.Id)
-		bs.Success(pt)
+		bs.Running(pt)
 	}
-
 	return bs
 }
 
@@ -179,6 +178,13 @@ func (i *impl) QueryRecord(ctx context.Context, in *trigger.QueryRecordRequest) 
 // 事件队列任务执行完成通知
 func (i *impl) EventQueueTaskComplete(ctx context.Context, in *trigger.EventQueueTaskCompleteRequest) (
 	*trigger.BuildStatus, error) {
+	// 查询PipelineTask
+	pt, err := i.task.DescribePipelineTask(ctx, task.NewDescribePipelineTaskRequest(in.PipelineTaskId))
+	if err != nil {
+		return nil, err
+	}
+
+	// 查询该Pipeline Task关联的构建记录
 	req := trigger.NewQueryRecordRequest()
 	req.PipelineTaskId = in.PipelineTaskId
 	rs, err := i.QueryRecord(ctx, req)
@@ -190,22 +196,38 @@ func (i *impl) EventQueueTaskComplete(ctx context.Context, in *trigger.EventQueu
 		return nil, exception.NewBadRequest("task %s event record not found", err)
 	}
 
-	// 查询PipelineTask对应的BuildConf
+	// 查询构建记录对应的BuildConf
 	record := rs.Items[0]
 	bc := record.GetBuildStatusByPipelineTask(req.PipelineTaskId)
 	if bc == nil || bc.BuildConfig == nil {
 		return nil, exception.NewBadRequest("find pipeline task %s build config not found", req.PipelineTaskId)
 	}
 
-	// 从BuildConf的队列中获取最近需要执行的一个
-	queueReq := trigger.NewQueryRecordRequest()
-	req.BuildConfIds = []string{bc.BuildConfig.Meta.Id}
-	rs, err = i.QueryRecord(ctx, queueReq)
-	if err != nil {
+	// 更新构建记录完成状态
+	switch pt.Status.Stage {
+	case task.STAGE_CANCELED:
+		bc.Failed(fmt.Errorf("执行取消"))
+	case task.STAGE_FAILED:
+		bc.Failed(fmt.Errorf(pt.Status.Message))
+	case task.STAGE_SUCCEEDED:
+		bc.Success()
+	}
+	if err := i.UpdateRecordBuildConf(ctx, record.Event.Id, bc.BuildConfig.Meta.Id, bc.Stage); err != nil {
 		return nil, err
 	}
 
-	i.log.Debug().Msgf("%s", rs)
+	// 从BuildConf的队列中获取最近需要执行的一个
+	if in.TriggerNext {
+		queueReq := trigger.NewQueryRecordRequest()
+		req.BuildConfIds = []string{bc.BuildConfig.Meta.Id}
+		rs, err = i.QueryRecord(ctx, queueReq)
+		if err != nil {
+			return nil, err
+		}
+
+		i.log.Debug().Msgf("%s", rs)
+	}
+
 	return nil, nil
 }
 

@@ -66,4 +66,7 @@ message EventQueueTaskCompleteRequest {
     // 执行完成的PipelineTask任务Id
     // @gotags: json:"pipeline_task_id"
     string pipeline_task_id = 1;
+    // 是否触发队列里面下一个任务执行
+    // @gotags: json:"trigger_next"
+    bool trigger_next = 2;
 }

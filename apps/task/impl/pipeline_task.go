@@ -274,6 +274,7 @@ func (i *impl) PipelineStatusChangedCallback(ctx context.Context, in *task.Pipel
 	// 事件队列回调通知, 通知事件队列该事件触发的PipelineTask已经执行完成
 	if in.IsComplete() {
 		tReq := trigger.NewEventQueueTaskCompleteRequest(in.Meta.Id)
+		tReq.TriggerNext = true
 		bs, err := i.trigger.EventQueueTaskComplete(ctx, tReq)
 		if err != nil {
 			in.AddErrorEvent("触发队列回调失败: %s", err)

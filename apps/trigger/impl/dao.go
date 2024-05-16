@@ -1,6 +1,8 @@
 package impl
 
 import (
+	"context"
+
 	"github.com/infraboard/mflow/apps/trigger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -46,4 +48,16 @@ func (r *queryRequest) FindFilter() bson.M {
 	}
 
 	return filter
+}
+
+// 查询事件详情
+func (i *impl) UpdateRecordBuildConf(
+	ctx context.Context, recordId, buildConfId string, stage trigger.STAGE) error {
+	filter := bson.M{"_id": recordId, "build_status.build_config._id": buildConfId}
+	if _, err := i.col.UpdateOne(ctx, filter, bson.M{"$set": bson.M{
+		"build_status.$.stage": stage,
+	}}); err != nil {
+		return err
+	}
+	return nil
 }

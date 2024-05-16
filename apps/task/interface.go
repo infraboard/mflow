@@ -307,12 +307,12 @@ func (req *WatchJobTaskLogRequest) ToJSON() string {
 
 func NewTaskLogWebsocketTerminal(conn *websocket.Conn) *TaskLogWebsocketTerminal {
 	return &TaskLogWebsocketTerminal{
-		terminal.NewWebSocketWriter(conn),
+		terminal.NewWebSocketTerminal(conn),
 	}
 }
 
 type TaskLogWebsocketTerminal struct {
-	*terminal.WebSocketWriter
+	*terminal.WebSocketTerminal
 }
 
 func (r *TaskLogWebsocketTerminal) Send(in *JobTaskStreamReponse) (err error) {

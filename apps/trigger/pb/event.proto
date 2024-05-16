@@ -30,12 +30,14 @@ enum STAGE {
     PENDDING = 0;
     // 已经放入执行队列
     ENQUEUE = 1;
+    // 执行中
+    RUNNING = 2;
     // 取消执行
-    CANCELED = 2;
+    CANCELED = 3;
     // 触发执行成功
-    SUCCESS = 3;
+    SUCCESS = 4;
     // 触发执行失败
-    FAILED = 4;
+    FAILED = 5;
 }
 
 message BuildStatus {

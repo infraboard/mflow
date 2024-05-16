@@ -7,7 +7,11 @@ import (
 )
 
 func (h *Handler) QueryRecord(r *restful.Request, w *restful.Response) {
-	req := trigger.NewQueryRecordRequestFromHTTP(r)
+	req, err := trigger.NewQueryRecordRequestFromHTTP(r)
+	if err != nil {
+		response.Failed(w, err)
+		return
+	}
 
 	set, err := h.svc.QueryRecord(r.Request.Context(), req)
 	if err != nil {

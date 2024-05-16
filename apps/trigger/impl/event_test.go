@@ -21,7 +21,17 @@ func TestHandleEvent(t *testing.T) {
 
 func TestQueryRecord(t *testing.T) {
 	req := trigger.NewQueryRecordRequest()
+	req.PipelineTaskId = "coqelqh97i67olecsoqg"
 	set, err := impl.QueryRecord(ctx, req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(tools.MustToJson(set))
+}
+
+func TestEventQueueTaskComplete(t *testing.T) {
+	req := trigger.NewEventQueueTaskCompleteRequest("coqelqh97i67olecsoqg")
+	set, err := impl.EventQueueTaskComplete(ctx, req)
 	if err != nil {
 		t.Fatal(err)
 	}

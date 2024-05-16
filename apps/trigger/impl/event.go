@@ -193,7 +193,7 @@ func (i *impl) EventQueueTaskComplete(ctx context.Context, in *trigger.EventQueu
 	}
 
 	if len(rs.Items) == 0 {
-		return nil, exception.NewBadRequest("task %s event record not found", err)
+		return nil, exception.NewBadRequest("task %s event record not found", in.PipelineTaskId)
 	}
 
 	// 查询构建记录对应的BuildConf
@@ -211,6 +211,14 @@ func (i *impl) EventQueueTaskComplete(ctx context.Context, in *trigger.EventQueu
 		bc.Failed(fmt.Errorf(pt.Status.Message))
 	case task.STAGE_SUCCEEDED:
 		bc.Success()
+	}
+
+	// 避免构建同时触发, 更新时加锁
+	m := lock.L().New(bc.BuildConfig.Meta.Id, 5*time.Second)
+	if err := m.Lock(ctx); err != nil {
+		i.log.Error().Msgf("lock error, %s", err)
+	} else {
+		defer m.UnLock(ctx)
 	}
 	if err := i.UpdateRecordBuildConf(ctx, record.Event.Id, bc.BuildConfig.Meta.Id, bc.Stage); err != nil {
 		return nil, err

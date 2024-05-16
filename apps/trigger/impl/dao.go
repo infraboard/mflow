@@ -40,11 +40,13 @@ func (r *queryRequest) FindFilter() bson.M {
 	}
 
 	if r.PipelineTaskId != "" {
-		filter["build_status.pipeline_task_id"] = r.PipelineTaskId
+		filter["build_status.pipline_task_id"] = r.PipelineTaskId
 	}
-
 	if len(r.BuildConfIds) > 0 {
 		filter["build_status.build_config._id"] = bson.M{"$in": r.BuildConfIds}
+	}
+	if len(r.BuildStages) > 0 {
+		filter["build_status.stage"] = bson.M{"$in": r.BuildStages}
 	}
 
 	return filter

@@ -50,6 +50,9 @@ message QueryRecordRequest {
     // 相关构建配置关联的记录
     // @gotags: json:"build_conf_ids"
     repeated string build_conf_ids = 6;
+    // 构造状态过滤
+    // @gotags: json:"build_stages"
+    repeated STAGE build_stages = 8;
     // 资源范围
     // @gotags: json:"scope"
     mcube.resource.Scope scope = 4;
@@ -60,7 +63,6 @@ message QueryRecordRequest {
     // @gotags: json:"filters"
     repeated mcube.resource.LabelRequirement filters = 5;
 }
-
 
 message EventQueueTaskCompleteRequest {
     // 执行完成的PipelineTask任务Id

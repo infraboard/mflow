@@ -90,7 +90,7 @@ func NewBuildStatus(bc *build.BuildConfig) *BuildStatus {
 	}
 }
 
-func NewQueryRecordRequestFromHTTP(r *restful.Request) *QueryRecordRequest {
+func NewQueryRecordRequestFromHTTP(r *restful.Request) (*QueryRecordRequest, error) {
 	req := NewQueryRecordRequest()
 	req.Page = request.NewPageRequestFromHTTP(r.Request)
 	req.Scope = token.GetTokenFromRequest(r).GenScope()
@@ -104,7 +104,19 @@ func NewQueryRecordRequestFromHTTP(r *restful.Request) *QueryRecordRequest {
 		req.BuildConfIds = strings.Split(bid, ",")
 	}
 
-	return req
+	stages := r.QueryParameter("build_stages")
+	if stages != "" {
+		stageList := strings.Split(stages, ",")
+		for i := range stageList {
+			stage, err := ParseSTAGEFromString(stageList[i])
+			if err != nil {
+				return nil, err
+			}
+			req.BuildStages = append(req.BuildStages, stage)
+		}
+	}
+
+	return req, nil
 }
 
 func NewQueryRecordRequest() *QueryRecordRequest {
@@ -113,6 +125,7 @@ func NewQueryRecordRequest() *QueryRecordRequest {
 		Scope:        resource.NewScope(),
 		Filters:      []*resource.LabelRequirement{},
 		BuildConfIds: []string{},
+		BuildStages:  []STAGE{},
 	}
 }
 

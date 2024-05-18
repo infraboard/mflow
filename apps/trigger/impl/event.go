@@ -176,13 +176,6 @@ func (i *impl) EventQueueTaskComplete(ctx context.Context, in *trigger.EventQueu
 		return nil, exception.NewBadRequest("validate param error, %s", err)
 	}
 
-	// 避免构建同时触发, 更新时加锁, RunPipeline是 也加有BuildConfId锁，避免死锁
-	m := lock.L().New("trigger_"+in.BuildConfId, 15*time.Second)
-	if err := m.Lock(ctx); err != nil {
-		return nil, exception.NewInternalServerError("lock error, %s", err)
-	}
-	defer m.UnLock(ctx)
-
 	// 查询该Pipeline Task关联的构建记录
 	req := trigger.NewQueryRecordRequest()
 	req.AddEventId(in.EventId)
@@ -220,12 +213,20 @@ func (i *impl) EventQueueTaskComplete(ctx context.Context, in *trigger.EventQueu
 	case task.STAGE_SUCCEEDED:
 		currentBuildConf.Success()
 	}
+
 	if err := i.UpdateRecordBuildConf(ctx, currentRecord.Event.Id, currentBuildConfIndex, currentBuildConf); err != nil {
 		return nil, err
 	}
 
 	// 从BuildConf的队列中获取最近需要执行的一个
 	if pt.Pipeline.TriggerNext() {
+		// 避免构建同时触发, 更新时加锁, RunPipeline是 也加有BuildConfId锁，避免死锁
+		m := lock.L().New("trigger_"+in.BuildConfId, 15*time.Second)
+		if err := m.Lock(ctx); err != nil {
+			return nil, exception.NewInternalServerError("lock error, %s", err)
+		}
+		defer m.UnLock(ctx)
+
 		queueReq := trigger.NewQueryRecordRequest()
 		req.AddBuildConfId(currentBuildConf.BuildConfig.Meta.Id)
 		req.AddBuildStage(trigger.STAGE_ENQUEUE)

@@ -53,7 +53,3 @@ const (
 	GITLAB_HEADER_EVENT_UUID     = "X-Gitlab-Event-UUID"
 	GITLAB_HEADER_EVENT_UUID_OLD = "X-Gitlab-Event-Uuid"
 )
-
-const (
-	PIPELINE_TASK_EVENT_LABLE_KEY = "_EVENT_ID"
-)

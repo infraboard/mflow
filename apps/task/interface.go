@@ -12,6 +12,7 @@ import (
 	"github.com/infraboard/mcenter/apps/token"
 	"github.com/infraboard/mcube/v2/http/request"
 	"github.com/infraboard/mcube/v2/tools/pretty"
+	"github.com/infraboard/mflow/apps/build"
 	job "github.com/infraboard/mflow/apps/job"
 	pipeline "github.com/infraboard/mflow/apps/pipeline"
 	"github.com/infraboard/mpaas/common/terminal"
@@ -243,8 +244,19 @@ func (r *UpdateJobTaskStatusRequest) MarkError(err error) {
 
 func NewQueryPipelineTaskRequest() *QueryPipelineTaskRequest {
 	return &QueryPipelineTaskRequest{
-		Page: request.NewDefaultPageRequest(),
+		Page:   request.NewDefaultPageRequest(),
+		Labels: map[string]string{},
+		Stages: []STAGE{},
+		Ids:    []string{},
 	}
+}
+
+func (r *QueryPipelineTaskRequest) SetBuildConfigId(buildConfId string) {
+	r.Labels[build.PIPELINE_TASK_BUILD_CONFIG_ID_LABLE_KEY] = buildConfId
+}
+
+func (r *QueryPipelineTaskRequest) SetEventId(eventId string) {
+	r.Labels[build.PIPELINE_TASK_EVENT_ID_LABLE_KEY] = eventId
 }
 
 func NewQueryPipelineTaskRequestFromHttp(r *restful.Request) *QueryPipelineTaskRequest {

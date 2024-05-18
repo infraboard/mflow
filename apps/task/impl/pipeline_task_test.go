@@ -13,11 +13,14 @@ import (
 
 func TestQueryPipelineTask(t *testing.T) {
 	req := task.NewQueryPipelineTaskRequest()
+	req.SetEventId("1716037119704")
+	req.SetBuildConfigId("colfqdh97i61i9lcg4jg")
+	req.Stages = task.UnCompleteStage
 	set, err := impl.QueryPipelineTask(ctx, req)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(tools.MustToJson(set))
+	t.Log(set.Items[0].Status)
 }
 
 func TestRunTestPipeline(t *testing.T) {

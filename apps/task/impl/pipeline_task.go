@@ -3,8 +3,10 @@ package impl
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/infraboard/mcube/v2/exception"
+	"github.com/infraboard/mcube/v2/ioc/config/lock"
 	"github.com/infraboard/mflow/apps/approval"
 	"github.com/infraboard/mflow/apps/pipeline"
 	"github.com/infraboard/mflow/apps/task"
@@ -27,6 +29,19 @@ func (i *impl) RunPipeline(ctx context.Context, in *pipeline.RunPipelineRequest)
 	p, err := i.pipeline.DescribePipeline(ctx, pReq)
 	if err != nil {
 		return nil, err
+	}
+
+	// 如果Pipeline是窜行执行, 需要加锁
+	if !p.Spec.IsParallel {
+		if in.SequenceKey == "" {
+			return nil, exception.NewBadRequest("窜行执行时, sequence_key必须传递")
+		}
+		// 避免构建同时触发, 更新时加锁
+		m := lock.L().New(in.SequenceKey, time.Duration(i.LockTimeoutSeconds)*time.Second)
+		if err := m.Lock(ctx); err != nil {
+			return nil, fmt.Errorf("lock error, %s", err)
+		}
+		defer m.UnLock(ctx)
 	}
 
 	// 检查Pipeline状态
@@ -112,8 +127,9 @@ func (i *impl) CheckPipelineAllowRun(
 
 	// 2. 检查当前pipeline是否已经处于运行中
 	if !ins.Spec.IsParallel {
-		// 查询当前pipeline最新的任务状态
+		// 查询当前pipeline task有没有未完成的任务
 		req := task.NewQueryPipelineTaskRequest()
+		req.Stages = task.UnCompleteStage
 		req.PipelineId = ins.Meta.Id
 		req.Page.PageSize = 1
 		if lables != nil {
@@ -124,14 +140,10 @@ func (i *impl) CheckPipelineAllowRun(
 			return err
 		}
 		// 没有最近的任务
-		if set.Len() == 0 {
-			return nil
+		if set.Len() > 0 {
+			return task.ERR_PIPELINE_IS_RUNNING.WithMessagef("pipeline task %s is UnCompleted", set.Items[0].Meta.Id)
 		}
 
-		t := set.Items[0]
-		if t.IsActive() {
-			return task.ERR_PIPELINE_IS_RUNNING.WithMessagef("%s", t.Pipeline.Spec.Name)
-		}
 	}
 
 	return nil
@@ -275,12 +287,11 @@ func (i *impl) PipelineStatusChangedCallback(ctx context.Context, in *task.Pipel
 		i.log.Debug().Msgf("next pipeline: %s", in.Pipeline.Spec.NextPipeline)
 	}
 
-	// 事件队列回调通知, 通知事件队列该事件触发的PipelineTask已经执行完成
+	// 事件队列回调通知, 通过构建任务PipelineTask执行完成
 	buildEventId, buildConfId := in.GetEventId(), in.GetBuildConfId()
 	if in.IsComplete() && in.HasBuildEvent() {
 		i.log.Debug().Msgf("build conf %s next event", buildConfId)
 		tReq := trigger.NewEventQueueTaskCompleteRequest(buildEventId, buildConfId)
-		tReq.TriggerNext = true
 		bs, err := i.trigger.EventQueueTaskComplete(ctx, tReq)
 		if err != nil {
 			in.AddErrorEvent("触发队列回调失败: %s", err)

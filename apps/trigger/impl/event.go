@@ -3,11 +3,9 @@ package impl
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/infraboard/mcenter/apps/service"
 	"github.com/infraboard/mcube/v2/exception"
-	"github.com/infraboard/mcube/v2/ioc/config/lock"
 	"github.com/infraboard/mflow/apps/build"
 	"github.com/infraboard/mflow/apps/pipeline"
 	"github.com/infraboard/mflow/apps/task"
@@ -57,15 +55,6 @@ func (i *impl) HandleEvent(ctx context.Context, in *trigger.Event) (
 	for index := range matched.Items {
 		// 执行构建配置匹配的流水线
 		buildConf := matched.Items[index]
-
-		// 避免构建同时触发
-		m := lock.L().New(buildConf.Meta.Id, 5*time.Second)
-		if err := m.Lock(ctx); err != nil {
-			i.log.Error().Msgf("lock error, %s", err)
-		} else {
-			defer m.UnLock(ctx)
-		}
-
 		bs := i.RunBuildConf(ctx, in, buildConf)
 		ins.AddBuildStatus(bs)
 	}
@@ -90,10 +79,12 @@ func (i *impl) RunBuildConf(ctx context.Context, in *trigger.Event, buildConf *b
 	runReq.RunBy = "@" + in.UUID()
 	runReq.TriggerMode = pipeline.TRIGGER_MODE_EVENT
 	runReq.DryRun = in.SkipRunPipeline
-	runReq.Labels[trigger.PIPELINE_TASK_EVENT_LABLE_KEY] = in.Id
+	runReq.Labels[build.PIPELINE_TASK_EVENT_ID_LABLE_KEY] = in.Id
 	runReq.Labels[build.PIPELINE_TASK_BUILD_CONFIG_ID_LABLE_KEY] = buildConf.Meta.Id
 	runReq.Domain = buildConf.Spec.Scope.Domain
 	runReq.Namespace = buildConf.Spec.Scope.Namespace
+	// 如果窜行时, 不允许BuildConf并发执行
+	runReq.SequenceKey = buildConf.Meta.Id
 
 	// 补充Build用户自定义变量
 	runReq.AddRunParam(buildConf.Spec.CustomParams...)
@@ -183,14 +174,6 @@ func (i *impl) EventQueueTaskComplete(ctx context.Context, in *trigger.EventQueu
 		return nil, exception.NewBadRequest("validate param error, %s", err)
 	}
 
-	// 避免构建同时触发, 更新时加锁
-	m := lock.L().New(in.BuildConfId, 5*time.Second)
-	if err := m.Lock(ctx); err != nil {
-		i.log.Error().Msgf("lock error, %s", err)
-	} else {
-		defer m.UnLock(ctx)
-	}
-
 	// 查询该Pipeline Task关联的构建记录
 	req := trigger.NewQueryRecordRequest()
 	req.AddEventId(in.EventId)
@@ -233,7 +216,7 @@ func (i *impl) EventQueueTaskComplete(ctx context.Context, in *trigger.EventQueu
 	}
 
 	// 从BuildConf的队列中获取最近需要执行的一个
-	if in.TriggerNext {
+	if pt.Pipeline.TriggerNext() {
 		queueReq := trigger.NewQueryRecordRequest()
 		req.AddBuildConfId(currentBuildConf.BuildConfig.Meta.Id)
 		req.AddBuildStage(trigger.STAGE_ENQUEUE)

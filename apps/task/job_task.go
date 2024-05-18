@@ -18,6 +18,16 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
+var (
+	UnCompleteStage = []STAGE{
+		STAGE_PENDDING,
+		STAGE_SCHEDULING,
+		STAGE_CREATING,
+		STAGE_ACTIVE,
+		STAGE_CANCELING,
+	}
+)
+
 func NewJobTaskSet() *JobTaskSet {
 	return &JobTaskSet{
 		Items: []*JobTask{},

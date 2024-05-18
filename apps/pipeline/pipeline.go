@@ -122,6 +122,10 @@ func (p *Pipeline) Update(req *UpdatePipelineRequest) {
 	p.Spec = req.Spec
 }
 
+func (p *Pipeline) TriggerNext() bool {
+	return !p.Spec.IsParallel
+}
+
 func (p *Pipeline) Patch(req *UpdatePipelineRequest) error {
 	p.Meta.UpdateAt = time.Now().Unix()
 	p.Meta.UpdateBy = req.UpdateBy

@@ -23,7 +23,9 @@ import (
 )
 
 func init() {
-	ioc.Controller().Registry(&impl{})
+	ioc.Controller().Registry(&impl{
+		LockTimeoutSeconds: 30,
+	})
 }
 
 type impl struct {
@@ -41,6 +43,9 @@ type impl struct {
 	trigger  trigger.Service
 
 	mcenter *rpc.ClientSet
+
+	// 锁超时时间
+	LockTimeoutSeconds int `json:"lock_timeout_seconds" yaml:"lock_timeout_seconds" toml:"lock_timeout_seconds" env:"LOCK_TIMEOUT_SECONDS"`
 }
 
 func (i *impl) Init() error {

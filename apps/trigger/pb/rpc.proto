@@ -68,10 +68,13 @@ message QueryRecordRequest {
 }
 
 message EventQueueTaskCompleteRequest {
-    // 执行完成的PipelineTask任务Id
-    // @gotags: json:"pipeline_task_id"
-    string pipeline_task_id = 1;
+    // Build Conf PipelineTask任务 执行完成
+    // @gotags: json:"build_conf_id"
+    string build_conf_id = 1;
     // 是否触发队列里面下一个任务执行
     // @gotags: json:"trigger_next"
     bool trigger_next = 2;
+    // 强制触发下一个任务执行, 因为构造状态已经结束的并不运行被重复触发
+    // @gotags: json:"force_trigger"
+    bool force_trigger = 3;
 }

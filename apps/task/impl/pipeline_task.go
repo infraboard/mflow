@@ -236,13 +236,17 @@ func (i *impl) PipelineTaskStatusChanged(ctx context.Context, in *task.JobTask) 
 // 更新Pipeline状态
 func (i *impl) updatePipelineStatus(ctx context.Context, in *task.PipelineTask) (*task.PipelineTask, error) {
 	// 立即更新Pipeline Task状态
-	i.updatePiplineTaskStatus(ctx, in)
+	if err := i.updatePiplineTaskStatus(ctx, in); err != nil {
+		return nil, err
+	}
 
 	// 执行PipelineTask状态变更回调
 	i.PipelineStatusChangedCallback(ctx, in)
 
 	// 补充回调执行状态
-	i.updatePiplineTaskStatus(ctx, in)
+	if err := i.updatePiplineTaskStatus(ctx, in); err != nil {
+		return nil, err
+	}
 	return in, nil
 }
 
@@ -272,8 +276,10 @@ func (i *impl) PipelineStatusChangedCallback(ctx context.Context, in *task.Pipel
 	}
 
 	// 事件队列回调通知, 通知事件队列该事件触发的PipelineTask已经执行完成
-	if in.IsComplete() {
-		tReq := trigger.NewEventQueueTaskCompleteRequest(in.Meta.Id)
+	buildConfId := in.GetBuildConfId()
+	if in.IsComplete() && buildConfId != "" {
+		i.log.Debug().Msgf("build conf %s next event", buildConfId)
+		tReq := trigger.NewEventQueueTaskCompleteRequest(buildConfId)
 		tReq.TriggerNext = true
 		bs, err := i.trigger.EventQueueTaskComplete(ctx, tReq)
 		if err != nil {

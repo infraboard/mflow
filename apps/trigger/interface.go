@@ -145,9 +145,9 @@ func (r *QueryRecordRequest) SortValue() int {
 	return -1
 }
 
-func NewEventQueueTaskCompleteRequest(pid string) *EventQueueTaskCompleteRequest {
+func NewEventQueueTaskCompleteRequest(builcConfId string) *EventQueueTaskCompleteRequest {
 	return &EventQueueTaskCompleteRequest{
-		PipelineTaskId: pid,
+		BuildConfId: builcConfId,
 	}
 }
 

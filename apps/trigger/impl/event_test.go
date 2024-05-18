@@ -21,7 +21,10 @@ func TestHandleEvent(t *testing.T) {
 
 func TestQueryRecord(t *testing.T) {
 	req := trigger.NewQueryRecordRequest()
-	req.BuildStages = append(req.BuildStages, trigger.STAGE_SUCCESS)
+	req.AddBuildConfId("colfqdh97i61i9lcg4jg")
+	req.AddBuildStage(trigger.STAGE_ENQUEUE)
+	req.IsOrderAscend = true
+	req.Page.PageSize = 1
 	set, err := impl.QueryRecord(ctx, req)
 	if err != nil {
 		t.Fatal(err)
@@ -31,6 +34,7 @@ func TestQueryRecord(t *testing.T) {
 
 func TestEventQueueTaskComplete(t *testing.T) {
 	req := trigger.NewEventQueueTaskCompleteRequest("coqelqh97i67olecsoqg")
+	req.TriggerNext = true
 	set, err := impl.EventQueueTaskComplete(ctx, req)
 	if err != nil {
 		t.Fatal(err)

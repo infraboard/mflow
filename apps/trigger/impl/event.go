@@ -178,60 +178,60 @@ func (i *impl) QueryRecord(ctx context.Context, in *trigger.QueryRecordRequest) 
 // 事件队列任务执行完成通知
 func (i *impl) EventQueueTaskComplete(ctx context.Context, in *trigger.EventQueueTaskCompleteRequest) (
 	*trigger.BuildStatus, error) {
-	// 查询PipelineTask
-	pt, err := i.task.DescribePipelineTask(ctx, task.NewDescribePipelineTaskRequest(in.PipelineTaskId))
-	if err != nil {
-		return nil, err
+	// 避免构建同时触发, 更新时加锁
+	m := lock.L().New(in.BuildConfId, 5*time.Second)
+	if err := m.Lock(ctx); err != nil {
+		i.log.Error().Msgf("lock error, %s", err)
+	} else {
+		defer m.UnLock(ctx)
 	}
 
 	// 查询该Pipeline Task关联的构建记录
 	req := trigger.NewQueryRecordRequest()
-	req.PipelineTaskId = in.PipelineTaskId
+	req.AddBuildConfId(in.BuildConfId)
 	rs, err := i.QueryRecord(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-
 	if len(rs.Items) == 0 {
-		return nil, exception.NewBadRequest("task %s event record not found", in.PipelineTaskId)
+		return nil, exception.NewBadRequest("build conf %s event record not found", in.BuildConfId)
 	}
 
 	// 查询构建记录对应的BuildConf
-	record := rs.Items[0]
-	bc, bindex := record.GetBuildStatusByPipelineTask(req.PipelineTaskId)
-	if bc == nil || bc.BuildConfig == nil {
+	currentRecord := rs.Items[0]
+	currentBuildConf, currentBuildConfIndex := currentRecord.GetBuildStatusByPipelineTask(req.PipelineTaskId)
+	if currentBuildConf == nil || currentBuildConf.BuildConfig == nil {
 		return nil, exception.NewBadRequest("find pipeline task %s build config not found", req.PipelineTaskId)
 	}
 
-	if bc.IsComplete() {
+	// 查询PipelineTask
+	pt, err := i.task.DescribePipelineTask(ctx, task.NewDescribePipelineTaskRequest(currentBuildConf.PiplineTaskId))
+	if err != nil {
+		return nil, err
+	}
+
+	if !in.ForceTrigger && currentBuildConf.IsComplete() {
 		return nil, exception.NewBadRequest("task is complete")
 	}
 
 	// 更新构建记录完成状态
 	switch pt.Status.Stage {
 	case task.STAGE_CANCELED:
-		bc.Failed(fmt.Errorf("执行取消"))
+		currentBuildConf.Failed(fmt.Errorf("流水线任务执行取消"))
 	case task.STAGE_FAILED:
-		bc.Failed(fmt.Errorf(pt.Status.Message))
+		currentBuildConf.Failed(fmt.Errorf(pt.Status.Message))
 	case task.STAGE_SUCCEEDED:
-		bc.Success()
+		currentBuildConf.Success()
 	}
-
-	// 避免构建同时触发, 更新时加锁
-	m := lock.L().New(bc.BuildConfig.Meta.Id, 5*time.Second)
-	if err := m.Lock(ctx); err != nil {
-		i.log.Error().Msgf("lock error, %s", err)
-	} else {
-		defer m.UnLock(ctx)
-	}
-	if err := i.UpdateRecordBuildConf(ctx, record.Event.Id, bindex, bc); err != nil {
+	if err := i.UpdateRecordBuildConf(ctx, currentRecord.Event.Id, currentBuildConfIndex, currentBuildConf); err != nil {
 		return nil, err
 	}
 
 	// 从BuildConf的队列中获取最近需要执行的一个
+	in.TriggerNext = false
 	if in.TriggerNext {
 		queueReq := trigger.NewQueryRecordRequest()
-		req.AddBuildConfId(bc.BuildConfig.Meta.Id)
+		req.AddBuildConfId(currentBuildConf.BuildConfig.Meta.Id)
 		req.AddBuildStage(trigger.STAGE_ENQUEUE)
 		req.IsOrderAscend = true
 		req.Page.PageSize = 1
@@ -241,20 +241,20 @@ func (i *impl) EventQueueTaskComplete(ctx context.Context, in *trigger.EventQueu
 		}
 
 		if len(rs.Items) == 0 {
-			i.log.Debug().Msgf("build config %s not found enqueu record", bc.BuildConfig.Meta.Id)
-			return bc, nil
+			i.log.Debug().Msgf("build config %s not found enqueu record", currentBuildConf.BuildConfig.Meta.Id)
+			return currentBuildConf, nil
 		}
 
 		// 获取Record里面 Next需要运行的 BuildConf
-		record := rs.Items[0]
-		next, nextIndex := record.GetBuildStatusByBuildConfId(bc.BuildConfig.Meta.Id)
-		bs := i.RunBuildConf(ctx, record.Event, next.BuildConfig)
-		if err := i.UpdateRecordBuildConf(ctx, record.Event.Id, nextIndex, bs); err != nil {
+		nextRecord := rs.Items[0]
+		nextBuildConf, nextBuildConfIndex := nextRecord.GetBuildStatusByBuildConfId(currentBuildConf.BuildConfig.Meta.Id)
+		bs := i.RunBuildConf(ctx, nextRecord.Event, nextBuildConf.BuildConfig)
+		if err := i.UpdateRecordBuildConf(ctx, nextRecord.Event.Id, nextBuildConfIndex, bs); err != nil {
 			return nil, err
 		}
 	}
 
-	return bc, nil
+	return currentBuildConf, nil
 }
 
 // 删除执行记录

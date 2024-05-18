@@ -9,6 +9,7 @@ import (
 
 	"github.com/infraboard/mcube/v2/exception"
 	"github.com/infraboard/mcube/v2/pb/resource"
+	"github.com/infraboard/mflow/apps/build"
 	"github.com/infraboard/mflow/apps/job"
 	"github.com/infraboard/mflow/apps/pipeline"
 )
@@ -321,6 +322,10 @@ func (p *PipelineTask) AddErrorEvent(format string, a ...any) {
 
 func (p *PipelineTask) AddSuccessEvent(format string, a ...any) *pipeline.Event {
 	return p.Status.AddSuccessEvent(format, a...)
+}
+
+func (p *PipelineTask) GetBuildConfId() string {
+	return p.Params.Labels[build.PIPELINE_TASK_BUILD_CONFIG_LABLE_KEY]
 }
 
 func (p *PipelineTask) AddWebhookStatus(items ...*pipeline.WebHook) {

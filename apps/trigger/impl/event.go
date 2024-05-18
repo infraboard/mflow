@@ -91,7 +91,7 @@ func (i *impl) RunBuildConf(ctx context.Context, in *trigger.Event, buildConf *b
 	runReq.TriggerMode = pipeline.TRIGGER_MODE_EVENT
 	runReq.DryRun = in.SkipRunPipeline
 	runReq.Labels[trigger.PIPELINE_TASK_EVENT_LABLE_KEY] = in.Id
-	runReq.Labels[build.PIPELINE_TASK_BUILD_CONFIG_LABLE_KEY] = buildConf.Meta.Id
+	runReq.Labels[build.PIPELINE_TASK_BUILD_CONFIG_ID_LABLE_KEY] = buildConf.Meta.Id
 	runReq.Domain = buildConf.Spec.Scope.Domain
 	runReq.Namespace = buildConf.Spec.Scope.Namespace
 
@@ -178,6 +178,11 @@ func (i *impl) QueryRecord(ctx context.Context, in *trigger.QueryRecordRequest) 
 // 事件队列任务执行完成通知
 func (i *impl) EventQueueTaskComplete(ctx context.Context, in *trigger.EventQueueTaskCompleteRequest) (
 	*trigger.BuildStatus, error) {
+	// 请求校验
+	if err := in.Validate(); err != nil {
+		return nil, exception.NewBadRequest("validate param error, %s", err)
+	}
+
 	// 避免构建同时触发, 更新时加锁
 	m := lock.L().New(in.BuildConfId, 5*time.Second)
 	if err := m.Lock(ctx); err != nil {
@@ -188,20 +193,20 @@ func (i *impl) EventQueueTaskComplete(ctx context.Context, in *trigger.EventQueu
 
 	// 查询该Pipeline Task关联的构建记录
 	req := trigger.NewQueryRecordRequest()
-	req.AddBuildConfId(in.BuildConfId)
+	req.AddEventId(in.EventId)
 	rs, err := i.QueryRecord(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 	if len(rs.Items) == 0 {
-		return nil, exception.NewBadRequest("build conf %s event record not found", in.BuildConfId)
+		return nil, exception.NewBadRequest("event %s record not found", in.EventId)
 	}
 
 	// 查询构建记录对应的BuildConf
 	currentRecord := rs.Items[0]
-	currentBuildConf, currentBuildConfIndex := currentRecord.GetBuildStatusByPipelineTask(req.PipelineTaskId)
+	currentBuildConf, currentBuildConfIndex := currentRecord.GetBuildStatusByBuildConfId(in.BuildConfId)
 	if currentBuildConf == nil || currentBuildConf.BuildConfig == nil {
-		return nil, exception.NewBadRequest("find pipeline task %s build config not found", req.PipelineTaskId)
+		return nil, exception.NewBadRequest("find current record build config %s not found", in.BuildConfId)
 	}
 
 	// 查询PipelineTask
@@ -210,7 +215,7 @@ func (i *impl) EventQueueTaskComplete(ctx context.Context, in *trigger.EventQueu
 		return nil, err
 	}
 
-	if !in.ForceTrigger && currentBuildConf.IsComplete() {
+	if !in.ForceUpdate && currentBuildConf.IsComplete() {
 		return nil, exception.NewBadRequest("task is complete")
 	}
 
@@ -228,7 +233,6 @@ func (i *impl) EventQueueTaskComplete(ctx context.Context, in *trigger.EventQueu
 	}
 
 	// 从BuildConf的队列中获取最近需要执行的一个
-	in.TriggerNext = false
 	if in.TriggerNext {
 		queueReq := trigger.NewQueryRecordRequest()
 		req.AddBuildConfId(currentBuildConf.BuildConfig.Meta.Id)

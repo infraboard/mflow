@@ -47,6 +47,9 @@ message QueryRecordRequest {
     // 查询PipelineTask关联的事件
     // @gotags: json:"pipeline_task_id"
     string pipeline_task_id = 3;
+    // 事件Id
+    // @gotags: json:"event_ids"
+    repeated string event_ids = 10;
     // 相关构建配置关联的记录
     // @gotags: json:"build_conf_ids"
     repeated string build_conf_ids = 6;
@@ -68,13 +71,16 @@ message QueryRecordRequest {
 }
 
 message EventQueueTaskCompleteRequest {
+    // 事件Id
+    // @gotags: json:"event_id" validate:"required"
+    string event_id = 1;
     // Build Conf PipelineTask任务 执行完成
-    // @gotags: json:"build_conf_id"
-    string build_conf_id = 1;
+    // @gotags: json:"build_conf_id" validate:"required"
+    string build_conf_id = 2;
     // 是否触发队列里面下一个任务执行
     // @gotags: json:"trigger_next"
-    bool trigger_next = 2;
-    // 强制触发下一个任务执行, 因为构造状态已经结束的并不运行被重复触发
-    // @gotags: json:"force_trigger"
-    bool force_trigger = 3;
+    bool trigger_next = 3;
+    // 强制更新状态, 默认状态已经完成的任务不允许重复触发
+    // @gotags: json:"force_update"
+    bool force_update = 4;
 }

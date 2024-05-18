@@ -325,7 +325,15 @@ func (p *PipelineTask) AddSuccessEvent(format string, a ...any) *pipeline.Event 
 }
 
 func (p *PipelineTask) GetBuildConfId() string {
-	return p.Params.Labels[build.PIPELINE_TASK_BUILD_CONFIG_LABLE_KEY]
+	return p.Params.Labels[build.PIPELINE_TASK_BUILD_CONFIG_ID_LABLE_KEY]
+}
+
+func (p *PipelineTask) GetEventId() string {
+	return p.Params.Labels[build.PIPELINE_TASK_EVENT_ID_LABLE_KEY]
+}
+
+func (p *PipelineTask) HasBuildEvent() bool {
+	return p.GetEventId() != "" && p.GetBuildConfId() != ""
 }
 
 func (p *PipelineTask) AddWebhookStatus(items ...*pipeline.WebHook) {

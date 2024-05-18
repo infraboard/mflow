@@ -33,8 +33,8 @@ func TestQueryRecord(t *testing.T) {
 }
 
 func TestEventQueueTaskComplete(t *testing.T) {
-	req := trigger.NewEventQueueTaskCompleteRequest("coqelqh97i67olecsoqg")
-	req.TriggerNext = true
+	req := trigger.NewEventQueueTaskCompleteRequest("", "colfqdh97i61i9lcg4jg")
+	req.TriggerNext = false
 	set, err := impl.EventQueueTaskComplete(ctx, req)
 	if err != nil {
 		t.Fatal(err)

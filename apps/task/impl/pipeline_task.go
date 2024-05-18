@@ -276,10 +276,10 @@ func (i *impl) PipelineStatusChangedCallback(ctx context.Context, in *task.Pipel
 	}
 
 	// 事件队列回调通知, 通知事件队列该事件触发的PipelineTask已经执行完成
-	buildConfId := in.GetBuildConfId()
-	if in.IsComplete() && buildConfId != "" {
+	buildEventId, buildConfId := in.GetEventId(), in.GetBuildConfId()
+	if in.IsComplete() && in.HasBuildEvent() {
 		i.log.Debug().Msgf("build conf %s next event", buildConfId)
-		tReq := trigger.NewEventQueueTaskCompleteRequest(buildConfId)
+		tReq := trigger.NewEventQueueTaskCompleteRequest(buildEventId, buildConfId)
 		tReq.TriggerNext = true
 		bs, err := i.trigger.EventQueueTaskComplete(ctx, tReq)
 		if err != nil {

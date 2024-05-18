@@ -11,6 +11,7 @@ import (
 	"github.com/infraboard/mcenter/apps/token"
 	"github.com/infraboard/mcube/v2/exception"
 	"github.com/infraboard/mcube/v2/http/request"
+	"github.com/infraboard/mcube/v2/ioc/config/validator"
 	"github.com/infraboard/mcube/v2/pb/resource"
 	"github.com/infraboard/mflow/apps/build"
 )
@@ -126,11 +127,16 @@ func NewQueryRecordRequest() *QueryRecordRequest {
 		Filters:      []*resource.LabelRequirement{},
 		BuildConfIds: []string{},
 		BuildStages:  []STAGE{},
+		EventIds:     []string{},
 	}
 }
 
 func (r *QueryRecordRequest) AddBuildConfId(ids ...string) {
 	r.BuildConfIds = append(r.BuildConfIds, ids...)
+}
+
+func (r *QueryRecordRequest) AddEventId(ids ...string) {
+	r.EventIds = append(r.EventIds, ids...)
 }
 
 func (r *QueryRecordRequest) AddBuildStage(stages ...STAGE) {
@@ -145,10 +151,15 @@ func (r *QueryRecordRequest) SortValue() int {
 	return -1
 }
 
-func NewEventQueueTaskCompleteRequest(builcConfId string) *EventQueueTaskCompleteRequest {
+func NewEventQueueTaskCompleteRequest(eventId, builcConfId string) *EventQueueTaskCompleteRequest {
 	return &EventQueueTaskCompleteRequest{
+		EventId:     eventId,
 		BuildConfId: builcConfId,
 	}
+}
+
+func (req *EventQueueTaskCompleteRequest) Validate() error {
+	return validator.Validate(req)
 }
 
 func NewDeleteRecordRequest() *DeleteRecordRequest {

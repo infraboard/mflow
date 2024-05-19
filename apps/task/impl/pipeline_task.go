@@ -32,12 +32,15 @@ func (i *impl) RunPipeline(ctx context.Context, in *pipeline.RunPipelineRequest)
 	}
 
 	// 如果Pipeline是窜行执行, 需要加锁
-	if !p.Spec.IsParallel {
-		if in.SequenceKey == "" {
-			return nil, exception.NewBadRequest("窜行执行时, sequence_key必须传递")
+	if p.IsSequence() {
+		if in.SequenceLabelKey == "" {
+			return nil, exception.NewBadRequest("窜行执行时, sequence_label_key必须传递")
+		}
+		if in.SequenceLabelValue() == "" {
+			return nil, exception.NewBadRequest("窜行执行时, label not found sequence_label_key value")
 		}
 		// 避免构建同时触发, 更新时加锁
-		m := lock.L().New(in.SequenceKey, time.Duration(i.LockTimeoutSeconds)*time.Second)
+		m := lock.L().New(in.SequenceLabelValue(), time.Duration(i.LockTimeoutSeconds)*time.Second)
 		if err := m.Lock(ctx); err != nil {
 			return nil, fmt.Errorf("lock error, %s", err)
 		}
@@ -45,7 +48,7 @@ func (i *impl) RunPipeline(ctx context.Context, in *pipeline.RunPipelineRequest)
 	}
 
 	// 检查Pipeline状态
-	if err := i.CheckPipelineAllowRun(ctx, p, in.ApprovalId, in.Labels); err != nil {
+	if err := i.CheckPipelineAllowRun(ctx, p, in.ApprovalId, in.SequenceLabel()); err != nil {
 		return nil, err
 	}
 
@@ -126,7 +129,7 @@ func (i *impl) CheckPipelineAllowRun(
 	}
 
 	// 2. 检查当前pipeline是否已经处于运行中
-	if !ins.Spec.IsParallel {
+	if ins.IsSequence() {
 		// 查询当前pipeline task有没有未完成的任务
 		req := task.NewQueryPipelineTaskRequest()
 		req.Stages = task.UnCompleteStage
@@ -143,7 +146,6 @@ func (i *impl) CheckPipelineAllowRun(
 		if set.Len() > 0 {
 			return task.ERR_PIPELINE_IS_RUNNING.WithMessagef("pipeline task %s is UnCompleted", set.Items[0].Meta.Id)
 		}
-
 	}
 
 	return nil

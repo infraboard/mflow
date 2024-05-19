@@ -47,9 +47,12 @@ message QueryRecordRequest {
     // 查询PipelineTask关联的事件
     // @gotags: json:"pipeline_task_id"
     string pipeline_task_id = 3;
-    // 事件Id
-    // @gotags: json:"event_ids"
-    repeated string event_ids = 10;
+    // 包含事件Id
+    // @gotags: json:"include_event_ids"
+    repeated string include_event_ids = 10;
+    // 排除事件Id
+    // @gotags: json:"exclude_event_ids"
+    repeated string exclude_event_ids = 11;
     // 相关构建配置关联的记录
     // @gotags: json:"build_conf_ids"
     repeated string build_conf_ids = 6;

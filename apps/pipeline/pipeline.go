@@ -183,6 +183,10 @@ func (p *Pipeline) UpdateJobs(jobs ...*job.Job) {
 	}
 }
 
+func (p *Pipeline) IsSequence() bool {
+	return !p.Spec.IsParallel
+}
+
 func NewCreatePipelineRequestFromYAML(yml string) (*CreatePipelineRequest, error) {
 	req := NewCreatePipelineRequest()
 
@@ -443,6 +447,16 @@ func (req *RunPipelineRequest) Validate() error {
 
 func (req *RunPipelineRequest) ToJson() string {
 	return format.Prettify(req)
+}
+
+func (req *RunPipelineRequest) SequenceLabelValue() string {
+	return req.Labels[req.SequenceLabelKey]
+}
+
+func (req *RunPipelineRequest) SequenceLabel() map[string]string {
+	return map[string]string{
+		req.SequenceLabelKey: req.SequenceLabelValue(),
+	}
 }
 
 func (req *RunPipelineRequest) RunParamsKVMap() map[string]string {

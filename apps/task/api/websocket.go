@@ -114,6 +114,16 @@ func (h *WebsocketHandler) JobTaskLog(r *restful.Request, w *restful.Response) {
 		return
 	}
 
+	// 处理用户的输入, 这里主要是处理用户指令比如Ping
+	go term.ReadBinData(
+		func(b []byte) {
+			h.log.Debug().Msgf("read user %s input, log mod skip....", b)
+		},
+		func(err error) {
+			h.log.Error().Msgf("read socket data error, %s", err)
+		},
+	)
+
 	// 输出日志到Term中
 	if err = h.service.WatchJobTaskLog(in, term); err != nil {
 		term.Failed(err)

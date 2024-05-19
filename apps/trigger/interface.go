@@ -122,12 +122,13 @@ func NewQueryRecordRequestFromHTTP(r *restful.Request) (*QueryRecordRequest, err
 
 func NewQueryRecordRequest() *QueryRecordRequest {
 	return &QueryRecordRequest{
-		Page:         request.NewDefaultPageRequest(),
-		Scope:        resource.NewScope(),
-		Filters:      []*resource.LabelRequirement{},
-		BuildConfIds: []string{},
-		BuildStages:  []STAGE{},
-		EventIds:     []string{},
+		Page:            request.NewDefaultPageRequest(),
+		Scope:           resource.NewScope(),
+		Filters:         []*resource.LabelRequirement{},
+		BuildConfIds:    []string{},
+		BuildStages:     []STAGE{},
+		IncludeEventIds: []string{},
+		ExcludeEventIds: []string{},
 	}
 }
 
@@ -135,8 +136,12 @@ func (r *QueryRecordRequest) AddBuildConfId(ids ...string) {
 	r.BuildConfIds = append(r.BuildConfIds, ids...)
 }
 
-func (r *QueryRecordRequest) AddEventId(ids ...string) {
-	r.EventIds = append(r.EventIds, ids...)
+func (r *QueryRecordRequest) AddIncludeEventId(ids ...string) {
+	r.IncludeEventIds = append(r.IncludeEventIds, ids...)
+}
+
+func (r *QueryRecordRequest) AddExcludeEventId(ids ...string) {
+	r.ExcludeEventIds = append(r.ExcludeEventIds, ids...)
 }
 
 func (r *QueryRecordRequest) AddBuildStage(stages ...STAGE) {

@@ -211,8 +211,8 @@ message RunPipelineRequest {
 	// @gotags: bson:"approval_id" json:"approval_id"
     string approval_id = 10;
     // 如果是窜行执行, 窜行的key, 用于加锁 控制并发执行
-	// @gotags: bson:"sequence_key" json:"sequence_key"
-    string sequence_key = 17;
+	// @gotags: bson:"sequence_label_key" json:"sequence_label_key"
+    string sequence_label_key = 17;
 	// Pipeline 的运行时参数
 	// @gotags: bson:"run_params" json:"run_params"
 	repeated job.RunParam run_params = 9;

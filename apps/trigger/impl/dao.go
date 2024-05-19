@@ -42,8 +42,11 @@ func (r *queryRequest) FindFilter() bson.M {
 		filter["token"] = r.ServiceId
 	}
 
-	if len(r.EventIds) > 0 {
-		filter["_id"] = bson.M{"$in": r.EventIds}
+	if len(r.IncludeEventIds) > 0 {
+		filter["_id"] = bson.M{"$in": r.IncludeEventIds}
+	}
+	if len(r.ExcludeEventIds) > 0 {
+		filter["_id"] = bson.M{"$nin": r.ExcludeEventIds}
 	}
 	if r.PipelineTaskId != "" {
 		filter["build_status.pipline_task_id"] = r.PipelineTaskId

@@ -86,7 +86,7 @@ func (i *impl) RunBuildConf(ctx context.Context, in *trigger.Event, buildConf *b
 	runReq.Domain = buildConf.Spec.Scope.Domain
 	runReq.Namespace = buildConf.Spec.Scope.Namespace
 	// 如果窜行时, 不允许BuildConf并发执行
-	runReq.SequenceKey = buildConf.Meta.Id
+	runReq.SequenceLabelKey = build.PIPELINE_TASK_BUILD_CONFIG_ID_LABLE_KEY
 
 	// 补充Build用户自定义变量
 	runReq.AddRunParam(buildConf.Spec.CustomParams...)
@@ -178,17 +178,17 @@ func (i *impl) EventQueueTaskComplete(ctx context.Context, in *trigger.EventQueu
 
 	// 查询该Pipeline Task关联的构建记录
 	req := trigger.NewQueryRecordRequest()
-	req.AddEventId(in.EventId)
-	rs, err := i.QueryRecord(ctx, req)
+	req.AddIncludeEventId(in.EventId)
+	currentRS, err := i.QueryRecord(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	if len(rs.Items) == 0 {
+	if len(currentRS.Items) == 0 {
 		return nil, exception.NewBadRequest("event %s record not found", in.EventId)
 	}
 
 	// 查询构建记录对应的BuildConf
-	currentRecord := rs.Items[0]
+	currentRecord := currentRS.Items[0]
 	currentBuildConf, currentBuildConfIndex := currentRecord.GetBuildStatusByBuildConfId(in.BuildConfId)
 	if currentBuildConf == nil || currentBuildConf.BuildConfig == nil {
 		return nil, exception.NewBadRequest("find current record build config %s not found", in.BuildConfId)
@@ -220,38 +220,46 @@ func (i *impl) EventQueueTaskComplete(ctx context.Context, in *trigger.EventQueu
 
 	// 从BuildConf的队列中获取最近需要执行的一个
 	if pt.Pipeline.TriggerNext() {
-		// 避免构建同时触发, 更新时加锁, RunPipeline是 也加有BuildConfId锁，避免死锁
-		m := lock.L().New("trigger_"+in.BuildConfId, 15*time.Second)
-		if err := m.Lock(ctx); err != nil {
-			return nil, exception.NewInternalServerError("lock error, %s", err)
-		}
-		defer m.UnLock(ctx)
-
-		queueReq := trigger.NewQueryRecordRequest()
-		req.AddBuildConfId(currentBuildConf.BuildConfig.Meta.Id)
-		req.AddBuildStage(trigger.STAGE_ENQUEUE)
-		req.IsOrderAscend = true
-		req.Page.PageSize = 1
-		rs, err = i.QueryRecord(ctx, queueReq)
-		if err != nil {
-			return nil, err
-		}
-
-		if len(rs.Items) == 0 {
-			i.log.Debug().Msgf("build config %s not found enqueu record", currentBuildConf.BuildConfig.Meta.Id)
-			return currentBuildConf, nil
-		}
-
-		// 获取Record里面 Next需要运行的 BuildConf
-		nextRecord := rs.Items[0]
-		nextBuildConf, nextBuildConfIndex := nextRecord.GetBuildStatusByBuildConfId(currentBuildConf.BuildConfig.Meta.Id)
-		bs := i.RunBuildConf(ctx, nextRecord.Event, nextBuildConf.BuildConfig)
-		if err := i.UpdateRecordBuildConf(ctx, nextRecord.Event.Id, nextBuildConfIndex, bs); err != nil {
+		if err := i.TriggerNext(ctx, currentBuildConf.BuildConfig); err != nil {
 			return nil, err
 		}
 	}
 
 	return currentBuildConf, nil
+}
+
+func (i *impl) TriggerNext(ctx context.Context, currentBuildConf *build.BuildConfig) error {
+	// 避免构建同时触发, 更新时加锁, RunPipeline是 也加有BuildConfId锁，避免死锁
+	m := lock.L().New("trigger_"+currentBuildConf.Meta.Id, 15*time.Second)
+	if err := m.Lock(ctx); err != nil {
+		return exception.NewInternalServerError("lock error, %s", err)
+	}
+	defer m.UnLock(ctx)
+
+	req := trigger.NewQueryRecordRequest()
+	req.AddBuildConfId(currentBuildConf.Meta.Id)
+	req.AddBuildStage(trigger.STAGE_ENQUEUE)
+	req.IsOrderAscend = true
+	req.Page.PageSize = 1
+	nextRS, err := i.QueryRecord(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if len(nextRS.Items) == 0 {
+		i.log.Debug().Msgf("build config %s not found enqueu record", currentBuildConf.Meta.Id)
+		return nil
+	}
+
+	// 获取Record里面 Next需要运行的 BuildConf
+	nextRecord := nextRS.Items[0]
+	nextBuildConf, nextBuildConfIndex := nextRecord.GetBuildStatusByBuildConfId(currentBuildConf.Meta.Id)
+	bs := i.RunBuildConf(ctx, nextRecord.Event, nextBuildConf.BuildConfig)
+	if err := i.UpdateRecordBuildConf(ctx, nextRecord.Event.Id, nextBuildConfIndex, bs); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // 删除执行记录

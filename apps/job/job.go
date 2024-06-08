@@ -11,9 +11,9 @@ import (
 	"unicode"
 
 	"dario.cat/mergo"
+	"github.com/infraboard/mcube/v2/desense"
 	"github.com/infraboard/mcube/v2/ioc/config/log"
 	"github.com/infraboard/mcube/v2/pb/resource"
-	"github.com/infraboard/mcube/v2/tools/sense"
 	"github.com/infraboard/mflow/common/hash"
 	k8sApp "github.com/infraboard/mpaas/apps/k8s"
 	mpaas "github.com/infraboard/mpaas/clients/rpc"
@@ -554,7 +554,7 @@ func (p *RunParam) SetReadOnly(v bool) *RunParam {
 // 值脱敏
 func (p *RunParam) Desense() *RunParam {
 	if p.IsSensitive {
-		p.Value = sense.DeSense(p.Value)
+		p.Value = desense.Default().DeSense(p.Value, "3", "2")
 	}
 	return p
 }

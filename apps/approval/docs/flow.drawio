@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="Z_wyJcOM5yuq69njbxWk" name="第 1 页">
-        <mxGraphModel dx="1355" dy="709" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="1315" dy="720" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -76,6 +76,33 @@
                 </mxCell>
                 <mxCell id="20" value="通知 申请人和审核人 已关闭" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="290" y="800" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" value="版本" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="20" y="980" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="23" value="需求清单" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="20" y="1060" width="120" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="24" value="服务清单" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="20" y="1137" width="120" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="25" value="开发" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="170" y="980" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="26" value="提测" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="330" y="980" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="27" value="预发布" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="480" y="980" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="28" value="发布" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="620" y="980" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="29" value="验证" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="756" y="980" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="30" value="方案确认" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="20" y="1100" width="120" height="30" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>

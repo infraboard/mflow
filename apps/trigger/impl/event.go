@@ -114,7 +114,7 @@ func (i *impl) RunBuildConf(ctx context.Context, in *trigger.Event, buildConf *b
 	i.log.Debug().Msgf("run pipeline req: %s, params: %v", runReq.PipelineId, runReq.RunParamsKVMap())
 	pt, err := i.task.RunPipeline(ctx, runReq)
 	if err != nil {
-		if exception.IsError(err, task.ERR_PIPELINE_IS_RUNNING) {
+		if exception.IsApiException(err, task.ERR_PIPELINE_IS_RUNNING.Code) {
 			bs.Enqueue()
 		} else {
 			i.log.Debug().Msgf("run pipeline error, %s", err)

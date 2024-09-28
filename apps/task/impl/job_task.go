@@ -455,11 +455,11 @@ func (i *impl) WatchJobTaskLog(in *task.WatchJobTaskLogRequest, stream task.JobR
 			return fmt.Errorf("job's pod not found by lable job-name=%s", t.Spec.TaskId)
 		}
 
-		req := workload.NewWatchConainterLogRequest()
+		req := workload.NewWatchContainerLogRequest()
 		req.PodName = pods.Items[0].Name
 		req.Namespace = k8sParams.Namespace
 		req.Container = in.ContainerName
-		r, err := k8sClient.WorkLoad().WatchConainterLog(stream.Context(), req)
+		r, err := k8sClient.WorkLoad().WatchContainerLog(stream.Context(), req)
 		if err != nil {
 			return fmt.Errorf("watch container log error, %s", err)
 		}

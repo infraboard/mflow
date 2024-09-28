@@ -188,7 +188,7 @@ docker run -it  -v ~/.kube/config:/.kube/config bitnami/kubectl get ns
 k8s支持远程访问部署配置, 比如:
 ```
 kubectl apply -f https://k8s.io/examples/controllers/nginx-deployment.yaml
-kubectl apply -f http://localhost:8080/mflow/api/v1/export/deploys/cfrcv8ea0brnte3v3jc0
+kubectl apply -f http://localhost:8080/api/mflow/v1/export/deploys/cfrcv8ea0brnte3v3jc0
 ```
 
 只更新版本

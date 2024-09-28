@@ -282,7 +282,7 @@ func TestDeleteJob(t *testing.T) {
 }
 
 func TestDescribeJob(t *testing.T) {
-	req := job.NewDescribeJobRequestByName("docker_build@default.default")
+	req := job.NewDescribeJobRequestByName("#d98eb61c5d3cc142")
 	ins, err := impl.DescribeJob(ctx, req)
 	if err != nil {
 		t.Fatal(err)

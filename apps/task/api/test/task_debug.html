@@ -32,7 +32,7 @@
             const container_name = inputs['container_name'].value
             const token = inputs['token'].value
 
-            let socket = new WebSocket(`ws://127.0.0.1:8090/mflow/api/v1/tasks/xxxx/debug?mcenter_access_token=${token}`);
+            let socket = new WebSocket(`ws://127.0.0.1:8090/api/mflow/v1/tasks/xxxx/debug?mcenter_access_token=${token}`);
             //心跳检测
             var heartCheck = {
                 timeout: 10000,        //10秒发一次心跳

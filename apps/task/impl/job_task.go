@@ -146,7 +146,7 @@ func (i *impl) GetJotTaskStatus(ctx context.Context, t *task.JobTask) error {
 	}
 
 	ins, err := i.DescribeJobTask(ctx, task.NewDescribeJobTaskRequest(t.Spec.TaskId))
-	if err != nil && exception.IsNotFoundError(err) {
+	if err != nil && !exception.IsNotFoundError(err) {
 		return err
 	}
 	if ins != nil && ins.Status != nil {

@@ -42,7 +42,7 @@
             const container_name = inputs['container_name'].value
             const token = inputs['token'].value
 
-            let socket = new WebSocket(`ws://127.0.0.1:8090/mflow/api/v1/job_tasks/xxxx/log?mcenter_access_token=${token}`);
+            let socket = new WebSocket(`ws://127.0.0.1:8090/api/mflow/v1/job_tasks/xxxx/log?mcenter_access_token=${token}`);
             socket.onopen = function (e) {
                 socket.send(JSON.stringify({ task_id, container_name }));
                 

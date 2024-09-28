@@ -3,7 +3,7 @@ package rest
 func NewDefaultConfig() *Config {
 	return &Config{
 		Address:    "http://127.0.0.1:8080",
-		PathPrefix: "/mflow/api/v1/",
+		PathPrefix: "/api/mflow/v1/",
 	}
 }
 

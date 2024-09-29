@@ -82,6 +82,7 @@ func (h *Handler) Registry() {
 		Metadata(label.Action, label.Create.Value()).
 		Metadata(label.Auth, label.Disable).
 		Metadata(label.Permission, label.Disable))
+
 	ws.Route(ws.POST("mannul").To(h.MannulGitlabEvent).
 		Doc("手动模拟Gitlab Webhook事件").
 		Metadata(restfulspec.KeyOpenAPITags, tags).

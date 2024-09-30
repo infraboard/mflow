@@ -26,11 +26,11 @@ const (
 )
 
 type Service interface {
-	JobService
-	PipelineService
+	JobTaskService
+	PipelineTaskService
 }
 
-type JobService interface {
+type JobTaskService interface {
 	// 执行Job
 	RunJob(context.Context, *pipeline.Task) (*JobTask, error)
 	// 删除任务
@@ -39,6 +39,8 @@ type JobService interface {
 	DebugJobTask(context.Context, *DebugJobTaskRequest)
 	// 审核任务
 	AuditJobTask(context.Context, *AuditJobTaskRequest) (*JobTask, error)
+	// 确认执行结果
+	ConfirmJobTask(context.Context, *ConfirmJobTaskRequest) (*JobTask, error)
 
 	JobRPCServer
 }
@@ -173,7 +175,7 @@ func (s *RunTaskRequest) RuntimeEnvConfigMap(mountPath string) *v1.ConfigMap {
 	return cm
 }
 
-type PipelineService interface {
+type PipelineTaskService interface {
 	PipelineRPCServer
 }
 
@@ -330,4 +332,22 @@ type TaskLogWebsocketTerminal struct {
 func (r *TaskLogWebsocketTerminal) Send(in *JobTaskStreamReponse) (err error) {
 	_, err = r.Write(in.Data)
 	return
+}
+
+func NewConfirmJobTaskRequest(id string) *ConfirmJobTaskRequest {
+	return &ConfirmJobTaskRequest{
+		TaskId: id,
+		Status: pipeline.NewConfirmStatus(),
+	}
+}
+
+func (req *ConfirmJobTaskRequest) Validate() error {
+	switch req.Status.Stage {
+	case pipeline.AUDIT_STAGE_DENY:
+		if req.Status.Comment == "" {
+			return fmt.Errorf("审核失败, 需要填写失败原因")
+		}
+	}
+
+	return nil
 }

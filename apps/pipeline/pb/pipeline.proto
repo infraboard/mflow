@@ -155,6 +155,9 @@ message Task {
 	// 运行时需不需审核
 	// @gotags: bson:"audit" json:"audit"
 	Audit audit = 26;
+	// 允许结束时, 结果需不要确认
+	// @gotags: bson:"confirm" json:"confirm"
+	Confirm confirm = 28;
 	// im群机器人通知
 	// @gotags: bson:"im_robot_notify" json:"im_robot_notify"
 	repeated WebHook im_robot_notify = 27;
@@ -366,6 +369,40 @@ message AuditStatus {
 	// 审核时间
 	// @gotags: bson:"audit_at" json:"audit_at"
 	int64 audit_at = 3;
+	// 审核备注
+	// @gotags: bson:"comment" json:"comment"
+	string comment = 4;
+	// 扩展字段
+	// @gotags: bson:"extension" json:"extension"
+	map<string, string> extension = 15;
+}
+
+// 任务执行结果确认
+message Confirm {
+	// 是否开启执行结果确认
+	// @gotags: bson:"enable" json:"enable"
+	bool enable = 1;
+	// 确认人(user id)
+	// @gotags: bson:"checkers" json:"checkers"
+	repeated string checkers = 2;
+	// Web参数范围
+	// @gotags: bson:"scope" json:"scope"
+	job.ParamScope scope = 4;
+	// 审核状态
+	// @gotags: bson:"status" json:"status"
+	ConfirmStatus status = 3;
+}
+
+message ConfirmStatus {
+	// 状态
+	// @gotags: bson:"stage" json:"stage"
+	AUDIT_STAGE stage = 1;
+	// 确认人
+	// @gotags: bson:"confirm_by" json:"confirm_by"
+	string confirm_by = 2;
+	// 确认时间
+	// @gotags: bson:"confirm_at" json:"confirm_at"
+	int64 confirm_at = 3;
 	// 审核备注
 	// @gotags: bson:"comment" json:"comment"
 	string comment = 4;

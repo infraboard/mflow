@@ -30,7 +30,7 @@ type impl struct {
 	ioc.ObjectImpl
 
 	pipeline pipeline.Service
-	task     task.PipelineService
+	task     task.PipelineTaskService
 	mcenter  *rpc.ClientSet
 }
 

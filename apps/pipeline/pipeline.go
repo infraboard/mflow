@@ -245,6 +245,7 @@ func NewTask(jobName string) *Task {
 		MentionUsers:  []*MentionUser{},
 		ImRobotNotify: []*WebHook{},
 		Audit:         NewAudit(),
+		Confirm:       NewConfirm(),
 		Extension:     map[string]string{},
 		Labels:        map[string]string{},
 	}
@@ -281,9 +282,22 @@ func (r *Task) IsAuditor(auditor string) bool {
 	return false
 }
 
+func (r *Task) IsConfirmChecker(auditor string) bool {
+	for _, aid := range r.Confirm.Checkers {
+		if aid == auditor {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (r *Task) Init() {
 	if r.Audit == nil {
 		r.Audit = NewAudit()
+	}
+	if r.Confirm == nil {
+		r.Confirm = NewConfirm()
 	}
 	if r.Webhooks == nil {
 		r.Webhooks = []*WebHook{}
@@ -573,5 +587,19 @@ func NewAudit() *Audit {
 		Auditors: []string{},
 		Status:   NewAuditStatus(),
 		Scope:    job.NewParamScope(),
+	}
+}
+
+func NewConfirm() *Confirm {
+	return &Confirm{
+		Checkers: []string{},
+		Status:   NewConfirmStatus(),
+		Scope:    job.NewParamScope(),
+	}
+}
+
+func NewConfirmStatus() *ConfirmStatus {
+	return &ConfirmStatus{
+		Extension: map[string]string{},
 	}
 }

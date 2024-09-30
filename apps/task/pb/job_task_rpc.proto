@@ -34,6 +34,15 @@ message AuditJobTaskRequest {
     pipeline.AuditStatus status = 2;
 }
 
+message ConfirmJobTaskRequest {
+	// 任务Id
+	// @gotags: json:"task_id"
+    string task_id = 1;
+	// 审核结果
+	// @gotags: json:"status"
+    pipeline.ConfirmStatus status = 2;
+}
+
 message WatchJobTaskLogRequest {
 	// 任务Id
 	// @gotags: json:"task_id"

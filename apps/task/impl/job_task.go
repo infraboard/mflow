@@ -665,3 +665,51 @@ func (i *impl) AuditJobTask(
 	}
 	return t, nil
 }
+
+// 审核执行结果确认
+func (i *impl) ConfirmJobTask(
+	ctx context.Context,
+	in *task.ConfirmJobTaskRequest) (
+	*task.JobTask, error) {
+	if err := in.Validate(); err != nil {
+		return nil, exception.NewBadRequest("参数校验失败: %s", err.Error())
+	}
+
+	t, err := i.DescribeJobTask(ctx, task.NewDescribeJobTaskRequest(in.TaskId))
+	if err != nil {
+		return nil, err
+	}
+
+	if !t.Spec.Confirm.Enable {
+		return nil, exception.NewBadRequest("任务没有开启执行结果确认")
+	}
+
+	if !t.Spec.IsConfirmChecker(in.Status.ConfirmBy) {
+		return nil, exception.NewBadRequest("你不在确认人名单中, 当前确认人: %v", t.Spec.Confirm.Checkers)
+	}
+
+	if t.IsConfirmCompleted() {
+		return nil, exception.NewBadRequest("该任务已被%s确认", t.Spec.Confirm.Status.ConfirmBy)
+	}
+
+	// 更新任务确认状态
+	t.UpdateConfirmStatus(in.Status)
+
+	// 更新任务状态
+	if err := i.updateJobTaskStatus(ctx, t); err != nil {
+		return nil, err
+	}
+
+	// 如果确认失败则中断执行
+	if t.ConfirmPass() {
+		t.Status.MarkedSuccess()
+	} else {
+		t.Status.MarkedError(fmt.Errorf("确认未通过"))
+	}
+
+	_, err = i.PipelineTaskStatusChanged(ctx, t)
+	if err != nil {
+		i.log.Error().Msgf("流水线状态更新异常: %s", err)
+	}
+	return t, nil
+}

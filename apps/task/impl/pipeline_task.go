@@ -189,6 +189,13 @@ func (i *impl) PipelineTaskStatusChanged(ctx context.Context, in *task.JobTask) 
 	// 更新Pipeline Task 运行时环境变量
 	p.Status.RuntimeEnvs.Merge(in.RuntimeRunParams()...)
 
+	// 任务执行结果确认失败
+	if in.IsConfirmEnabled() && in.IsConfirming() {
+		// 状态确认中
+		i.log.Debug().Msgf("%s 状态确认中", in.Spec.TaskName)
+		return p, nil
+	}
+
 	switch in.Status.Stage {
 	case task.STAGE_PENDDING,
 		task.STAGE_SCHEDULING,

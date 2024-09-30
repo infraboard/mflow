@@ -67,6 +67,18 @@ func (h *JobTaskHandler) RegistryUserHandler() {
 		Reads(task.AuditJobTaskRequest{}).
 		Writes(task.JobTask{}))
 
+	// 内部通过审核人列表判断权限
+	ws.Route(ws.POST("/{id}/confirm").
+		To(h.ConfirmJobTask).
+		Doc("任务执行结果确认").
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Metadata(label.Resource, JOB_TASK_RESOURCE_NAME).
+		Metadata(label.Action, label.Update.Value()).
+		Metadata(label.Auth, label.Enable).
+		Metadata(label.Permission, label.Disable).
+		Reads(task.ConfirmJobTaskRequest{}).
+		Writes(task.JobTask{}))
+
 	// 通过Job自身的Token进行认证
 	ws.Route(ws.POST("/{id}/status").
 		To(h.UpdateJobTaskStatus).
@@ -169,6 +181,25 @@ func (h *JobTaskHandler) AuditJobTask(r *restful.Request, w *restful.Response) {
 	req.Status.AuditAt = time.Now().Unix()
 
 	set, err := h.service.AuditJobTask(r.Request.Context(), req)
+	if err != nil {
+		response.Failed(w, err)
+		return
+	}
+	response.Success(w, set)
+}
+
+func (h *JobTaskHandler) ConfirmJobTask(r *restful.Request, w *restful.Response) {
+	req := task.NewConfirmJobTaskRequest(r.PathParameter("id"))
+	if err := r.ReadEntity(req.Status); err != nil {
+		response.Failed(w, err)
+		return
+	}
+
+	tk := token.GetTokenFromRequest(r)
+	req.Status.ConfirmBy = tk.UserId
+	req.Status.ConfirmAt = time.Now().Unix()
+
+	set, err := h.service.ConfirmJobTask(r.Request.Context(), req)
 	if err != nil {
 		response.Failed(w, err)
 		return

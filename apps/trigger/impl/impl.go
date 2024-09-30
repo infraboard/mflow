@@ -28,7 +28,7 @@ type impl struct {
 	// 构建配置
 	build build.Service
 	// 执行流水线
-	task task.PipelineService
+	task task.PipelineTaskService
 	// mcenter客户端
 	mcenter *rpc.ClientSet
 }

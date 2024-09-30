@@ -11,14 +11,14 @@ import (
 )
 
 type K8sRunner struct {
-	task task.PipelineService
+	task task.PipelineTaskService
 	log  *zerolog.Logger
 
 	mpaas *rpc.ClientSet
 }
 
 func (r *K8sRunner) Init() error {
-	r.task = ioc.Controller().Get(task.AppName).(task.PipelineService)
+	r.task = ioc.Controller().Get(task.AppName).(task.PipelineTaskService)
 	r.log = log.Sub("runner.k8s")
 	return nil
 }

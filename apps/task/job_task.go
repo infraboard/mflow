@@ -335,6 +335,20 @@ func (t *JobTask) AuditPass() bool {
 	return t.IsAuditStatus(pipeline.AUDIT_STAGE_PASS)
 }
 
+func (t *JobTask) ConfirmPass() bool {
+	// 没有开启 直接通过
+	if !t.Spec.Confirm.Enable {
+		return true
+	}
+
+	// 没有审核人 直接通过
+	if len(t.Spec.Confirm.Checkers) == 0 {
+		return true
+	}
+
+	return t.IsConfirmStatus(pipeline.AUDIT_STAGE_PASS)
+}
+
 func (t *JobTask) Init() {
 	t.Spec.Init()
 	if t.Status == nil {
@@ -346,6 +360,10 @@ func (t *JobTask) UpdateAuditStatus(status *pipeline.AuditStatus) {
 	t.Spec.Audit.Status = status
 }
 
+func (t *JobTask) UpdateConfirmStatus(status *pipeline.ConfirmStatus) {
+	t.Spec.Confirm.Status = status
+}
+
 // 兼容空数据
 func (t *JobTask) AuditStatus() pipeline.AUDIT_STAGE {
 	if t.Spec.Audit == nil || t.Spec.Audit.Status == nil {
@@ -354,9 +372,40 @@ func (t *JobTask) AuditStatus() pipeline.AUDIT_STAGE {
 	return t.Spec.Audit.Status.Stage
 }
 
+// 兼容空数据
+func (t *JobTask) ConfirmStatus() pipeline.AUDIT_STAGE {
+	if t.Spec.Confirm == nil || t.Spec.Confirm.Status == nil {
+		return pipeline.AUDIT_STAGE_PENDDING
+	}
+	return t.Spec.Confirm.Status.Stage
+}
+
+// 兼容空数据
+func (t *JobTask) IsConfirmCompleted() bool {
+	return t.ConfirmStatus().IsIn(pipeline.AUDIT_STAGE_PASS, pipeline.AUDIT_STAGE_DENY)
+}
+
+// 兼容空数据
+func (t *JobTask) IsConfirming() bool {
+	return t.ConfirmStatus().IsIn(pipeline.AUDIT_STAGE_PENDDING, pipeline.AUDIT_STAGE_WAITING)
+}
+
+// 兼容空数据
+func (t *JobTask) IsConfirmEnabled() bool {
+	if t.Spec.Confirm == nil {
+		return false
+	}
+	return t.Spec.Confirm.Enable
+}
+
 // 审核状态判断
 func (t *JobTask) IsAuditStatus(stage pipeline.AUDIT_STAGE) bool {
 	return t.AuditStatus().Equal(stage)
+}
+
+// 审核状态判断
+func (t *JobTask) IsConfirmStatus(stage pipeline.AUDIT_STAGE) bool {
+	return t.ConfirmStatus().Equal(stage)
 }
 
 // 审核状态修改
@@ -411,9 +460,15 @@ func (t *JobTaskStatus) MarkedCreating() {
 	t.Stage = STAGE_CREATING
 }
 
-func (t *JobTaskStatus) MarkedSuccess() {
+func (t *JobTaskStatus) MarkedSuccess() *JobTaskStatus {
 	t.Stage = STAGE_SUCCEEDED
 	t.EndAt = time.Now().Unix() + 10
+	return t
+}
+
+func (t *JobTaskStatus) WithMessage(msg string) *JobTaskStatus {
+	t.Message = msg
+	return t
 }
 
 func (t *JobTaskStatus) StartAtFormat() string {

@@ -189,13 +189,6 @@ func (i *impl) PipelineTaskStatusChanged(ctx context.Context, in *task.JobTask) 
 	// 更新Pipeline Task 运行时环境变量
 	p.Status.RuntimeEnvs.Merge(in.RuntimeRunParams()...)
 
-	// 任务执行结果确认失败
-	if in.IsConfirmEnabled() && in.IsConfirming() {
-		// 状态确认中
-		i.log.Debug().Msgf("%s 状态确认中", in.Spec.TaskName)
-		return p, nil
-	}
-
 	switch in.Status.Stage {
 	case task.STAGE_PENDDING,
 		task.STAGE_SCHEDULING,
@@ -209,12 +202,24 @@ func (i *impl) PipelineTaskStatusChanged(ctx context.Context, in *task.JobTask) 
 		p.MarkedCanceled()
 		return p, nil
 	case task.STAGE_FAILED:
+		// 任务执行结果确认失败
+		if in.IsConfirmEnabled() && in.IsConfirming() {
+			// 状态确认中
+			i.log.Debug().Msgf("%s 状态确认中", in.Spec.TaskName)
+			return p, nil
+		}
 		// 任务执行失败, 更新Pipeline状态为失败
 		if !in.Spec.RunParams.IgnoreFailed {
 			p.MarkedFailed(in.Status.MessageToError())
 			return p, nil
 		}
 	case task.STAGE_SUCCEEDED:
+		// 任务执行结果确认失败
+		if in.IsConfirmEnabled() && in.IsConfirming() {
+			// 状态确认中
+			i.log.Debug().Msgf("%s 状态确认中", in.Spec.TaskName)
+			return p, nil
+		}
 		// 任务运行成功, pipeline继续执行
 		i.log.Info().Msgf("task: %s run successed", in.Spec.TaskId)
 	}

@@ -11,6 +11,7 @@ import (
 	"unicode"
 
 	"dario.cat/mergo"
+	"github.com/infraboard/devops/pkg/k8s/workload"
 	"github.com/infraboard/mcube/v2/desense"
 	"github.com/infraboard/mcube/v2/ioc/config/log"
 	"github.com/infraboard/mcube/v2/pb/resource"
@@ -18,7 +19,6 @@ import (
 	k8sApp "github.com/infraboard/mpaas/apps/k8s"
 	mpaas "github.com/infraboard/mpaas/clients/rpc"
 	"github.com/infraboard/mpaas/provider/k8s"
-	"github.com/infraboard/mpaas/provider/k8s/workload"
 	v1 "k8s.io/api/core/v1"
 )
 

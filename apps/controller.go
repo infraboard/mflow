@@ -10,5 +10,5 @@ import (
 	_ "github.com/infraboard/mflow/apps/trigger/impl"
 
 	// 引入第三方存储模块
-	_ "github.com/infraboard/mcube/v2/ioc/apps/oss/mongo"
+	_ "github.com/infraboard/modules/oss"
 )

@@ -1,4 +1,4 @@
-FROM registry.cn-hangzhou.aliyuncs.com/godev/golang:1.22 AS builder
+FROM anjia0532/docker.golang:1.24 AS builder
 
 LABEL stage=gobuilder
 
@@ -17,7 +17,7 @@ RUN go mod download
 COPY . .
 RUN make build
 
-FROM registry.cn-hangzhou.aliyuncs.com/godev/alpine:latest
+FROM anjia0532/docker.alpine:3.21
 
 WORKDIR /app
 EXPOSE 80

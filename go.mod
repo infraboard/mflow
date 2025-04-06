@@ -11,10 +11,10 @@ require (
 	github.com/emicklei/go-restful/v3 v3.12.2
 	github.com/go-openapi/spec v0.21.0
 	github.com/gorilla/websocket v1.5.3
-	github.com/infraboard/mcenter v0.0.45
+	github.com/infraboard/mcenter v0.0.46
 	github.com/infraboard/mcube/v2 v2.0.53
 	github.com/infraboard/modules v0.0.11
-	github.com/infraboard/mpaas v0.0.21
+	github.com/infraboard/mpaas v0.0.22
 	github.com/rs/xid v1.6.0
 	github.com/rs/zerolog v1.34.0
 	github.com/spf13/cobra v1.9.1
